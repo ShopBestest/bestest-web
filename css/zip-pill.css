@@ -19,7 +19,7 @@
   font-family: inherit;
   outline: none;
 }
-.bst-zip-pill:hover { opacity: 0.75; }
+.bst-zip-pill:not(:has(.bst-zip-flyout-open)):hover { opacity: 0.75; }
 .bst-zip-pill:focus-visible { outline: 2px solid #1a6f4a; outline-offset: 2px; }
 .bst-zip-pill svg.bst-zip-pin { width: 11px; height: 11px; flex-shrink: 0; }
 .bst-zip-pill .bst-zip-display { font-variant-numeric: tabular-nums; }
