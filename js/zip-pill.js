@@ -8,9 +8,9 @@
   var IPAPI_URL = 'https://ipapi.co/json/';
   var ZIPPOPOTAMUS_URL = 'https://api.zippopotam.us/us/';
 
-  var PIN_SVG = '<svg class="bst-zip-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
-  var SPINNER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>';
-  var LOCATION_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 10v6m-11-11h6m10 0h6"></path></svg>';
+  var PIN_SVG = '<svg class="bst-zip-pin" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+  var DETECT_PIN_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+  var SPINNER_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>';
 
   function getCurrentZip() { return localStorage.getItem(STORAGE_ZIP) || DEFAULT_ZIP; }
   function isValidZipFormat(z) { return /^\d{5}$/.test(z); }
@@ -80,7 +80,9 @@
     return '<span class="bst-zip-flyout-label">Zip code</span>' +
       '<input type="text" class="bst-zip-input" maxlength="5" inputmode="numeric" value="' + zip + '">' +
       '<div class="bst-zip-error-msg"></div>' +
-      '<button type="button" class="bst-zip-detect">' + LOCATION_SVG + 'Use my location</button>';
+      '<button type="button" class="bst-zip-save">Save</button>' +
+      '<div class="bst-zip-divider"><span>or</span></div>' +
+      '<button type="button" class="bst-zip-detect">' + DETECT_PIN_SVG + 'Use my location</button>';
   }
 
   function wirePill(pill) {
@@ -104,15 +106,30 @@
       pill.appendChild(flyout);
     }
     var input = flyout.querySelector('.bst-zip-input');
+    var saveBtn = flyout.querySelector('.bst-zip-save');
     var detectBtn = flyout.querySelector('.bst-zip-detect');
     var errorMsg = flyout.querySelector('.bst-zip-error-msg');
 
     function showError(msg) { input.classList.add('bst-zip-error'); errorMsg.textContent = msg; }
     function clearError() { input.classList.remove('bst-zip-error'); errorMsg.textContent = ''; }
+    function positionFlyout() {
+      var rect = pill.getBoundingClientRect();
+      var vw = window.innerWidth;
+      var fw = 260;
+      flyout.style.top = (rect.bottom + 6) + 'px';
+      if (rect.left + fw > vw - 16) {
+        flyout.style.left = 'auto';
+        flyout.style.right = Math.max(16, vw - rect.right) + 'px';
+      } else {
+        flyout.style.left = rect.left + 'px';
+        flyout.style.right = 'auto';
+      }
+    }
     function closeFlyout() { flyout.classList.remove('bst-zip-flyout-open'); clearError(); }
     function openFlyout() {
       document.querySelectorAll('.bst-zip-flyout.bst-zip-flyout-open').forEach(function(f) { if (f !== flyout) f.classList.remove('bst-zip-flyout-open'); });
       input.value = getCurrentZip();
+      positionFlyout();
       flyout.classList.add('bst-zip-flyout-open');
       setTimeout(function() { input.focus(); input.select(); }, 50);
     }
@@ -139,15 +156,10 @@
       applyZip(val).then(function() { closeFlyout(); }).catch(function() { showError('Could not find that zip code'); });
     }
 
+    saveBtn.addEventListener('click', function(e) { e.preventDefault(); submitInput(); });
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') { e.preventDefault(); submitInput(); }
       else if (e.key === 'Escape') { closeFlyout(); }
-    });
-    input.addEventListener('blur', function() {
-      setTimeout(function() {
-        if (!flyout.classList.contains('bst-zip-flyout-open')) return;
-        if (input.value.trim() !== getCurrentZip()) submitInput();
-      }, 200);
     });
 
     detectBtn.addEventListener('click', function(e) {
@@ -163,8 +175,15 @@
         .then(function() {
           detectBtn.disabled = false;
           detectBtn.classList.remove('bst-zip-detect-loading');
-          detectBtn.innerHTML = LOCATION_SVG + 'Use my location';
+          detectBtn.innerHTML = DETECT_PIN_SVG + 'Use my location';
         });
+    });
+
+    window.addEventListener('scroll', function() {
+      if (flyout.classList.contains('bst-zip-flyout-open')) positionFlyout();
+    }, true);
+    window.addEventListener('resize', function() {
+      if (flyout.classList.contains('bst-zip-flyout-open')) positionFlyout();
     });
   }
 
