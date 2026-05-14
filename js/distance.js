@@ -1,0 +1,193 @@
+(function () {
+  if (!document.querySelector('.car-card')) return;
+
+  var DEFAULT_ZIP = '92868';
+  var STORAGE_ZIP = 'bst_user_zip';
+  var STORAGE_LATLNG_PREFIX = 'bst_zip_latlng_';
+  var PIN_SVG = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+
+  var userLatLng = null;
+
+  function getUserZip() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var urlZip = params.get('zip');
+      if (urlZip && /^\d{5}$/.test(urlZip)) {
+        localStorage.setItem(STORAGE_ZIP, urlZip);
+        return urlZip;
+      }
+    } catch (e) {}
+    try {
+      var stored = localStorage.getItem(STORAGE_ZIP);
+      if (stored && /^\d{5}$/.test(stored)) return stored;
+    } catch (e) {}
+    return DEFAULT_ZIP;
+  }
+
+  function getCachedLatLng(zip) {
+    try {
+      var raw = localStorage.getItem(STORAGE_LATLNG_PREFIX + zip);
+      if (!raw) return null;
+      var parts = raw.split(',');
+      if (parts.length !== 2) return null;
+      var lat = parseFloat(parts[0]);
+      var lng = parseFloat(parts[1]);
+      if (isNaN(lat) || isNaN(lng)) return null;
+      return { lat: lat, lng: lng };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function cacheLatLng(zip, lat, lng) {
+    try {
+      localStorage.setItem(STORAGE_LATLNG_PREFIX + zip, lat + ',' + lng);
+    } catch (e) {}
+  }
+
+  function fetchLatLng(zip) {
+    return fetch('https://api.zippopotam.us/us/' + zip)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.places || !data.places[0]) return null;
+        var p = data.places[0];
+        var lat = parseFloat(p.latitude);
+        var lng = parseFloat(p.longitude);
+        if (isNaN(lat) || isNaN(lng)) return null;
+        cacheLatLng(zip, lat, lng);
+        return { lat: lat, lng: lng };
+      })
+      .catch(function () { return null; });
+  }
+
+  function resolveUserLatLng() {
+    var zip = getUserZip();
+    var cached = getCachedLatLng(zip);
+    if (cached) {
+      userLatLng = cached;
+      return Promise.resolve(cached);
+    }
+    return fetchLatLng(zip).then(function (result) {
+      if (result) userLatLng = result;
+      return result;
+    });
+  }
+
+  function haversineMiles(lat1, lng1, lat2, lng2) {
+    var R = 3958.8;
+    var toRad = function (deg) { return deg * Math.PI / 180; };
+    var dLat = toRad(lat2 - lat1);
+    var dLng = toRad(lng2 - lng1);
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+          + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))
+          * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function formatDistance(miles) {
+    if (miles < 1.5) return '1 mi away';
+    return Math.round(miles) + ' mi away';
+  }
+
+  function escapeHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function buildRowContent(city, dealerLat, dealerLng) {
+    if (!city) return null;
+    var distanceText = '';
+    if (userLatLng && !isNaN(dealerLat) && !isNaN(dealerLng)) {
+      var miles = haversineMiles(userLatLng.lat, userLatLng.lng, dealerLat, dealerLng);
+      distanceText = ' \u00b7 ' + formatDistance(miles);
+    }
+    return PIN_SVG + '<span>' + escapeHtml(city) + distanceText + '</span>';
+  }
+
+  function decorateCard(card) {
+    var city = card.getAttribute('data-dealer-city');
+    var lat = parseFloat(card.getAttribute('data-dealer-lat'));
+    var lng = parseFloat(card.getAttribute('data-dealer-lng'));
+
+    var existing = card.querySelector('.bst-distance-row');
+    var content = buildRowContent(city, lat, lng);
+
+    if (!content) {
+      if (existing) existing.classList.add('bst-distance-hidden');
+      return;
+    }
+
+    if (existing) {
+      existing.innerHTML = content;
+      existing.classList.remove('bst-distance-hidden');
+      return;
+    }
+
+    var row = document.createElement('div');
+    row.className = 'bst-distance-row';
+    row.innerHTML = content;
+
+    var inner = card.querySelector('.car-listing-name-wrapper');
+    var target = inner || card;
+    target.appendChild(row);
+  }
+
+  function decorateAll() {
+    var cards = document.querySelectorAll('.car-card');
+    for (var i = 0; i < cards.length; i++) decorateCard(cards[i]);
+  }
+
+  function setupObserver() {
+    var grid = document.querySelector('.collection-list-2');
+    if (!grid) return;
+    var observer = new MutationObserver(function (mutations) {
+      var needsDecorate = false;
+      for (var i = 0; i < mutations.length; i++) {
+        if (mutations[i].addedNodes.length > 0) { needsDecorate = true; break; }
+      }
+      if (needsDecorate) decorateAll();
+    });
+    observer.observe(grid, { childList: true });
+  }
+
+  function init() {
+    decorateAll();
+    setupObserver();
+    resolveUserLatLng().then(function () {
+      decorateAll();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    setTimeout(init, 50);
+  }
+
+  window.BestestDistance = {
+    setUserZip: function (zip) {
+      if (!/^\d{5}$/.test(zip)) return false;
+      try { localStorage.setItem(STORAGE_ZIP, zip); } catch (e) {}
+      var cached = getCachedLatLng(zip);
+      if (cached) {
+        userLatLng = cached;
+        decorateAll();
+        return true;
+      }
+      fetchLatLng(zip).then(function (result) {
+        if (result) {
+          userLatLng = result;
+          decorateAll();
+        }
+      });
+      return true;
+    },
+    getUserZip: getUserZip,
+    refresh: decorateAll
+  };
+})();
