@@ -1,5 +1,8 @@
 (function () {
-  if (!document.querySelector('.car-card')) return;
+  // Run on SRP (has cards) OR VDP (has the distance element). Bail otherwise.
+  var hasCards = !!document.querySelector('.car-card');
+  var hasVdpEl = !!document.querySelector('.bst-vdp-distance');
+  if (!hasCards && !hasVdpEl) return;
 
   var DEFAULT_ZIP = '92868';
   var STORAGE_ZIP = 'bst_user_zip';
@@ -109,6 +112,8 @@
     return PIN_SVG + '<span>' + escapeHtml(city) + distanceText + '</span>';
   }
 
+  // ---- SRP card decoration (unchanged) ----
+
   function decorateCard(card) {
     var city = card.getAttribute('data-dealer-city');
     var lat = parseFloat(card.getAttribute('data-dealer-lat'));
@@ -142,6 +147,27 @@
     for (var i = 0; i < cards.length; i++) decorateCard(cards[i]);
   }
 
+  // ---- VDP single-element decoration ----
+
+  function decorateVdp() {
+    var el = document.querySelector('.bst-vdp-distance');
+    if (!el) return;
+
+    var city = el.getAttribute('data-dealer-city');
+    var lat = parseFloat(el.getAttribute('data-dealer-lat'));
+    var lng = parseFloat(el.getAttribute('data-dealer-lng'));
+
+    var content = buildRowContent(city, lat, lng);
+
+    if (!content) {
+      el.classList.add('bst-distance-hidden');
+      return;
+    }
+
+    el.innerHTML = content;
+    el.classList.remove('bst-distance-hidden');
+  }
+
   function setupObserver() {
     var grid = document.querySelector('.collection-list-2');
     if (!grid) return;
@@ -155,11 +181,16 @@
     observer.observe(grid, { childList: true });
   }
 
+  function decorate() {
+    if (hasCards) decorateAll();
+    if (hasVdpEl) decorateVdp();
+  }
+
   function init() {
-    decorateAll();
+    decorate();
     setupObserver();
     resolveUserLatLng().then(function () {
-      decorateAll();
+      decorate();
     });
   }
 
@@ -176,18 +207,18 @@
       var cached = getCachedLatLng(zip);
       if (cached) {
         userLatLng = cached;
-        decorateAll();
+        decorate();
         return true;
       }
       fetchLatLng(zip).then(function (result) {
         if (result) {
           userLatLng = result;
-          decorateAll();
+          decorate();
         }
       });
       return true;
     },
     getUserZip: getUserZip,
-    refresh: decorateAll
+    refresh: decorate
   };
 })();
