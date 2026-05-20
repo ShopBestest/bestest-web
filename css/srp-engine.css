@@ -1,4 +1,5 @@
-.bs-bar { width:100%; padding:8px 0 4px; min-height: 77px; font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif; }
+.bs-bar { width: 100%; padding: 8px 0 4px; min-height: 77px; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; }
+@media (max-width: 600px) { .bs-bar { min-height: 90px; } }
 .bs-progress { position:fixed; top:0; left:0; right:0; height:3px; background:transparent; z-index:99999; pointer-events:none; opacity:0; transition:opacity .25s ease; overflow:hidden; }
 .bs-progress.bs-show { opacity:1; }
 .bs-progress-fill { height:100%; width:0%; background:#31b56b; transition:width .35s cubic-bezier(.25,.46,.45,.94); box-shadow:0 0 8px rgba(49,181,107,.5); }
