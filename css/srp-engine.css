@@ -56,4 +56,5 @@
 .w-dyn-item { min-width:0 !important; display:flex !important; flex-direction:column !important; }
 .w-dyn-item.bs-hidden { display:none !important; }
 .car-card { height:100% !important; box-sizing:border-box !important; min-width:0 !important; cursor:pointer !important; }
+.listing-image { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; height: 100%; background: #f0f0f0; }
 .car-card .w-button { width:100% !important; box-sizing:border-box !important; white-space:normal !important; }
