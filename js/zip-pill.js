@@ -116,13 +116,25 @@
       var rect = pill.getBoundingClientRect();
       var vw = window.innerWidth;
       var fw = 260;
+      var margin = 16;
       flyout.style.top = (rect.bottom + 6) + 'px';
-      if (rect.left + fw > vw - 16) {
+      if (rect.left + fw > vw - margin) {
         flyout.style.left = 'auto';
-        flyout.style.right = Math.max(16, vw - rect.right) + 'px';
+        flyout.style.right = Math.max(margin, vw - rect.right) + 'px';
       } else {
         flyout.style.left = rect.left + 'px';
         flyout.style.right = 'auto';
+      }
+      // Clamp: if either edge ended up off-screen on a narrow viewport
+      // (e.g. mobile with the pill centered), pin the flyout to fit within
+      // [margin, vw - margin] so it never overflows the viewport.
+      var fRect = flyout.getBoundingClientRect();
+      if (fRect.left < margin) {
+        flyout.style.left = margin + 'px';
+        flyout.style.right = 'auto';
+      } else if (fRect.right > vw - margin) {
+        flyout.style.left = 'auto';
+        flyout.style.right = margin + 'px';
       }
     }
     function closeFlyout() { flyout.classList.remove('bst-zip-flyout-open'); clearError(); }
