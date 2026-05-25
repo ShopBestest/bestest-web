@@ -50,16 +50,22 @@ body.bsx-broad .bsx-title { margin: 0; }
   user-select: none;
   transition: all .15s;
   white-space: nowrap;
-  border: 1px solid transparent;
+  background: #fff;
+  border: 1px solid #e5e0d0;
   line-height: 1.3;
 }
-.bsx-chip.bsx-on { background: #1a6f4a; color: #fff; border-color: #1a6f4a; padding-left: 9px; }
-.bsx-chip.bsx-on .bsx-check { font-size: 11px; opacity: .9; display: inline-block; }
-.bsx-chip.bsx-on .bsx-ct { font-size: 11px; opacity: .7; font-weight: 500; }
-.bsx-chip.bsx-off { background: #fff; color: #aaa; border-color: #ebe5cf; opacity: .75; }
-.bsx-chip.bsx-off .bsx-check { display: none; }
-.bsx-chip.bsx-off .bsx-ct { font-size: 11px; color: #8a7c4f; font-weight: 500; }
-.bsx-chip:hover { opacity: .9; }
+/* Checkmark is always visible — signals "Bestest recommended", not filter state.
+   Keeps chip widths stable when toggling filter. */
+.bsx-chip .bsx-check { font-size: 11px; color: #1a6f4a; display: inline-block; }
+.bsx-chip .bsx-ct    { font-size: 11px; font-weight: 500; }
+/* Active (included in current filter, or no filter applied yet) */
+.bsx-chip.bsx-on  { color: #1a1a1a; border-color: #1a6f4a; }
+.bsx-chip.bsx-on .bsx-ct { color: #888; }
+/* Inactive (deselected by user) */
+.bsx-chip.bsx-off { color: #aaa; border-color: #e5e0d0; }
+.bsx-chip.bsx-off .bsx-ct { color: #aaa; }
+.bsx-chip.bsx-off .bsx-check { opacity: 0.55; }
+.bsx-chip:hover         { opacity: .9; }
 .bsx-chip.bsx-off:hover { opacity: 1; }
 
 .bsx-pills-row { display: flex; align-items: center; gap: 12px; }
