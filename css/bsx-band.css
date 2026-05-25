@@ -163,6 +163,18 @@ body.bsx-broad .bsx-title { margin: 0; }
   body.bsx-active .srp-intro.bsx-rm-expanded { -webkit-line-clamp: unset; overflow: visible; }
   body.bsx-active .srp-intro .bsx-readmore-toggle.bsx-rm-visible { display: inline; }
   body.bsx-active .srp-intro.bsx-rm-expanded .bsx-readmore-toggle { display: none; }
+  /* Narrower right-edge fade so the trailing chip isn't aggressively cut off. */
+  .bsx-chips {
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 14px), transparent);
+    mask-image: linear-gradient(to right, black calc(100% - 14px), transparent);
+  }
+  /* Tighter left/right padding on the band. The bsx-broad/bsx-active block
+     below uses !important at 24px, so we re-override here for mobile. */
+  body.bsx-broad .content-wrapper > .bsx-band,
+  body.bsx-active .content-wrapper > .bsx-band {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
 }
 
 body.bsx-broad .content-wrapper > .bsx-band,
