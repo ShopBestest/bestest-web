@@ -264,12 +264,18 @@
     var state = window.Bestest.state;
     var allOn = !state.model.length;
     if (allOn) {
-      state.model = allModels.map(function(m) { return m.name; }).filter(function(n) { return n !== modelName; });
+      // From "all on" (no filter): first click isolates to just the clicked
+      // model rather than excluding it. Matches the conventional faceted-filter
+      // mental model (Amazon, KBB, etc.) — a chip = "include this".
+      state.model = [modelName];
     } else {
       var idx = state.model.indexOf(modelName);
       if (idx === -1) state.model.push(modelName);
       else state.model.splice(idx, 1);
-      if (state.model.length === allModels.length) state.model = [];
+      // Empty list (deselected the last one) OR everything reselected → back to all-on.
+      if (!state.model.length || state.model.length === allModels.length) {
+        state.model = [];
+      }
     }
     window.Bestest.applyFilters();
     renderChips();
