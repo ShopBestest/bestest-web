@@ -163,10 +163,11 @@ body.bsx-broad .bsx-title { margin: 0; }
   body.bsx-active .srp-intro.bsx-rm-expanded { -webkit-line-clamp: unset; overflow: visible; }
   body.bsx-active .srp-intro .bsx-readmore-toggle.bsx-rm-visible { display: inline; }
   body.bsx-active .srp-intro.bsx-rm-expanded .bsx-readmore-toggle { display: none; }
-  /* Narrower right-edge fade so the trailing chip isn't aggressively cut off. */
+  /* Right-edge fade: feather over 24px and end at 35% alpha (not full
+     transparent) so the trailing chip stays readable but signals "more". */
   .bsx-chips {
-    -webkit-mask-image: linear-gradient(to right, black calc(100% - 14px), transparent);
-    mask-image: linear-gradient(to right, black calc(100% - 14px), transparent);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), rgba(0,0,0,0.35));
+    mask-image: linear-gradient(to right, black calc(100% - 24px), rgba(0,0,0,0.35));
   }
 }
 
