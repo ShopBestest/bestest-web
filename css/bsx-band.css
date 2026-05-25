@@ -168,13 +168,6 @@ body.bsx-broad .bsx-title { margin: 0; }
     -webkit-mask-image: linear-gradient(to right, black calc(100% - 14px), transparent);
     mask-image: linear-gradient(to right, black calc(100% - 14px), transparent);
   }
-  /* Tighter left/right padding on the band. The bsx-broad/bsx-active block
-     below uses !important at 24px, so we re-override here for mobile. */
-  body.bsx-broad .content-wrapper > .bsx-band,
-  body.bsx-active .content-wrapper > .bsx-band {
-    padding-left: 14px !important;
-    padding-right: 14px !important;
-  }
 }
 
 body.bsx-broad .content-wrapper > .bsx-band,
@@ -200,4 +193,13 @@ body.bsx-active .content-wrapper > .bsx-band > .bsx-band-inner {
 
 @media (max-width: 720px) {
   body.bsx-active .srp-intro { display: none !important; }
+  /* Tighter band padding on mobile. Must come AFTER the bsx-broad/bsx-active
+     padding-left: 24px !important block above; CSS resolves equal-specificity
+     !important conflicts by source order, so this needs to be the LAST rule
+     touching .bsx-band padding in the file. */
+  body.bsx-broad .content-wrapper > .bsx-band,
+  body.bsx-active .content-wrapper > .bsx-band {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
 }
