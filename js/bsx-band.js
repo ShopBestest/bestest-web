@@ -17,15 +17,16 @@
       { name: 'Compact/Midsize Truck', url: '/used-cars/best-used-midsize-trucks',   filterValue: 'Compact/Midsize Truck', examples: 'Toyota Tacoma, Ford Maverick, Honda Ridgeline, Chevrolet Colorado, GMC Canyon…' },
       { name: 'Full-size Truck',       url: '/used-cars/best-used-full-size-trucks', filterValue: 'Full-Size Truck',       examples: 'Ford F-150, Chevrolet Silverado, Toyota Tundra, Ram 1500, GMC Sierra…' }
     ],
-    // displayName overrides the auto-pluralized name in both the picker item and the band title.
-    // When present, the band also skips the "The Best Used" prefix (e.g. "Enthusiast Cars" rather than
-    // "The Best Used Enthusiast Cars"). Filter value stays "Fun Cars" to match MM Market Segment,
-    // window.BS_SEGMENT, and the Webflow `market_segment != Fun Cars` filter.
+    // displayName overrides the auto-pluralized name in the picker and the band title.
+    // hideChips suppresses the per-model chip row on that segment's SRP (useful when the
+    // model set is so long-tailed that chips become noise — Enthusiast Cars).
+    // Filter value stays "Fun Cars" to match MM Market Segment, window.BS_SEGMENT, and
+    // the Webflow `market_segment != Fun Cars` filter.
     // Positioned before Luxury so the Specialty options get maximum visibility.
     'Specialty': [
       { name: 'Minivan',           url: '/used-cars/best-used-minivans',          filterValue: 'Minivan',           examples: 'Toyota Sienna, Honda Odyssey, Kia Carnival' },
       { name: 'Electric Vehicles', url: '/used-cars/best-used-electric-vehicles', filterValue: 'Electric Vehicles', examples: 'Tesla Model Y, BMW iX, Porsche Taycan, Mercedes-Benz EQB, Toyota bZ4X…' },
-      { name: 'Fun Cars', displayName: 'Enthusiast Cars', url: '/used-cars/fun-cars', filterValue: 'Fun Cars', examples: 'Mustang, Wrangler, GTI, 911, M3, Type R…' }
+      { name: 'Fun Cars', displayName: 'Enthusiast Cars', hideChips: true, url: '/used-cars/fun-cars', filterValue: 'Fun Cars', examples: 'Mustang, Wrangler, GTI, 911, M3, Type R…' }
     ],
     'Luxury SUVs': [
       { name: 'Luxury Subcompact SUV', url: '/used-cars/best-used-luxury-subcompact-suvs', filterValue: 'Luxury Subcompact SUV', examples: 'BMW X1, Mercedes-Benz GLA and GLB, Audi Q3, Lexus UX, Cadillac XT4…' },
@@ -84,19 +85,16 @@
     band.id = 'bsx-band';
 
     if (MODE === 'segment') {
-      // Segments with a displayName (e.g. "The Fun Stuff") suppress the
-      // "The Best Used" prefix — it doesn't fit branded segment names.
-      var titlePrefix = ACTIVE.displayName ? '' : '<span class="bsx-prefix">The Best Used</span> ';
       band.innerHTML =
         '<div class="bsx-band-inner">' +
           '<p class="bsx-title">' +
-            titlePrefix +
+            '<span class="bsx-prefix">The Best Used</span> ' +
             '<span class="bsx-seglink" id="bsx-seglink">' +
               '<span class="bsx-seglink-text">' + ACTIVE_PLURAL + '</span>' +
               '<svg class="bsx-seglink-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
             '</span>' +
           '</p>' +
-          '<div class="bsx-chips" id="bsx-chips"></div>' +
+          (ACTIVE.hideChips ? '' : '<div class="bsx-chips" id="bsx-chips"></div>') +
         '</div>';
     } else {
       band.innerHTML =
@@ -350,7 +348,7 @@
     }
     wirePickerHandlers();
     setupReadMore();
-    if (MODE === 'segment') {
+    if (MODE === 'segment' && !(ACTIVE && ACTIVE.hideChips)) {
       window.Bestest.onReady(function() { renderChips(); });
     }
     window.addEventListener('scroll', checkSticky, { passive: true });
