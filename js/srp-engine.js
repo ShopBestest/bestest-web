@@ -33,9 +33,9 @@
     {label:'Electric',items:[{v:'Electric Vehicles',eg:'Tesla Model Y, BMW iX, Porsche Taycan\u2026'}]},
     {label:'Luxury SUVs',items:[{v:'Luxury Subcompact SUV',eg:'BMW X1, Mercedes GLA, Audi Q3\u2026'},{v:'Luxury Compact SUV',eg:'BMW X3, Mercedes GLC, Genesis GV70\u2026'},{v:'Luxury Midsize SUV',eg:'Lexus RX, Audi Q7, BMW X5\u2026'},{v:'Luxury Full-Size SUV',eg:'Cadillac Escalade, Lincoln Navigator, BMW X7\u2026'}]},
     {label:'Luxury Cars',items:[{v:'Luxury Small Car',eg:'Audi A4, BMW 3 Series, Mercedes C-Class\u2026'},{v:'Luxury Midsize Car',eg:'Mercedes E-Class, Audi A6, BMW 5 Series\u2026'},{v:'Luxury Full-Size Car',eg:'BMW 7 Series, Mercedes S-Class, Lexus LS\u2026'}]},
-    {label:'Fun',items:[{v:'Fun Cars',eg:'Porsche 911, Mazda MX-5 Miata, Jeep Wrangler\u2026'}]}
+    {label:'The Fun Stuff',items:[{v:'Fun Cars',label:'The Fun Stuff',eg:'Mustang, Wrangler, GTI, 911, M3, Type R\u2026'}]}
   ];
-  var SEGMENT_OPTS=(function(){var out=[];SEGMENT_GROUPS.forEach(function(g){g.items.forEach(function(i){out.push({v:i.v,eg:i.eg});});});return out;})();
+  var SEGMENT_OPTS=(function(){var out=[];SEGMENT_GROUPS.forEach(function(g){g.items.forEach(function(i){var o={v:i.v,eg:i.eg};if(i.label)o.label=i.label;out.push(o);});});return out;})();
   // Main /used-cars + segment SRP filter config
   var MAIN_MAKES=[{v:'Acura'},{v:'Audi'},{v:'BMW'},{v:'Cadillac'},{v:'Chevrolet'},{v:'Ford'},{v:'GMC'},{v:'Genesis'},{v:'Honda'},{v:'Hyundai'},{v:'Infiniti'},{v:'Jeep'},{v:'Kia'},{v:'Lexus'},{v:'Lincoln'},{v:'Mazda'},{v:'Mercedes-Benz'},{v:'Nissan'},{v:'Porsche'},{v:'Ram'},{v:'Subaru'},{v:'Tesla'},{v:'Toyota'},{v:'Volvo'}];
   // Body-style label "Car" (formerly "Sedan") lumps sedans + hatchbacks + coupes + convertibles + targas on main pages.
