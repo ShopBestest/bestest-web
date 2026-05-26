@@ -33,6 +33,11 @@
       { name: 'Luxury Small Car',     url: '/used-cars/best-used-luxury-small-cars',     filterValue: 'Luxury Small Car',     examples: 'Audi A3 and A4, BMW 3 Series, Mercedes-Benz C-Class, Acura Integra…' },
       { name: 'Luxury Midsize Car',   url: '/used-cars/best-used-luxury-midsize-cars',   filterValue: 'Luxury Midsize Car',   examples: 'Mercedes-Benz E-Class, Audi A6, BMW 5 Series, Lexus ES, Genesis G80…' },
       { name: 'Luxury Full-size Car', url: '/used-cars/best-used-luxury-full-size-cars', filterValue: 'Luxury Full-Size Car', examples: 'BMW 7 Series, Mercedes-Benz S-Class, Porsche Panamera, Lexus LS, Genesis G90…' }
+    ],
+    // displayName overrides the auto-pluralized name in both the picker item and the band title.
+    // When present, the band also skips the "The Best Used" prefix (which doesn't fit "The Fun Stuff").
+    'The Fun Stuff': [
+      { name: 'Fun Cars', displayName: 'The Fun Stuff', url: '/used-cars/fun-cars', filterValue: 'Fun Cars', examples: 'Mustang, Wrangler, GTI, 911, M3, Type R…' }
     ]
   };
 
@@ -63,7 +68,8 @@
   if (MODE === 'segment') {
     ACTIVE = findActiveSegment();
     if (!ACTIVE) return;
-    ACTIVE_PLURAL = plural(ACTIVE.name);
+    // displayName, when present, replaces the auto-pluralized name verbatim.
+    ACTIVE_PLURAL = ACTIVE.displayName || plural(ACTIVE.name);
   }
 
   document.body.classList.add('bsx-active');
@@ -79,10 +85,13 @@
     band.id = 'bsx-band';
 
     if (MODE === 'segment') {
+      // Segments with a displayName (e.g. "The Fun Stuff") suppress the
+      // "The Best Used" prefix — it doesn't fit branded segment names.
+      var titlePrefix = ACTIVE.displayName ? '' : '<span class="bsx-prefix">The Best Used</span> ';
       band.innerHTML =
         '<div class="bsx-band-inner">' +
           '<p class="bsx-title">' +
-            '<span class="bsx-prefix">The Best Used</span> ' +
+            titlePrefix +
             '<span class="bsx-seglink" id="bsx-seglink">' +
               '<span class="bsx-seglink-text">' + ACTIVE_PLURAL + '</span>' +
               '<svg class="bsx-seglink-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
@@ -159,9 +168,10 @@
       html += '<p class="bsx-pgrouplabel">' + groupName + '</p>';
       SEGMENT_GROUPS[groupName].forEach(function(s) {
         var cls = (MODE === 'segment' && s.filterValue === window.BS_SEGMENT) ? 'bsx-pactive' : '';
+        var label = s.displayName || plural(s.name);
         html += '<a class="bsx-pitem ' + cls + '" href="' + s.url + '">' +
           '<div class="bsx-ptext">' +
-            '<p class="bsx-pname">' + plural(s.name) + '</p>' +
+            '<p class="bsx-pname">' + label + '</p>' +
             '<p class="bsx-peg">' + s.examples + '</p>' +
           '</div>' +
           '<span class="bsx-parrow">→</span>' +
