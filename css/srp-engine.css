@@ -27,6 +27,7 @@
 .bs-opt { display:flex; align-items:flex-start; gap:7px; font-size:13px; color:#1a1a1a; cursor:pointer; padding:3px 0; line-height:1.4; break-inside:avoid; -webkit-column-break-inside:avoid; }
 .bs-opt input { width:14px; height:14px; cursor:pointer; flex-shrink:0; margin-top:2px; accent-color:#1a1a1a; }
 .bs-opt.bs-disabled { opacity:.35; cursor:not-allowed; pointer-events:none; }
+.bs-opt.bs-hidden { display:none; }
 .bs-eg { font-size:11px; color:#aaa; display:block; }
 .bs-model-group, .bs-seg-group { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#888; padding:8px 0 4px; border-bottom:1px solid #f0f0f0; margin-bottom:2px; }
 .bs-model-group:first-child, .bs-seg-group:first-child { padding-top:0; }

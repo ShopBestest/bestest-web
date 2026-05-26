@@ -48,14 +48,19 @@
 
   var FILTERS=[];
   FILTERS.push({key:'segment',label:'Segment',col:1,opts:SEGMENT_OPTS});
+  // hideEmpty: true on a filter hides options with zero matches in the current
+  // (post-filter) inventory rather than just greying them out. Reserved for
+  // inventory-derived dimensions (make/model/body/year) where editorial taxonomy
+  // doesn't matter. Range filters (price/miles) and fixed taxonomies
+  // (powertrain/segment) keep the existing grey-out behavior.
   FILTERS.push(
-    {key:'make',label:'Make',col:2,opts:IS_FUN_CARS?FUN_MAKES:MAIN_MAKES},
-    {key:'model',label:'Model',col:2,dynamic:true,opts:[]},
-    {key:'body_style',label:'Body Style',col:1,dataKey:'body_type',opts:IS_FUN_CARS?FUN_BODY:MAIN_BODY},
+    {key:'make',label:'Make',col:2,opts:IS_FUN_CARS?FUN_MAKES:MAIN_MAKES,hideEmpty:true},
+    {key:'model',label:'Model',col:2,dynamic:true,opts:[],hideEmpty:true},
+    {key:'body_style',label:'Body Style',col:1,dataKey:'body_type',opts:IS_FUN_CARS?FUN_BODY:MAIN_BODY,hideEmpty:true},
     {key:'powertrain',label:'Powertrain',col:1,opts:[{v:'HEV',label:'Hybrid'},{v:'PHEV',label:'Plug-in Hybrid'},{v:'BEV',label:'Electric'}]},
     {key:'price',label:'Price',col:1,range:true,opts:[{v:'10000-20000',label:'$10k \u2013 $20k'},{v:'20000-30000',label:'$20k \u2013 $30k'},{v:'30000-40000',label:'$30k \u2013 $40k'},{v:'40000-50000',label:'$40k \u2013 $50k'},{v:'50000-999999',label:'$50k+'}]},
     {key:'miles',label:'Mileage',col:1,range:true,opts:[{v:'0-20000',label:'Under 20k'},{v:'20000-30000',label:'20k \u2013 30k'},{v:'30000-40000',label:'30k \u2013 40k'},{v:'40000-50000',label:'40k \u2013 50k'}]},
-    {key:'year',label:'Year',col:1,opts:[{v:'2024'},{v:'2023'},{v:'2022'},{v:'2021'}]}
+    {key:'year',label:'Year',col:1,opts:[{v:'2024'},{v:'2023'},{v:'2022'},{v:'2021'}],hideEmpty:true}
   );
   var MODELS_BY_MAKE=IS_FUN_CARS?FUN_MODELS_BY_MAKE:MAIN_MODELS_BY_MAKE;
   var ALL_MODELS=(function(){var seen={};Object.keys(MODELS_BY_MAKE).forEach(function(make){MODELS_BY_MAKE[make].forEach(function(model){seen[model]=true;});});return Object.keys(seen);})();
@@ -138,7 +143,10 @@
   function buildHTML(){
     var pillsHTML=FILTERS.map(function(f){
       if(EDITORIAL_OWNS_SEGMENT&&f.key==='segment')return '';
-      if(IS_SRP&&(f.key==='make'||f.key==='model'||f.key==='body_style'))return '';
+      // Segment SRPs use the chip row for model filtering, so make/model/body
+      // pills are hidden there. Fun Cars / Enthusiast Cars is the exception:
+      // chips are suppressed (too long-tail) so the pills come back.
+      if(IS_SRP&&!IS_FUN_CARS&&(f.key==='make'||f.key==='model'||f.key==='body_style'))return '';
       var optsHTML=f.opts.map(function(o){
         var lbl=o.label||o.v;
         var eg=o.eg?'<span class="bs-eg">e.g. '+o.eg+'</span>':'';
@@ -229,7 +237,7 @@
     });
     optsContainer.innerHTML=html;
   }
-  function updateDropdownAvailability(filterKey){if(filterKey==='sort')return;if(IS_SRP&&filterKey==='segment')return;var availability=computeAvailability(filterKey);var drop=document.getElementById('bsd-'+filterKey);if(!drop)return;drop.querySelectorAll('.bs-opt').forEach(function(label){var cb=label.querySelector('input');if(!cb)return;var val=cb.value;var available=availability[val];if(cb.checked||available)label.classList.remove('bs-disabled'); else label.classList.add('bs-disabled');});}
+  function updateDropdownAvailability(filterKey){if(filterKey==='sort')return;if(IS_SRP&&filterKey==='segment')return;var availability=computeAvailability(filterKey);var drop=document.getElementById('bsd-'+filterKey);if(!drop)return;var filter=getFilterByKey(filterKey);var hideEmpty=filter&&filter.hideEmpty;drop.querySelectorAll('.bs-opt').forEach(function(label){var cb=label.querySelector('input');if(!cb)return;var val=cb.value;var available=availability[val];var show=cb.checked||available;if(hideEmpty){if(show){label.classList.remove('bs-hidden');label.classList.remove('bs-disabled');}else{label.classList.add('bs-hidden');}}else{if(show)label.classList.remove('bs-disabled');else label.classList.add('bs-disabled');}});}
   function ensureProgressEl(){var el=document.getElementById('bs-progress');if(el)return el;el=document.createElement('div');el.id='bs-progress';el.className='bs-progress'+(IS_SRP?' bs-indeterminate':'');el.innerHTML='<div class="bs-progress-fill" id="bs-progress-fill"></div>';document.body.appendChild(el);return el;}
   function showProgress(){var el=ensureProgressEl();el.offsetHeight;el.classList.add('bs-show');if(!IS_SRP)setProgress(0);}
   function setProgress(pct){if(IS_SRP)return;var fill=document.getElementById('bs-progress-fill');if(!fill)return;var clamped=Math.max(5,Math.min(100,pct));fill.style.width=clamped+'%';}
