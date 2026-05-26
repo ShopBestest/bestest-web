@@ -185,7 +185,13 @@
     var picker = document.getElementById('bsx-picker');
     pickerAnchor = anchor;
     var rect = anchor.getBoundingClientRect();
-    picker.style.top = (rect.bottom + 6) + 'px';
+    var topOffset = rect.bottom + 6;
+    picker.style.top = topOffset + 'px';
+    // Cap picker height to viewport space minus a bottom buffer so it never
+    // runs all the way to the bottom of the page. 24px breathing room below.
+    // Min 200px so a short remaining viewport still shows useful content.
+    var availableHeight = window.innerHeight - topOffset - 24;
+    picker.style.maxHeight = Math.max(availableHeight, 200) + 'px';
     var vw = window.innerWidth;
     if (rect.left + 380 + 16 > vw) {
       picker.style.left = 'auto';
