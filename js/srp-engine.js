@@ -29,9 +29,9 @@
     {label:'SUVs',items:[{v:'Subcompact SUV',eg:'Honda HR-V, Mazda CX-30, Hyundai Kona\u2026'},{v:'Compact SUV',eg:'Toyota RAV4, Honda CR-V, Mazda CX-5\u2026'},{v:'Midsize SUV',eg:'Honda Pilot, Toyota Highlander, Kia Telluride\u2026'},{v:'Full-Size SUV',eg:'Chevy Tahoe, Ford Expedition, Toyota Sequoia\u2026'}]},
     {label:'Cars',items:[{v:'Compact Car',eg:'Toyota Corolla, Honda Civic, Mazda3\u2026'},{v:'Midsize/Full-size Car',eg:'Honda Accord, Toyota Camry, Kia K5\u2026'}]},
     {label:'Trucks',items:[{v:'Compact/Midsize Truck',eg:'Toyota Tacoma, Ford Maverick, Honda Ridgeline\u2026'},{v:'Full-Size Truck',eg:'Ford F-150, Chevy Silverado, Toyota Tundra\u2026'}]},
+    {label:'Specialty',items:[{v:'Minivan',eg:'Toyota Sienna, Honda Odyssey, Kia Carnival'},{v:'Electric Vehicles',eg:'Tesla Model Y, BMW iX, Porsche Taycan\u2026'},{v:'Fun Cars',label:'Enthusiast Cars',eg:'Mustang, Wrangler, GTI, 911, M3, Type R\u2026'}]},
     {label:'Luxury SUVs',items:[{v:'Luxury Subcompact SUV',eg:'BMW X1, Mercedes GLA, Audi Q3\u2026'},{v:'Luxury Compact SUV',eg:'BMW X3, Mercedes GLC, Genesis GV70\u2026'},{v:'Luxury Midsize SUV',eg:'Lexus RX, Audi Q7, BMW X5\u2026'},{v:'Luxury Full-Size SUV',eg:'Cadillac Escalade, Lincoln Navigator, BMW X7\u2026'}]},
-    {label:'Luxury Cars',items:[{v:'Luxury Small Car',eg:'Audi A4, BMW 3 Series, Mercedes C-Class\u2026'},{v:'Luxury Midsize Car',eg:'Mercedes E-Class, Audi A6, BMW 5 Series\u2026'},{v:'Luxury Full-Size Car',eg:'BMW 7 Series, Mercedes S-Class, Lexus LS\u2026'}]},
-    {label:'Specialty',items:[{v:'Minivan',eg:'Toyota Sienna, Honda Odyssey, Kia Carnival'},{v:'Electric Vehicles',eg:'Tesla Model Y, BMW iX, Porsche Taycan\u2026'},{v:'Fun Cars',label:'Enthusiast Cars',eg:'Mustang, Wrangler, GTI, 911, M3, Type R\u2026'}]}
+    {label:'Luxury Cars',items:[{v:'Luxury Small Car',eg:'Audi A4, BMW 3 Series, Mercedes C-Class\u2026'},{v:'Luxury Midsize Car',eg:'Mercedes E-Class, Audi A6, BMW 5 Series\u2026'},{v:'Luxury Full-Size Car',eg:'BMW 7 Series, Mercedes S-Class, Lexus LS\u2026'}]}
   ];
   var SEGMENT_OPTS=(function(){var out=[];SEGMENT_GROUPS.forEach(function(g){g.items.forEach(function(i){var o={v:i.v,eg:i.eg};if(i.label)o.label=i.label;out.push(o);});});return out;})();
   // Main /used-cars + segment SRP filter config

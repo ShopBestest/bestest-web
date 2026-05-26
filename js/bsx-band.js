@@ -17,6 +17,16 @@
       { name: 'Compact/Midsize Truck', url: '/used-cars/best-used-midsize-trucks',   filterValue: 'Compact/Midsize Truck', examples: 'Toyota Tacoma, Ford Maverick, Honda Ridgeline, Chevrolet Colorado, GMC Canyon…' },
       { name: 'Full-size Truck',       url: '/used-cars/best-used-full-size-trucks', filterValue: 'Full-Size Truck',       examples: 'Ford F-150, Chevrolet Silverado, Toyota Tundra, Ram 1500, GMC Sierra…' }
     ],
+    // displayName overrides the auto-pluralized name in both the picker item and the band title.
+    // When present, the band also skips the "The Best Used" prefix (e.g. "Enthusiast Cars" rather than
+    // "The Best Used Enthusiast Cars"). Filter value stays "Fun Cars" to match MM Market Segment,
+    // window.BS_SEGMENT, and the Webflow `market_segment != Fun Cars` filter.
+    // Positioned before Luxury so the Specialty options get maximum visibility.
+    'Specialty': [
+      { name: 'Minivan',           url: '/used-cars/best-used-minivans',          filterValue: 'Minivan',           examples: 'Toyota Sienna, Honda Odyssey, Kia Carnival' },
+      { name: 'Electric Vehicles', url: '/used-cars/best-used-electric-vehicles', filterValue: 'Electric Vehicles', examples: 'Tesla Model Y, BMW iX, Porsche Taycan, Mercedes-Benz EQB, Toyota bZ4X…' },
+      { name: 'Fun Cars', displayName: 'Enthusiast Cars', url: '/used-cars/fun-cars', filterValue: 'Fun Cars', examples: 'Mustang, Wrangler, GTI, 911, M3, Type R…' }
+    ],
     'Luxury SUVs': [
       { name: 'Luxury Subcompact SUV', url: '/used-cars/best-used-luxury-subcompact-suvs', filterValue: 'Luxury Subcompact SUV', examples: 'BMW X1, Mercedes-Benz GLA and GLB, Audi Q3, Lexus UX, Cadillac XT4…' },
       { name: 'Luxury Compact SUV',    url: '/used-cars/best-used-luxury-compact-suvs',    filterValue: 'Luxury Compact SUV',    examples: 'BMW X3, Mercedes-Benz GLC, Genesis GV70, Lexus NX, Acura RDX…' },
@@ -27,15 +37,6 @@
       { name: 'Luxury Small Car',     url: '/used-cars/best-used-luxury-small-cars',     filterValue: 'Luxury Small Car',     examples: 'Audi A3 and A4, BMW 3 Series, Mercedes-Benz C-Class, Acura Integra…' },
       { name: 'Luxury Midsize Car',   url: '/used-cars/best-used-luxury-midsize-cars',   filterValue: 'Luxury Midsize Car',   examples: 'Mercedes-Benz E-Class, Audi A6, BMW 5 Series, Lexus ES, Genesis G80…' },
       { name: 'Luxury Full-size Car', url: '/used-cars/best-used-luxury-full-size-cars', filterValue: 'Luxury Full-Size Car', examples: 'BMW 7 Series, Mercedes-Benz S-Class, Porsche Panamera, Lexus LS, Genesis G90…' }
-    ],
-    // displayName overrides the auto-pluralized name in both the picker item and the band title.
-    // When present, the band also skips the "The Best Used" prefix (e.g. "Enthusiast Cars" rather than
-    // "The Best Used Enthusiast Cars"). Filter value stays "Fun Cars" to match MM Market Segment,
-    // window.BS_SEGMENT, and the Webflow `market_segment != Fun Cars` filter.
-    'Specialty': [
-      { name: 'Minivan',           url: '/used-cars/best-used-minivans',          filterValue: 'Minivan',           examples: 'Toyota Sienna, Honda Odyssey, Kia Carnival' },
-      { name: 'Electric Vehicles', url: '/used-cars/best-used-electric-vehicles', filterValue: 'Electric Vehicles', examples: 'Tesla Model Y, BMW iX, Porsche Taycan, Mercedes-Benz EQB, Toyota bZ4X…' },
-      { name: 'Fun Cars', displayName: 'Enthusiast Cars', url: '/used-cars/fun-cars', filterValue: 'Fun Cars', examples: 'Mustang, Wrangler, GTI, 911, M3, Type R…' }
     ]
   };
 
