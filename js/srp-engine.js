@@ -22,7 +22,7 @@
     function scheduleIdle(fn){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:3000});else setTimeout(fn,500);}
     if(document.readyState==='complete')scheduleIdle(prewarm); else window.addEventListener('load',function(){scheduleIdle(prewarm);});
   }
-  var PER_PAGE=48, MOBILE_PER_PAGE=PER_PAGE, BATCH_SIZE=8, totalInventoryCount=1500, CACHE_KEY=BROAD_CACHE_KEY, BROAD_USED_CARS_PATH='/used-cars';
+  var PER_PAGE=24, MOBILE_PER_PAGE=PER_PAGE, BATCH_SIZE=8, totalInventoryCount=1500, CACHE_KEY=BROAD_CACHE_KEY, BROAD_USED_CARS_PATH='/used-cars';
   var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs'};
   var state={make:[],model:[],segment:[],body_style:[],powertrain:[],price:[],miles:[],year:[],page:1,shown:MOBILE_PER_PAGE};
   var sortKey='', allItems=[], filtered=[], bsLock=false, loadComplete=false, fullLoadStarted=false, fullLoadDone=false, pendingFilterClick=false, hasActiveQuery=false, urlSyncReady=false;
@@ -300,7 +300,7 @@
     if(!dynList)return;
     if(document.getElementById('bs-bar'))return;
     resolveModeFromWindow();
-    PER_PAGE=48;MOBILE_PER_PAGE=PER_PAGE;
+    PER_PAGE=24;MOBILE_PER_PAGE=PER_PAGE;
     CACHE_KEY=IS_SRP?'bestest_segment_cache_'+CACHE_VERSION+'_'+NATIVE_SEGMENT:BROAD_CACHE_KEY;
     state.shown=MOBILE_PER_PAGE;
     readURLParams();
@@ -334,6 +334,9 @@
     if(mobile)visible=filtered.slice(0,state.shown);
     else {var s=(state.page-1)*PER_PAGE;visible=filtered.slice(s,s+PER_PAGE);}
     visible.forEach(function(i){container.appendChild(i);i.classList.remove('bs-hidden');});
+    // First visible card image is the LCP candidate; eager-load + boost priority.
+    // Re-applied every render since filter/sort changes which card is first.
+    visible.forEach(function(i,idx){var img=i.querySelector('.listing-image');if(!img)return;if(idx===0){img.loading='eager';img.setAttribute('fetchpriority','high');}else{img.loading='lazy';img.removeAttribute('fetchpriority');}});
     updateCount();updatePills();renderPag(mobile);
   }
   function renderPag(mobile){
