@@ -17,16 +17,10 @@
       { name: 'Compact/Midsize Truck', url: '/used-cars/best-used-midsize-trucks',   filterValue: 'Compact/Midsize Truck', examples: 'Toyota Tacoma, Ford Maverick, Honda Ridgeline, Chevrolet Colorado, GMC Canyon…' },
       { name: 'Full-size Truck',       url: '/used-cars/best-used-full-size-trucks', filterValue: 'Full-Size Truck',       examples: 'Ford F-150, Chevrolet Silverado, Toyota Tundra, Ram 1500, GMC Sierra…' }
     ],
-    // displayName overrides the auto-pluralized name in the picker and the band title.
-    // hideChips suppresses the per-model chip row on that segment's SRP (useful when the
-    // model set is so long-tailed that chips become noise — Enthusiast Cars).
-    // Filter value stays "Fun Cars" to match MM Market Segment, window.BS_SEGMENT, and
-    // the Webflow `market_segment != Fun Cars` filter.
     // Positioned before Luxury so the Specialty options get maximum visibility.
     'Specialty': [
       { name: 'Minivan',           url: '/used-cars/best-used-minivans',          filterValue: 'Minivan',           examples: 'Toyota Sienna, Honda Odyssey, Kia Carnival' },
-      { name: 'Electric Vehicles', url: '/used-cars/best-used-electric-vehicles', filterValue: 'Electric Vehicles', examples: 'Tesla Model Y, BMW iX, Porsche Taycan, Mercedes-Benz EQB, Toyota bZ4X…' },
-      { name: 'Fun Cars', displayName: 'Enthusiast Cars', hideChips: true, url: '/used-cars/fun-cars', filterValue: 'Fun Cars', examples: 'Mustang, Wrangler, GTI, 911, M3, Type R…' }
+      { name: 'Electric Vehicles', url: '/used-cars/best-used-electric-vehicles', filterValue: 'Electric Vehicles', examples: 'Tesla Model Y, BMW iX, Porsche Taycan, Mercedes-Benz EQB, Toyota bZ4X…' }
     ],
     'Luxury SUVs': [
       { name: 'Luxury Subcompact SUV', url: '/used-cars/best-used-luxury-subcompact-suvs', filterValue: 'Luxury Subcompact SUV', examples: 'BMW X1, Mercedes-Benz GLA and GLB, Audi Q3, Lexus UX, Cadillac XT4…' },
@@ -68,8 +62,7 @@
   if (MODE === 'segment') {
     ACTIVE = findActiveSegment();
     if (!ACTIVE) return;
-    // displayName, when present, replaces the auto-pluralized name verbatim.
-    ACTIVE_PLURAL = ACTIVE.displayName || plural(ACTIVE.name);
+    ACTIVE_PLURAL = plural(ACTIVE.name);
   }
 
   document.body.classList.add('bsx-active');
@@ -94,7 +87,7 @@
               '<svg class="bsx-seglink-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
             '</span>' +
           '</p>' +
-          (ACTIVE.hideChips ? '' : '<div class="bsx-chips" id="bsx-chips"></div>') +
+          '<div class="bsx-chips" id="bsx-chips"></div>' +
         '</div>';
     } else {
       band.innerHTML =
@@ -165,7 +158,7 @@
       html += '<p class="bsx-pgrouplabel">' + groupName + '</p>';
       SEGMENT_GROUPS[groupName].forEach(function(s) {
         var cls = (MODE === 'segment' && s.filterValue === window.BS_SEGMENT) ? 'bsx-pactive' : '';
-        var label = s.displayName || plural(s.name);
+        var label = plural(s.name);
         html += '<a class="bsx-pitem ' + cls + '" href="' + s.url + '">' +
           '<div class="bsx-ptext">' +
             '<p class="bsx-pname">' + label + '</p>' +
@@ -354,7 +347,7 @@
     }
     wirePickerHandlers();
     setupReadMore();
-    if (MODE === 'segment' && !(ACTIVE && ACTIVE.hideChips)) {
+    if (MODE === 'segment') {
       window.Bestest.onReady(function() { renderChips(); });
     }
     window.addEventListener('scroll', checkSticky, { passive: true });

@@ -1,7 +1,7 @@
 (function(){
   var CACHE_VERSION='v2', CACHE_TTL_MS=60*60*1000, BROAD_CACHE_KEY='bestest_inventory_cache_'+CACHE_VERSION;
-  var NATIVE_SEGMENT=null, IS_SRP=false, IS_FUN_CARS=false, EDITORIAL_OWNS_SEGMENT=false;
-  function resolveModeFromWindow(){NATIVE_SEGMENT=typeof window.BS_SEGMENT==='string'&&window.BS_SEGMENT.trim()?window.BS_SEGMENT.trim():null;IS_SRP=!!NATIVE_SEGMENT;IS_FUN_CARS=(NATIVE_SEGMENT==='Fun Cars');EDITORIAL_OWNS_SEGMENT=IS_SRP||!!window.BS_BROAD;}
+  var NATIVE_SEGMENT=null, IS_SRP=false, EDITORIAL_OWNS_SEGMENT=false;
+  function resolveModeFromWindow(){NATIVE_SEGMENT=typeof window.BS_SEGMENT==='string'&&window.BS_SEGMENT.trim()?window.BS_SEGMENT.trim():null;IS_SRP=!!NATIVE_SEGMENT;EDITORIAL_OWNS_SEGMENT=IS_SRP||!!window.BS_BROAD;}
   resolveModeFromWindow();
   if(!document.querySelector('.collection-list-2')){runPrewarmerIfHighIntent();return;}
   function runPrewarmerIfHighIntent(){
@@ -22,34 +22,26 @@
     if(document.readyState==='complete')scheduleIdle(prewarm); else window.addEventListener('load',function(){scheduleIdle(prewarm);});
   }
   var PER_PAGE=48, MOBILE_PER_PAGE=PER_PAGE, BATCH_SIZE=8, totalInventoryCount=1500, CACHE_KEY=BROAD_CACHE_KEY, BROAD_USED_CARS_PATH='/used-cars';
-  var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs','Fun Cars':'/used-cars/fun-cars'};
+  var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs'};
   var state={make:[],model:[],segment:[],body_style:[],powertrain:[],price:[],miles:[],year:[],page:1,shown:MOBILE_PER_PAGE};
   var sortKey='', allItems=[], filtered=[], bsLock=false, loadComplete=false, fullLoadStarted=false, fullLoadDone=false, pendingFilterClick=false, hasActiveQuery=false, urlSyncReady=false;
   var SEGMENT_GROUPS=[
     {label:'SUVs',items:[{v:'Subcompact SUV',eg:'Honda HR-V, Mazda CX-30, Hyundai Kona\u2026'},{v:'Compact SUV',eg:'Toyota RAV4, Honda CR-V, Mazda CX-5\u2026'},{v:'Midsize SUV',eg:'Honda Pilot, Toyota Highlander, Kia Telluride\u2026'},{v:'Full-Size SUV',eg:'Chevy Tahoe, Ford Expedition, Toyota Sequoia\u2026'}]},
     {label:'Cars',items:[{v:'Compact Car',eg:'Toyota Corolla, Honda Civic, Mazda3\u2026'},{v:'Midsize/Full-size Car',eg:'Honda Accord, Toyota Camry, Kia K5\u2026'}]},
     {label:'Trucks',items:[{v:'Compact/Midsize Truck',eg:'Toyota Tacoma, Ford Maverick, Honda Ridgeline\u2026'},{v:'Full-Size Truck',eg:'Ford F-150, Chevy Silverado, Toyota Tundra\u2026'}]},
-    {label:'Specialty',items:[{v:'Minivan',eg:'Toyota Sienna, Honda Odyssey, Kia Carnival'},{v:'Electric Vehicles',eg:'Tesla Model Y, BMW iX, Porsche Taycan\u2026'},{v:'Fun Cars',label:'Enthusiast Cars',eg:'Mustang, Wrangler, GTI, 911, M3, Type R\u2026'}]},
+    {label:'Specialty',items:[{v:'Minivan',eg:'Toyota Sienna, Honda Odyssey, Kia Carnival'},{v:'Electric Vehicles',eg:'Tesla Model Y, BMW iX, Porsche Taycan\u2026'}]},
     {label:'Luxury SUVs',items:[{v:'Luxury Subcompact SUV',eg:'BMW X1, Mercedes GLA, Audi Q3\u2026'},{v:'Luxury Compact SUV',eg:'BMW X3, Mercedes GLC, Genesis GV70\u2026'},{v:'Luxury Midsize SUV',eg:'Lexus RX, Audi Q7, BMW X5\u2026'},{v:'Luxury Full-Size SUV',eg:'Cadillac Escalade, Lincoln Navigator, BMW X7\u2026'}]},
     {label:'Luxury Cars',items:[{v:'Luxury Small Car',eg:'Audi A4, BMW 3 Series, Mercedes C-Class\u2026'},{v:'Luxury Midsize Car',eg:'Mercedes E-Class, Audi A6, BMW 5 Series\u2026'},{v:'Luxury Full-Size Car',eg:'BMW 7 Series, Mercedes S-Class, Lexus LS\u2026'}]}
   ];
-  var SEGMENT_OPTS=(function(){var out=[];SEGMENT_GROUPS.forEach(function(g){g.items.forEach(function(i){var o={v:i.v,eg:i.eg};if(i.label)o.label=i.label;out.push(o);});});return out;})();
+  var SEGMENT_OPTS=(function(){var out=[];SEGMENT_GROUPS.forEach(function(g){g.items.forEach(function(i){out.push({v:i.v,eg:i.eg});});});return out;})();
   // Main /used-cars + segment SRP filter config.
-  // Merged 2026-05-26: includes Fun Cars makes/models so the universe matches the
-  // homepage dropdown data. Banned nameplates (Solterra, bZ4X, Prologue, CX-9,
-  // Model X, Cybertruck) deliberately omitted — Exclusions enforces the ban and
-  // hideEmpty:true would hide them anyway since their inventory count is 0.
-  var MAIN_MAKES=[{v:'Acura'},{v:'Audi'},{v:'BMW'},{v:'Cadillac'},{v:'Chevrolet'},{v:'Dodge'},{v:'Ford'},{v:'GMC'},{v:'Genesis'},{v:'Honda'},{v:'Hyundai'},{v:'Infiniti'},{v:'Jeep'},{v:'Kia'},{v:'Lexus'},{v:'Lincoln'},{v:'Mazda'},{v:'Mercedes-Benz'},{v:'Nissan'},{v:'Porsche'},{v:'Ram'},{v:'Subaru'},{v:'Tesla'},{v:'Toyota'},{v:'Volkswagen'},{v:'Volvo'}];
+  // Banned nameplates (Solterra, bZ4X, Prologue, CX-9, Model X, Cybertruck)
+  // deliberately omitted — Exclusions enforces the ban and hideEmpty:true would
+  // hide them anyway since their inventory count is 0.
+  var MAIN_MAKES=[{v:'Acura'},{v:'Audi'},{v:'BMW'},{v:'Cadillac'},{v:'Chevrolet'},{v:'Ford'},{v:'GMC'},{v:'Genesis'},{v:'Honda'},{v:'Hyundai'},{v:'Infiniti'},{v:'Jeep'},{v:'Kia'},{v:'Lexus'},{v:'Lincoln'},{v:'Mazda'},{v:'Mercedes-Benz'},{v:'Nissan'},{v:'Porsche'},{v:'Ram'},{v:'Subaru'},{v:'Tesla'},{v:'Toyota'},{v:'Volvo'}];
   // Body-style label "Car" (formerly "Sedan") lumps sedans + hatchbacks + coupes + convertibles + targas on main pages.
   var MAIN_BODY=[{v:'SUV',match:['SUV','Wagon']},{v:'Car',match:['Sedan','Hatchback','Coupe','Convertible','Targa']},{v:'Truck',match:['Pickup']},{v:'Minivan',match:['Minivan']}];
-  var MAIN_MODELS_BY_MAKE={Acura:['Integra','MDX','RDX','TLX'],Audi:['A4','A6','A7','A8','Q3','Q5','Q7','Q8','Q8 Sportback e-tron','R8','RS 3','RS 5','RS 6','RS 7','TT','e-tron GT'],BMW:['2 Series','3 Series','4 Series','5 Series','7 Series','8 Series','M2','M3','M4','M5','M8','X1','X2','X3','X4','X5','X6','X7','Z4','iX'],Cadillac:['Escalade'],Chevrolet:['Bolt EUV','Camaro','Corvette','Silverado 1500','Suburban','Tahoe'],Dodge:['Challenger'],Ford:['Bronco','Expedition','F-150','Maverick','Mustang','Mustang Mach-E'],GMC:['Sierra 1500','Yukon','Yukon XL'],Genesis:['G70','GV60','GV70','GV80'],Honda:['Accord','CR-V','Civic','Civic Type R','HR-V','Odyssey','Passport','Pilot','Ridgeline'],Hyundai:['Elantra','Elantra N','Ioniq 5','Ioniq 6','Kona','Kona N','Palisade','Santa Cruz','Santa Fe','Sonata','Tucson'],Infiniti:['QX60'],Jeep:['Gladiator','Wrangler'],Kia:['Carnival','EV6','EV9','K5','Niro','Seltos','Sorento','Soul','Sportage','Telluride'],Lexus:['ES','GX','IS','LC','LS','LX','NX','RC','RC F','RX','TX','UX'],Lincoln:['Navigator'],Mazda:['CX-30','CX-5','CX-50','CX-90','MX-5 Miata','Mazda3'],'Mercedes-Benz':['AMG C-Class','AMG E-Class','AMG GT','CLE','E-Class','EQB','G-Class','GLA','GLB','GLC','GLE','GLS','S-Class','SL'],Nissan:['Altima','Ariya','Frontier','Z'],Porsche:['718','911','Cayenne','Macan','Panamera','Taycan'],Ram:['1500'],Subaru:['BRZ','Crosstrek','Forester','Legacy','Outback','WRX','WRX STI'],Tesla:['Model 3','Model S','Model Y'],Toyota:['4Runner','Camry','Corolla','Corolla Cross','Crown','GR Corolla','GR86','Grand Highlander','Highlander','Land Cruiser','Prius','RAV4','Sequoia','Sienna','Supra','Tacoma','Tundra','Venza'],Volkswagen:['GTI','Golf R'],Volvo:['XC60']};
-  // Fun Cars filter config \u2014 performance variants, coupes/convertibles/off-roaders, etc.
-  var FUN_MAKES=[{v:'Audi'},{v:'BMW'},{v:'Chevrolet'},{v:'Dodge'},{v:'Ford'},{v:'Honda'},{v:'Hyundai'},{v:'Jeep'},{v:'Lexus'},{v:'Mazda'},{v:'Mercedes-Benz'},{v:'Nissan'},{v:'Porsche'},{v:'Subaru'},{v:'Toyota'},{v:'Volkswagen'}];
-  var FUN_BODY=[{v:'SUV',match:['SUV','Wagon']},{v:'4-Door Car',match:['Sedan','Hatchback']},{v:'2-Door Car',match:['Coupe','Targa']},{v:'Convertible',match:['Convertible']},{v:'Truck',match:['Pickup']}];
-  // Editorial Fun Cars set — pulled from MM records with Market Segment="Fun Cars".
-  // Models without current inventory appear greyed-out in the dropdown.
-  var FUN_MODELS_BY_MAKE={Audi:['R8','RS 3','RS 5','RS 6','RS 7','TT'],BMW:['2 Series','4 Series','8 Series','M2','M3','M4','M5','M8','Z4'],Chevrolet:['Camaro','Corvette'],Dodge:['Challenger'],Ford:['Bronco','Mustang'],Honda:['Civic Type R'],Hyundai:['Elantra N','Kona N'],Jeep:['Gladiator','Wrangler'],Lexus:['LC','RC','RC F'],Mazda:['MX-5 Miata'],'Mercedes-Benz':['AMG C-Class','AMG E-Class','AMG GT','CLE','SL'],Nissan:['Z'],Porsche:['718','911'],Subaru:['BRZ','WRX','WRX STI'],Toyota:['4Runner','GR Corolla','GR86','Land Cruiser','Supra'],Volkswagen:['GTI','Golf R']};
-
+  var MAIN_MODELS_BY_MAKE={Acura:['Integra','MDX','RDX','TLX'],Audi:['A4','A6','A7','A8','Q3','Q5','Q7','Q8','Q8 Sportback e-tron','e-tron GT'],BMW:['2 Series','3 Series','4 Series','5 Series','7 Series','8 Series','X1','X2','X3','X4','X5','X6','X7','iX'],Cadillac:['Escalade'],Chevrolet:['Bolt EUV','Silverado 1500','Suburban','Tahoe'],Ford:['Bronco','Expedition','F-150','Maverick','Mustang Mach-E'],GMC:['Sierra 1500','Yukon','Yukon XL'],Genesis:['G70','GV60','GV70','GV80'],Honda:['Accord','CR-V','Civic','HR-V','Odyssey','Passport','Pilot','Ridgeline'],Hyundai:['Elantra','Ioniq 5','Ioniq 6','Kona','Palisade','Santa Cruz','Santa Fe','Sonata','Tucson'],Infiniti:['QX60'],Jeep:['Gladiator'],Kia:['Carnival','EV6','EV9','K5','Niro','Seltos','Sorento','Soul','Sportage','Telluride'],Lexus:['ES','GX','IS','LS','LX','NX','RX','TX','UX'],Lincoln:['Navigator'],Mazda:['CX-30','CX-5','CX-50','CX-90','Mazda3'],'Mercedes-Benz':['CLE','E-Class','EQB','G-Class','GLA','GLB','GLC','GLE','GLS','S-Class','SL'],Nissan:['Altima','Ariya','Frontier'],Porsche:['Cayenne','Macan','Panamera','Taycan'],Ram:['1500'],Subaru:['Crosstrek','Forester','Legacy','Outback'],Tesla:['Model 3','Model S','Model Y'],Toyota:['4Runner','Camry','Corolla','Corolla Cross','Crown','Grand Highlander','Highlander','Prius','RAV4','Sequoia','Sienna','Tacoma','Tundra','Venza'],Volvo:['XC60']};
   var FILTERS=[];
   FILTERS.push({key:'segment',label:'Segment',col:1,opts:SEGMENT_OPTS});
   // hideEmpty: true on a filter hides options with zero matches in the current
@@ -58,15 +50,15 @@
   // doesn't matter. Range filters (price/miles) and fixed taxonomies
   // (powertrain/segment) keep the existing grey-out behavior.
   FILTERS.push(
-    {key:'make',label:'Make',col:2,opts:IS_FUN_CARS?FUN_MAKES:MAIN_MAKES,hideEmpty:true},
+    {key:'make',label:'Make',col:2,opts:MAIN_MAKES,hideEmpty:true},
     {key:'model',label:'Model',col:2,dynamic:true,opts:[],hideEmpty:true},
-    {key:'body_style',label:'Body Style',col:1,dataKey:'body_type',opts:IS_FUN_CARS?FUN_BODY:MAIN_BODY,hideEmpty:true},
+    {key:'body_style',label:'Body Style',col:1,dataKey:'body_type',opts:MAIN_BODY,hideEmpty:true},
     {key:'powertrain',label:'Powertrain',col:1,opts:[{v:'HEV',label:'Hybrid'},{v:'PHEV',label:'Plug-in Hybrid'},{v:'BEV',label:'Electric'}]},
     {key:'price',label:'Price',col:1,range:true,opts:[{v:'10000-20000',label:'$10k \u2013 $20k'},{v:'20000-30000',label:'$20k \u2013 $30k'},{v:'30000-40000',label:'$30k \u2013 $40k'},{v:'40000-50000',label:'$40k \u2013 $50k'},{v:'50000-999999',label:'$50k+'}]},
     {key:'miles',label:'Mileage',col:1,range:true,opts:[{v:'0-20000',label:'Under 20k'},{v:'20000-30000',label:'20k \u2013 30k'},{v:'30000-40000',label:'30k \u2013 40k'},{v:'40000-50000',label:'40k \u2013 50k'}]},
     {key:'year',label:'Year',col:1,opts:[{v:'2024'},{v:'2023'},{v:'2022'},{v:'2021'}],hideEmpty:true}
   );
-  var MODELS_BY_MAKE=IS_FUN_CARS?FUN_MODELS_BY_MAKE:MAIN_MODELS_BY_MAKE;
+  var MODELS_BY_MAKE=MAIN_MODELS_BY_MAKE;
   var ALL_MODELS=(function(){var seen={};Object.keys(MODELS_BY_MAKE).forEach(function(make){MODELS_BY_MAKE[make].forEach(function(model){seen[model]=true;});});return Object.keys(seen);})();
   var MAKES_BY_MODEL=(function(){var map={};Object.keys(MODELS_BY_MAKE).forEach(function(make){MODELS_BY_MAKE[make].forEach(function(model){if(!map[model])map[model]=[];map[model].push(make);});});return map;})();
   var CHEVRON='<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
@@ -148,9 +140,8 @@
     var pillsHTML=FILTERS.map(function(f){
       if(EDITORIAL_OWNS_SEGMENT&&f.key==='segment')return '';
       // Segment SRPs use the chip row for model filtering, so make/model/body
-      // pills are hidden there. Fun Cars / Enthusiast Cars is the exception:
-      // chips are suppressed (too long-tail) so the pills come back.
-      if(IS_SRP&&!IS_FUN_CARS&&(f.key==='make'||f.key==='model'||f.key==='body_style'))return '';
+      // pills are hidden there.
+      if(IS_SRP&&(f.key==='make'||f.key==='model'||f.key==='body_style'))return '';
       var optsHTML=f.opts.map(function(o){
         var lbl=o.label||o.v;
         var eg=o.eg?'<span class="bs-eg">e.g. '+o.eg+'</span>':'';
