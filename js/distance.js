@@ -187,11 +187,18 @@
     if (hasVdpEl) decorateVdp();
   }
 
+  function notifyLatLng() {
+    if (userLatLng && typeof window.__bsOnUserLatLng === 'function') {
+      try { window.__bsOnUserLatLng(userLatLng); } catch (e) {}
+    }
+  }
+
   function init() {
     decorate();
     setupObserver();
     resolveUserLatLng().then(function () {
       decorate();
+      notifyLatLng();
     });
   }
 
@@ -215,11 +222,15 @@
         if (result) {
           userLatLng = result;
           decorate();
+          notifyLatLng();
         }
       });
       return true;
     },
     getUserZip: getUserZip,
+    getUserLatLng: function () {
+      return userLatLng || getCachedLatLng(getUserZip());
+    },
     refresh: decorate
   };
 })();

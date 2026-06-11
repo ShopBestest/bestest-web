@@ -68,7 +68,7 @@
   var ALL_MODELS=(function(){var seen={};Object.keys(MODELS_BY_MAKE).forEach(function(make){MODELS_BY_MAKE[make].forEach(function(model){seen[model]=true;});});return Object.keys(seen);})();
   var MAKES_BY_MODEL=(function(){var map={};Object.keys(MODELS_BY_MAKE).forEach(function(make){MODELS_BY_MAKE[make].forEach(function(model){if(!map[model])map[model]=[];map[model].push(make);});});return map;})();
   var CHEVRON='<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
-  var SORTS=[{v:'price-asc',label:'Price: Low \u2192 High',short:'Price \u2191'},{v:'price-desc',label:'Price: High \u2192 Low',short:'Price \u2193'},{v:'year-desc',label:'Year: Newest First',short:'Year \u2193'},{v:'year-asc',label:'Year: Oldest First',short:'Year \u2191'},{v:'miles-asc',label:'Mileage: Low \u2192 High',short:'Miles \u2191'}];
+  var SORTS=[{v:'distance-asc',label:'Distance: Nearest',short:'Nearest'},{v:'price-asc',label:'Price: Low \u2192 High',short:'Price \u2191'},{v:'price-desc',label:'Price: High \u2192 Low',short:'Price \u2193'},{v:'year-desc',label:'Year: Newest First',short:'Year \u2193'},{v:'year-asc',label:'Year: Oldest First',short:'Year \u2191'},{v:'miles-asc',label:'Mileage: Low \u2192 High',short:'Miles \u2191'}];
   function expandFilterValues(filter,vals){if(!filter||!vals||!vals.length)return vals||[];if(!filter.opts.some(function(o){return o.match;}))return vals;return vals.reduce(function(acc,v){var opt=null;for(var i=0;i<filter.opts.length;i++){if(filter.opts[i].v===v){opt=filter.opts[i];break;}}if(opt&&opt.match)opt.match.forEach(function(m){if(acc.indexOf(m)===-1)acc.push(m);});else if(acc.indexOf(v)===-1)acc.push(v);return acc;},[]);}
   function getFilterByKey(k){for(var i=0;i<FILTERS.length;i++)if(FILTERS[i].key===k)return FILTERS[i];return null;}
   function parseItem(item){
@@ -79,7 +79,8 @@
     var photosModified=card.getAttribute('data-photos-modified')||txt(item,'.photos_last_modified')||'';
     var photosModifiedTime=photosModified?new Date(photosModified).getTime():0;
     var bodyType=card.getAttribute('data-body-type')||txt(item,'.body_type')||'';
-    return {make:make,model:model,year:year,yearNum:parseInt(year)||0,powertrain:pt,segment:seg,body_type:bodyType,price:price,miles:miles,photoCount:photoCount,photosModifiedTime:photosModifiedTime};
+    var dLat=parseFloat(card.getAttribute('data-dealer-lat')), dLng=parseFloat(card.getAttribute('data-dealer-lng'));
+    return {make:make,model:model,year:year,yearNum:parseInt(year)||0,powertrain:pt,segment:seg,body_type:bodyType,price:price,miles:miles,photoCount:photoCount,photosModifiedTime:photosModifiedTime,lat:isNaN(dLat)?null:dLat,lng:isNaN(dLng)?null:dLng};
   }
   function getData(item){if(!item._bsData)item._bsData=parseItem(item);return item._bsData;}
   function parseAll(items){for(var i=0;i<items.length;i++){if(!items[i]._bsData)items[i]._bsData=parseItem(items[i]);}}
@@ -98,7 +99,9 @@
     state.year=parseListParam('year',filterValidValues.year);
     if(IS_SRP)state.segment=[NATIVE_SEGMENT]; else state.segment=parseListParam('segment',filterValidValues.segment);
     var rawSort=params.get('sort');
-    if(rawSort){var validSorts=SORTS.map(function(s){return s.v;});sortKey=validSorts.indexOf(rawSort)!==-1?rawSort:'';} else sortKey='';
+    // City/combo pages (window.BS_CITY) default to nearest-first; everything else default order.
+    var cityDefault=(window.BS_CITY&&typeof window.BS_CITY.lat==='number')?'distance-asc':'';
+    if(rawSort){var validSorts=SORTS.map(function(s){return s.v;});sortKey=validSorts.indexOf(rawSort)!==-1?rawSort:cityDefault;} else sortKey=cityDefault;
   }
   function buildQueryString(){
     var parts=[];
@@ -174,8 +177,27 @@
   }
   function matchList(val,list){return !list.length||list.indexOf(val)!==-1;}
   function matchRange(val,ranges){if(!ranges.length)return true;return ranges.some(function(r){var p=r.split('-');return val>=parseInt(p[0])&&val<=parseInt(p[1]);});}
+  function haversineMiles(lat1,lng1,lat2,lng2){var R=3958.8,toRad=function(d){return d*Math.PI/180;};var dLat=toRad(lat2-lat1),dLng=toRad(lng2-lng1);var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)*Math.sin(dLng/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+  // Distance-sort origin: city centroid on city/combo pages (window.BS_CITY), else the
+  // visitor's resolved zip lat/lng from distance.js. null ⇒ fall back to default order.
+  function getSortOrigin(){
+    if(window.BS_CITY&&typeof window.BS_CITY.lat==='number'&&typeof window.BS_CITY.lng==='number')return {lat:window.BS_CITY.lat,lng:window.BS_CITY.lng};
+    if(window.BestestDistance&&typeof window.BestestDistance.getUserLatLng==='function'){var u=window.BestestDistance.getUserLatLng();if(u&&typeof u.lat==='number'&&typeof u.lng==='number')return u;}
+    return null;
+  }
+  function defaultSort(pairs){pairs.sort(function(a,b){var aRich=a.data.photoCount>=15?1:0;var bRich=b.data.photoCount>=15?1:0;if(aRich!==bRich)return bRich-aRich;return b.data.photosModifiedTime-a.data.photosModifiedTime;});}
   function sortItems(items){
     var pairs=items.map(function(item){return {item:item,data:getData(item)};});
+    if(sortKey==='distance-asc'){
+      var origin=getSortOrigin();
+      if(origin){
+        pairs.forEach(function(p){var d=p.data;p._dist=(d.lat!=null&&d.lng!=null)?haversineMiles(origin.lat,origin.lng,d.lat,d.lng):Infinity;});
+        pairs.sort(function(a,b){if(a._dist!==b._dist)return a._dist-b._dist;return b.data.photosModifiedTime-a.data.photosModifiedTime;});
+        return pairs.map(function(p){return p.item;});
+      }
+      defaultSort(pairs);
+      return pairs.map(function(p){return p.item;});
+    }
     if(sortKey){
       pairs.sort(function(a,b){
         switch(sortKey){
@@ -188,7 +210,7 @@
         }
       });
     } else {
-      pairs.sort(function(a,b){var aRich=a.data.photoCount>=15?1:0;var bRich=b.data.photoCount>=15?1:0;if(aRich!==bRich)return bRich-aRich;return b.data.photosModifiedTime-a.data.photosModifiedTime;});
+      defaultSort(pairs);
     }
     return pairs.map(function(p){return p.item;});
   }
@@ -470,4 +492,7 @@
   function closeAll(force){if(!force&&bsLock)return;document.querySelectorAll('.bs-drop').forEach(function(d){d.classList.remove('bs-open');});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inject); else setTimeout(inject,300);
   window.Bestest={state:state,applyFilters:applyFilters,getAllItems:function(){return allItems;},getData:getData,isReady:function(){return fullLoadDone;},onReady:function(cb){if(fullLoadDone)cb(); else {var iv=setInterval(function(){if(fullLoadDone){clearInterval(iv);cb();}},100);}}};
+  // distance.js calls this once the visitor's zip lat/lng resolves; re-sort if nearest-first
+  // is active off the user's location (city pages use BS_CITY and don't need this).
+  window.__bsOnUserLatLng=function(){if(sortKey==='distance-asc'&&!(window.BS_CITY&&typeof window.BS_CITY.lat==='number')){refilterPreservingState();render();}};
 })();
