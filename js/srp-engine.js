@@ -98,15 +98,28 @@
     state.miles=parseListParam('miles',filterValidValues.miles);
     state.year=parseListParam('year',filterValidValues.year);
     if(IS_SRP)state.segment=[NATIVE_SEGMENT]; else state.segment=parseListParam('segment',filterValidValues.segment);
+    // Combo pages (make+city, model+city, body+city) seed their defining facet from
+    // window.BS_PREFILTER so a clean path like /used-cars/toyota/rav4/irvine pre-filters
+    // with no query string. URL params, when present, take precedence.
+    if(window.BS_PREFILTER){
+      ['make','model','body_style','powertrain','price','miles','year'].forEach(function(k){
+        var pv=window.BS_PREFILTER[k];
+        if(Array.isArray(pv)&&pv.length&&(!state[k]||!state[k].length))state[k]=pv.slice();
+      });
+    }
     var rawSort=params.get('sort');
     // City/combo pages (window.BS_CITY) default to nearest-first; everything else default order.
     var cityDefault=(window.BS_CITY&&typeof window.BS_CITY.lat==='number')?'distance-asc':'';
     if(rawSort){var validSorts=SORTS.map(function(s){return s.v;});sortKey=validSorts.indexOf(rawSort)!==-1?rawSort:cityDefault;} else sortKey=cityDefault;
   }
+  function arrEq(a,b){if(!Array.isArray(a)||!Array.isArray(b)||a.length!==b.length)return false;var x=a.slice().sort(),y=b.slice().sort();for(var i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true;}
   function buildQueryString(){
     var parts=[];
     FILTERS.forEach(function(f){
       if(IS_SRP&&f.key==='segment')return;
+      // Keep the combo page's defining facet out of the URL while it equals the prefilter;
+      // once the user changes it, it deep-links like any other filter.
+      if(window.BS_PREFILTER&&arrEq(state[f.key],window.BS_PREFILTER[f.key]))return;
       var vals=state[f.key];
       if(vals&&vals.length){var p=new URLSearchParams();p.set(f.key,vals.join(','));parts.push(p.toString());}
     });
