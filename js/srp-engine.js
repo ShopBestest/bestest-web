@@ -80,7 +80,8 @@
     var photosModifiedTime=photosModified?new Date(photosModified).getTime():0;
     var bodyType=card.getAttribute('data-body-type')||txt(item,'.body_type')||'';
     var dLat=parseFloat(card.getAttribute('data-dealer-lat')), dLng=parseFloat(card.getAttribute('data-dealer-lng'));
-    return {make:make,model:model,year:year,yearNum:parseInt(year)||0,powertrain:pt,segment:seg,body_type:bodyType,price:price,miles:miles,photoCount:photoCount,photosModifiedTime:photosModifiedTime,lat:isNaN(dLat)?null:dLat,lng:isNaN(dLng)?null:dLng};
+    var dCity=card.getAttribute('data-dealer-city')||'';
+    return {make:make,model:model,year:year,yearNum:parseInt(year)||0,powertrain:pt,segment:seg,body_type:bodyType,price:price,miles:miles,photoCount:photoCount,photosModifiedTime:photosModifiedTime,lat:isNaN(dLat)?null:dLat,lng:isNaN(dLng)?null:dLng,city:dCity};
   }
   function getData(item){if(!item._bsData)item._bsData=parseItem(item);return item._bsData;}
   function parseAll(items){for(var i=0;i<items.length;i++){if(!items[i]._bsData)items[i]._bsData=parseItem(items[i]);}}
@@ -203,9 +204,12 @@
     var pairs=items.map(function(item){return {item:item,data:getData(item)};});
     if(sortKey==='distance-asc'){
       var origin=getSortOrigin();
+      // On a city/combo page, listings physically IN the page's city rank first
+      // (then by distance), so the city's own dealers lead page 1.
+      var cityName=(window.BS_CITY&&window.BS_CITY.name)?String(window.BS_CITY.name).toLowerCase():null;
       if(origin){
-        pairs.forEach(function(p){var d=p.data;p._dist=(d.lat!=null&&d.lng!=null)?haversineMiles(origin.lat,origin.lng,d.lat,d.lng):Infinity;});
-        pairs.sort(function(a,b){if(a._dist!==b._dist)return a._dist-b._dist;return b.data.photosModifiedTime-a.data.photosModifiedTime;});
+        pairs.forEach(function(p){var d=p.data;p._dist=(d.lat!=null&&d.lng!=null)?haversineMiles(origin.lat,origin.lng,d.lat,d.lng):Infinity;p._inCity=(cityName&&d.city&&d.city.toLowerCase()===cityName)?0:1;});
+        pairs.sort(function(a,b){if(a._inCity!==b._inCity)return a._inCity-b._inCity;if(a._dist!==b._dist)return a._dist-b._dist;return b.data.photosModifiedTime-a.data.photosModifiedTime;});
         return pairs.map(function(p){return p.item;});
       }
       defaultSort(pairs);

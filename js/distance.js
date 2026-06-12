@@ -116,10 +116,16 @@
   function buildRowContent(city, dealerLat, dealerLng) {
     if (!city) return null;
     var distanceText = '';
-    var origin = labelOrigin();
-    if (origin && !isNaN(dealerLat) && !isNaN(dealerLng)) {
-      var miles = haversineMiles(origin.lat, origin.lng, dealerLat, dealerLng);
-      distanceText = ' \u00b7 ' + formatDistance(miles);
+    // On a city page, dealers IN that city show no mileage (the city name says it
+    // all and avoids a misleading "0 mi"); only out-of-city dealers show distance.
+    var bsCity = (window.BS_CITY && window.BS_CITY.name) ? String(window.BS_CITY.name) : null;
+    var inCity = bsCity && city.toLowerCase() === bsCity.toLowerCase();
+    if (!inCity) {
+      var origin = labelOrigin();
+      if (origin && !isNaN(dealerLat) && !isNaN(dealerLng)) {
+        var miles = haversineMiles(origin.lat, origin.lng, dealerLat, dealerLng);
+        distanceText = ' \u00b7 ' + formatDistance(miles);
+      }
     }
     return PIN_SVG + '<span>' + escapeHtml(city) + distanceText + '</span>';
   }
