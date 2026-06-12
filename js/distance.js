@@ -103,11 +103,22 @@
       .replace(/'/g, '&#39;');
   }
 
+  // On city/combo pages (window.BS_CITY) the grid is sorted by distance from the
+  // city centroid, so label distances from the SAME origin \u2014 otherwise labels
+  // (measured from the visitor's zip) disagree with the sort and the page looks
+  // unsorted. Falls back to the visitor's zip on the main SRP / VDP.
+  function labelOrigin() {
+    if (window.BS_CITY && typeof window.BS_CITY.lat === 'number' && typeof window.BS_CITY.lng === 'number')
+      return { lat: window.BS_CITY.lat, lng: window.BS_CITY.lng };
+    return userLatLng;
+  }
+
   function buildRowContent(city, dealerLat, dealerLng) {
     if (!city) return null;
     var distanceText = '';
-    if (userLatLng && !isNaN(dealerLat) && !isNaN(dealerLng)) {
-      var miles = haversineMiles(userLatLng.lat, userLatLng.lng, dealerLat, dealerLng);
+    var origin = labelOrigin();
+    if (origin && !isNaN(dealerLat) && !isNaN(dealerLng)) {
+      var miles = haversineMiles(origin.lat, origin.lng, dealerLat, dealerLng);
       distanceText = ' \u00b7 ' + formatDistance(miles);
     }
     return PIN_SVG + '<span>' + escapeHtml(city) + distanceText + '</span>';
