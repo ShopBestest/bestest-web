@@ -427,7 +427,7 @@
   function updateCount(){
     var el=document.getElementById('bs-count');if(!el)return;
     if(!loadComplete||!fullLoadDone){el.classList.remove('bs-ready');el.textContent='';}
-    else {el.textContent=fmt(filtered.length)+' listings';el.classList.add('bs-ready');}
+    else {el.textContent=fmt(filtered.length)+' Bestest listings';el.classList.add('bs-ready');}
     var ca=document.getElementById('bs-clearall');
     if(ca){var active=isQueryActive();active?ca.classList.add('bs-vis'):ca.classList.remove('bs-vis');}
   }
