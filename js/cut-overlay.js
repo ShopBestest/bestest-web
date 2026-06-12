@@ -22,8 +22,10 @@
     if(document.getElementById('bs-cut-styles'))return;
     var s=document.createElement('style'); s.id='bs-cut-styles';
     s.textContent=
-      ".bs-cut-link{color:"+GREEN+";cursor:pointer;text-decoration:underline;text-underline-offset:2px;font-weight:600;white-space:nowrap;background:none;border:none;padding:0;font:inherit;}"+
-      ".bs-cut-link:hover{opacity:.8;}"+
+      ".bs-cut-link{color:"+GREEN+";cursor:pointer;text-decoration:none;font-weight:600;white-space:nowrap;background:none;border:none;padding:0;font:inherit;}"+
+      ".bs-cut-link:hover{opacity:.75;}"+
+      ".bs-cut-arrow{font-size:1.3em;line-height:0;vertical-align:-.06em;margin-left:.14em;display:inline-block;transition:transform .15s ease;}"+
+      ".bs-cut-link:hover .bs-cut-arrow{transform:translateX(2px);}"+
       ".bs-cut-ov{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(20,20,20,.55);opacity:0;transition:opacity .18s ease;}"+
       ".bs-cut-ov.bs-open{display:flex;opacity:1;}"+
       ".bs-cut-card{background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:88vh;overflow-y:auto;padding:28px 28px 24px;box-shadow:0 12px 40px rgba(0,0,0,.22);transform:translateY(8px);transition:transform .18s ease;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;}"+
@@ -95,7 +97,7 @@
       var after=node.splitText(idx);
       after.nodeValue=after.nodeValue.slice(PHRASE.length); // remaining text (e.g. a trailing arrow) stays put
       var link=document.createElement('span');
-      link.textContent=PHRASE+' →';
+      link.innerHTML=PHRASE+' <span class="bs-cut-arrow" aria-hidden="true">→</span>';
       bindEl(link);
       node.parentNode.insertBefore(link,after);
       // if the leftover starts with the manual arrow used in the field, drop it to avoid a double arrow
