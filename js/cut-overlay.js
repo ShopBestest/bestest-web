@@ -37,11 +37,9 @@
       ".bs-cut-body{font-size:14px;line-height:1.65;color:#333;margin:0 0 18px;}"+
       ".bs-cut-more{display:inline-block;font-size:14px;font-weight:600;color:"+GREEN+";text-decoration:none;}"+
       ".bs-cut-more:hover{text-decoration:underline;}"+
-      // interlink block (hub-and-spoke nav, synced as raw HTML per record)
-      ".bs-interlink{margin:20px 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;font-size:13px;line-height:2;}"+
-      ".bs-interlink-label{font-weight:600;color:#1a1a1a;margin-right:6px;}"+
-      ".bs-interlink a{display:inline-block;color:"+GREEN+";text-decoration:none;border:1px solid #d8e8df;background:#f3f9f5;border-radius:16px;padding:3px 11px;margin:0 4px 6px 0;white-space:nowrap;}"+
-      ".bs-interlink a:hover{border-color:"+GREEN+";}";
+      // interlink block (related-pages link list; Webflow handles layout/spacing natively)
+      ".bs-interlink a{color:"+GREEN+";text-decoration:underline;text-underline-offset:3px;white-space:nowrap;}"+
+      ".bs-interlink a:hover{text-decoration-thickness:2px;}";
     (document.head||document.documentElement).appendChild(s);
   }
 
