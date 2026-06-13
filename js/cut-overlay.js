@@ -36,10 +36,7 @@
       ".bs-cut-x:hover{background:#e6e6e6;}"+
       ".bs-cut-body{font-size:14px;line-height:1.65;color:#333;margin:0 0 18px;}"+
       ".bs-cut-more{display:inline-block;font-size:14px;font-weight:600;color:"+GREEN+";text-decoration:none;}"+
-      ".bs-cut-more:hover{text-decoration:underline;}"+
-      // interlink block (related-pages link list; Webflow handles layout/spacing natively)
-      ".bs-interlink a{color:"+GREEN+";text-decoration:underline;text-underline-offset:3px;white-space:nowrap;}"+
-      ".bs-interlink a:hover{text-decoration-thickness:2px;}";
+      ".bs-cut-more:hover{text-decoration:underline;}";
     (document.head||document.documentElement).appendChild(s);
   }
 
