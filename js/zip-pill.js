@@ -3,8 +3,10 @@
   var DEFAULT_ZIP = '92868';
   var DEFAULT_LAT = 33.7875;
   var DEFAULT_LNG = -117.8776;
+  var DEFAULT_CITY = 'Orange';
   var STORAGE_ZIP = 'bst_user_zip';
   var STORAGE_ZIP_LATLNG_PREFIX = 'bst_zip_latlng_';
+  var STORAGE_ZIP_CITY_PREFIX = 'bst_zip_city_';
   var STORAGE_AUTODETECTED = 'bst_zip_autodetected';
   var IPAPI_URL = 'https://ipapi.co/json/';
   var ZIPPOPOTAMUS_URL = 'https://api.zippopotam.us/us/';
@@ -14,6 +16,52 @@
   var SPINNER_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>';
 
   function getCurrentZip() { return localStorage.getItem(STORAGE_ZIP) || DEFAULT_ZIP; }
+
+  // The pill shows a place name, not a raw zip, everywhere. We cache each zip's city
+  // name as we resolve it (default, IP, manual entry, geolocation) and look it up lazily
+  // for any zip we don't have yet.
+  function saveZipCity(zip, city) { if (city) localStorage.setItem(STORAGE_ZIP_CITY_PREFIX + zip, city); }
+  function getZipCity(zip) { return localStorage.getItem(STORAGE_ZIP_CITY_PREFIX + zip); }
+  function getCurrentCity() {
+    var zip = getCurrentZip();
+    return getZipCity(zip) || (zip === DEFAULT_ZIP ? DEFAULT_CITY : null);
+  }
+  var cityInFlight = {};
+  function ensureCity(zip) {
+    var have = getZipCity(zip);
+    if (have) return Promise.resolve(have);
+    if (zip === DEFAULT_ZIP) { saveZipCity(zip, DEFAULT_CITY); return Promise.resolve(DEFAULT_CITY); }
+    if (cityInFlight[zip]) return cityInFlight[zip];
+    var p = fetch(ZIPPOPOTAMUS_URL + zip)
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        var c = (data && data.places && data.places[0]) ? data.places[0]['place name'] : null;
+        if (c) saveZipCity(zip, c);
+        return c;
+      })
+      .catch(function() { return null; });
+    cityInFlight[zip] = p;
+    return p;
+  }
+  // Resolve the current zip's city (if unknown) then repaint the pills.
+  function refreshCityLabel() {
+    if (getCityMode()) return;
+    ensureCity(getCurrentZip()).then(function() { refreshAllPills(); });
+  }
+
+  var BROAD_PATH = '/used-cars';
+  // On city/combo pages Webflow sets window.BS_CITY = { name, lat, lng }. When present,
+  // the pill shows the city name and changing location navigates to the broad SRP, so the
+  // canonical city page stays city-anchored and is never personalized to the visitor.
+  function getCityMode() {
+    var c = window.BS_CITY;
+    if (c && typeof c.lat === 'number' && typeof c.lng === 'number' && c.name) return c;
+    return null;
+  }
+  function goToBroadWithZip(zip, lat, lng) {
+    if (lat != null && lng != null) saveZipAndLatLng(zip, lat, lng);
+    window.location.href = BROAD_PATH + '?zip=' + encodeURIComponent(zip);
+  }
   function isValidZipFormat(z) { return /^\d{5}$/.test(z); }
   function saveZipAndLatLng(zip, lat, lng) {
     localStorage.setItem(STORAGE_ZIP, zip);
@@ -31,6 +79,7 @@
       return r.json();
     }).then(function(data) {
       if (!data.places || !data.places.length) throw new Error('No place data');
+      saveZipCity(zip, data.places[0]['place name']);
       return { lat: parseFloat(data.places[0].latitude), lng: parseFloat(data.places[0].longitude) };
     });
   }
@@ -40,7 +89,7 @@
       if (data.error) throw new Error(data.reason || 'IP lookup failed');
       if (data.country_code !== 'US') throw new Error('Non-US visitor');
       if (!data.postal || !isValidZipFormat(data.postal)) throw new Error('No valid postal code');
-      return { zip: data.postal, lat: data.latitude, lng: data.longitude };
+      return { zip: data.postal, lat: data.latitude, lng: data.longitude, city: data.city };
     });
   }
 
@@ -55,7 +104,7 @@
             var zip = data.postcode;
             if (!isValidZipFormat(zip)) { reject(new Error('Could not determine zip from location')); return; }
             if (data.countryCode !== 'US') { reject(new Error('Not in US')); return; }
-            resolve({ zip: zip, lat: lat, lng: lng });
+            resolve({ zip: zip, lat: lat, lng: lng, city: data.city || data.locality });
           })
           .catch(function(err) { reject(err); });
       }, function(err) { reject(new Error(err.message || 'Geolocation denied')); },
@@ -64,24 +113,31 @@
   }
 
   function refreshAllPills() {
+    // City pages keep the pill showing the page city name, never the zip.
+    if (getCityMode()) return;
     var zip = getCurrentZip();
-    document.querySelectorAll('.bst-zip-pill .bst-zip-display').forEach(function(el) { el.textContent = zip; });
+    // Everywhere else, show the place name (falling back to the zip until it resolves).
+    var label = getCurrentCity() || zip;
+    document.querySelectorAll('.bst-zip-pill .bst-zip-display').forEach(function(el) { el.textContent = label; });
     document.querySelectorAll('.bst-zip-flyout input.bst-zip-input').forEach(function(input) { input.value = zip; });
   }
 
-  function applyZip(zip, lat, lng) {
+  function applyZip(zip, lat, lng, city) {
     if (!isValidZipFormat(zip)) return Promise.reject(new Error('Invalid zip format'));
+    if (city) saveZipCity(zip, city);
     var coordsPromise;
     if (lat != null && lng != null) { saveZipAndLatLng(zip, lat, lng); coordsPromise = Promise.resolve({ lat: lat, lng: lng }); }
     else { coordsPromise = lookupZipCoords(zip).then(function(coords) { saveZipAndLatLng(zip, coords.lat, coords.lng); return coords; }); }
-    return coordsPromise.then(function() { refreshAllPills(); notifyDistanceModule(zip); });
+    return coordsPromise.then(function() { refreshAllPills(); refreshCityLabel(); notifyDistanceModule(zip); });
   }
 
-  function buildFlyout(zip) {
-    return '<span class="bst-zip-flyout-label">Zip code</span>' +
-      '<input type="text" class="bst-zip-input" maxlength="5" inputmode="numeric" value="' + zip + '">' +
+  function buildFlyout(zip, cityMode) {
+    var label = cityMode ? 'Shop all cars near you' : 'Zip code';
+    var saveText = cityMode ? 'See all cars' : 'Save';
+    return '<span class="bst-zip-flyout-label">' + label + '</span>' +
+      '<input type="text" class="bst-zip-input" maxlength="5" inputmode="numeric" placeholder="' + (cityMode ? 'Enter your zip' : '') + '" value="' + (cityMode ? '' : zip) + '">' +
       '<div class="bst-zip-error-msg"></div>' +
-      '<button type="button" class="bst-zip-save">Save</button>' +
+      '<button type="button" class="bst-zip-save">' + saveText + '</button>' +
       '<div class="bst-zip-divider"><span>or</span></div>' +
       '<button type="button" class="bst-zip-detect">' + DETECT_PIN_SVG + 'Use my location</button>';
   }
@@ -90,20 +146,23 @@
     if (pill.dataset.bstZipWired) return;
     pill.dataset.bstZipWired = '1';
     var zip = getCurrentZip();
+    var cityMode = getCityMode();
+    var displayText = cityMode ? cityMode.name : (getCurrentCity() || zip);
+    if (cityMode) pill.setAttribute('aria-label', 'Change location — shop all cars near you');
     if (!pill.querySelector('.bst-zip-display')) {
       var displaySpan = document.createElement('span');
       displaySpan.className = 'bst-zip-display';
-      displaySpan.textContent = zip;
+      displaySpan.textContent = displayText;
       pill.innerHTML = PIN_SVG;
       pill.appendChild(displaySpan);
     } else {
-      pill.querySelector('.bst-zip-display').textContent = zip;
+      pill.querySelector('.bst-zip-display').textContent = displayText;
     }
     var flyout = pill.querySelector('.bst-zip-flyout');
     if (!flyout) {
       flyout = document.createElement('div');
       flyout.className = 'bst-zip-flyout';
-      flyout.innerHTML = buildFlyout(zip);
+      flyout.innerHTML = buildFlyout(zip, cityMode);
       pill.appendChild(flyout);
     }
     var input = flyout.querySelector('.bst-zip-input');
@@ -141,7 +200,7 @@
     function closeFlyout() { flyout.classList.remove('bst-zip-flyout-open'); clearError(); }
     function openFlyout() {
       document.querySelectorAll('.bst-zip-flyout.bst-zip-flyout-open').forEach(function(f) { if (f !== flyout) f.classList.remove('bst-zip-flyout-open'); });
-      input.value = getCurrentZip();
+      input.value = cityMode ? '' : getCurrentZip();
       positionFlyout();
       flyout.classList.add('bst-zip-flyout-open');
       setTimeout(function() { input.focus(); input.select(); }, 50);
@@ -165,6 +224,14 @@
     function submitInput() {
       var val = input.value.trim();
       if (!isValidZipFormat(val)) { showError('Enter a 5-digit zip code'); return; }
+      if (cityMode) {
+        // City pages stay city-anchored; a chosen zip sends the visitor to the
+        // broad /used-cars SRP personalized to that zip.
+        lookupZipCoords(val)
+          .then(function(coords) { goToBroadWithZip(val, coords.lat, coords.lng); })
+          .catch(function() { showError('Could not find that zip code'); });
+        return;
+      }
       if (val === getCurrentZip()) { closeFlyout(); return; }
       applyZip(val).then(function() { closeFlyout(); }).catch(function() { showError('Could not find that zip code'); });
     }
@@ -182,8 +249,10 @@
       detectBtn.innerHTML = SPINNER_SVG + 'Locating...';
       clearError();
       browserGeolocate()
-        .then(function(loc) { return applyZip(loc.zip, loc.lat, loc.lng); })
-        .then(function() { closeFlyout(); })
+        .then(function(loc) {
+          if (cityMode) { goToBroadWithZip(loc.zip, loc.lat, loc.lng); return; }
+          return applyZip(loc.zip, loc.lat, loc.lng, loc.city).then(function() { closeFlyout(); });
+        })
         .catch(function(err) { showError(err.message || 'Could not detect location'); })
         .then(function() {
           detectBtn.disabled = false;
@@ -208,6 +277,7 @@
 
   function wireAllPills() {
     document.querySelectorAll('.bst-zip-pill').forEach(wirePill);
+    refreshCityLabel();
   }
 
   function injectSrpPills() {
@@ -221,7 +291,7 @@
       pd.id = 'bst-srp-zip-pill-desktop';
       pd.className = 'bst-zip-pill';
       pd.type = 'button';
-      pd.setAttribute('aria-label', 'Change zip code');
+      pd.setAttribute('aria-label', 'Change location');
       sortWrap.parentNode.insertBefore(pd, sortWrap.nextSibling);
     }
     if (!document.getElementById('bst-srp-zip-pill-mobile')) {
@@ -229,7 +299,7 @@
       pm.id = 'bst-srp-zip-pill-mobile';
       pm.className = 'bst-zip-pill';
       pm.type = 'button';
-      pm.setAttribute('aria-label', 'Change zip code');
+      pm.setAttribute('aria-label', 'Change location');
       meta.appendChild(pm);
     }
     return true;
@@ -253,12 +323,14 @@
     if (!localStorage.getItem(STORAGE_ZIP_LATLNG_PREFIX + DEFAULT_ZIP)) {
       localStorage.setItem(STORAGE_ZIP_LATLNG_PREFIX + DEFAULT_ZIP, DEFAULT_LAT + ',' + DEFAULT_LNG);
     }
+    saveZipCity(DEFAULT_ZIP, DEFAULT_CITY);
     var storedZip = localStorage.getItem(STORAGE_ZIP);
     var alreadyAutodetected = localStorage.getItem(STORAGE_AUTODETECTED);
-    if (!storedZip && !alreadyAutodetected) {
+    // City pages stay city-anchored — never IP-personalize them.
+    if (!getCityMode() && !storedZip && !alreadyAutodetected) {
       localStorage.setItem(STORAGE_AUTODETECTED, '1');
       ipAutoDetect()
-        .then(function(loc) { return applyZip(loc.zip, loc.lat, loc.lng); })
+        .then(function(loc) { return applyZip(loc.zip, loc.lat, loc.lng, loc.city); })
         .catch(function() {});
     }
     wireAllPills();
