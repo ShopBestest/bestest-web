@@ -9,9 +9,9 @@
   // Single compact JSON of every synced listing, built by build_inventory_json.py and
   // hosted at a stable short-TTL URL. Replaces the old 55-request native-pagination
   // scrape: fetch ONE file, filter/sort in memory, render only the visible page.
-  // TODO(hosting): confirm the Cloudflare-hosted feed URL once it's stood up.
+  // Cloudflare feed Worker (bestest-inventory-feed, KV-backed, CORS *, 5-min cache).
   // window.BS_FEED_URL lets a staging page point at a staging feed without editing this file.
-  var FEED_URL=(typeof window.BS_FEED_URL==='string'&&window.BS_FEED_URL)||'https://feed.shopbestest.com/inventory.json';
+  var FEED_URL=(typeof window.BS_FEED_URL==='string'&&window.BS_FEED_URL)||'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/';
   var CACHE_VERSION='v3', CACHE_TTL_MS=60*60*1000, FEED_CACHE_KEY='bestest_feed_cache_'+CACHE_VERSION;
   var NATIVE_SEGMENT=null, IS_SRP=false, EDITORIAL_OWNS_SEGMENT=false;
   function resolveModeFromWindow(){NATIVE_SEGMENT=typeof window.BS_SEGMENT==='string'&&window.BS_SEGMENT.trim()?window.BS_SEGMENT.trim():null;IS_SRP=!!NATIVE_SEGMENT;EDITORIAL_OWNS_SEGMENT=IS_SRP||!!window.BS_BROAD;}
