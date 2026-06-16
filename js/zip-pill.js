@@ -215,7 +215,7 @@
     var saveText = cityMode ? 'See all cars' : 'Save';
     return '<button type="button" class="bst-zip-flyout-close" aria-label="Close">×</button>' +
       '<span class="bst-zip-flyout-label">' + label + '</span>' +
-      '<input type="text" class="bst-zip-input" maxlength="5" inputmode="numeric" placeholder="' + (cityMode ? 'Enter your zip' : '') + '" value="' + (cityMode ? '' : zip) + '">' +
+      '<input type="text" class="bst-zip-input" maxlength="5" inputmode="numeric" aria-label="Zip code" placeholder="' + (cityMode ? 'Enter your zip' : '') + '" value="' + (cityMode ? '' : zip) + '">' +
       '<div class="bst-zip-error-msg"></div>' +
       '<button type="button" class="bst-zip-save">' + saveText + '</button>' +
       '<div class="bst-zip-divider"><span>or</span></div>' +

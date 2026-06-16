@@ -99,20 +99,21 @@
     backdrop.className = 'bstlf-backdrop';
     backdrop.setAttribute('role', 'dialog');
     backdrop.setAttribute('aria-modal', 'true');
+    backdrop.setAttribute('aria-labelledby', 'bstlf-title');
     backdrop.innerHTML =
       '<div class="bstlf-card" role="document">' +
         '<button type="button" class="bstlf-close" aria-label="Close">×</button>' +
         '<div class="bstlf-form-wrap">' +
-          '<h2 class="bstlf-title">Check availability</h2>' +
+          '<h2 class="bstlf-title" id="bstlf-title">Check availability</h2>' +
           '<p class="bstlf-sub bstlf-veh"></p>' +
           '<form class="bstlf-form" novalidate>' +
             '<input class="bstlf-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">' +
-            '<div class="bstlf-field"><input class="bstlf-input bstlf-name" type="text" placeholder="Full name" autocomplete="name"></div>' +
-            '<div class="bstlf-field"><input class="bstlf-input bstlf-email" type="email" placeholder="Email" autocomplete="email" inputmode="email"></div>' +
-            '<div class="bstlf-field"><input class="bstlf-input bstlf-phone" type="tel" placeholder="Phone" autocomplete="tel" inputmode="tel"></div>' +
+            '<div class="bstlf-field"><input class="bstlf-input bstlf-name" type="text" placeholder="Full name" aria-label="Full name" autocomplete="name"></div>' +
+            '<div class="bstlf-field"><input class="bstlf-input bstlf-email" type="email" placeholder="Email" aria-label="Email" autocomplete="email" inputmode="email"></div>' +
+            '<div class="bstlf-field"><input class="bstlf-input bstlf-phone" type="tel" placeholder="Phone" aria-label="Phone" autocomplete="tel" inputmode="tel"></div>' +
             '<button type="button" class="bstlf-more-toggle">+ Add a message, financing or trade-in</button>' +
             '<div class="bstlf-more">' +
-              '<div class="bstlf-field"><textarea class="bstlf-input bstlf-message" placeholder="Anything you’d like the dealer to know? (optional)"></textarea></div>' +
+              '<div class="bstlf-field"><textarea class="bstlf-input bstlf-message" aria-label="Message to the dealer" placeholder="Anything you’d like the dealer to know? (optional)"></textarea></div>' +
               '<label class="bstlf-check"><input type="checkbox" class="bstlf-financing"> I’m interested in financing</label>' +
               '<label class="bstlf-check"><input type="checkbox" class="bstlf-tradein"> I have a trade-in</label>' +
             '</div>' +
