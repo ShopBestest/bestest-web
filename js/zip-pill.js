@@ -17,7 +17,7 @@
   var DEFAULT_CITY = 'Orange';
   var STORAGE_ZIP = 'bst_user_zip';
   var STORAGE_ZIP_LATLNG_PREFIX = 'bst_zip_latlng_';
-  var STORAGE_ZIP_CITY_PREFIX = 'bst_zip_city_';
+  var STORAGE_ZIP_CITY_PREFIX = 'bst_zip_city_v2_';
   var STORAGE_COVERAGE_SEEN = 'bst_coverage_notice_seen';
   var IPAPI_URL = 'https://ipapi.co/json/';
   var ZIPPOPOTAMUS_URL = 'https://api.zippopotam.us/us/';
@@ -201,7 +201,9 @@
 
   function applyZip(zip, lat, lng, city) {
     if (!isValidZipFormat(zip)) return Promise.reject(new Error('Invalid zip format'));
-    if (city) saveZipCity(zip, city);
+    // NOTE: `city` (from ipapi/bigdatacloud) is intentionally ignored for the display label —
+    // those return imprecise/regional names (e.g. a Costa Mesa IP mislabeled "Central Coast").
+    // zippopotam (via ensureCity/lookupZipCoords) is the authoritative zip->place name.
     var coordsPromise;
     if (lat != null && lng != null) { saveZipAndLatLng(zip, lat, lng); coordsPromise = Promise.resolve({ lat: lat, lng: lng }); }
     else { coordsPromise = lookupZipCoords(zip).then(function(coords) { saveZipAndLatLng(zip, coords.lat, coords.lng); return coords; }); }
