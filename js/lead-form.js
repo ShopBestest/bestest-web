@@ -177,7 +177,7 @@
   }
 
   function open(url, e) {
-    if (e) e.preventDefault();
+    if (e) { e.preventDefault(); if (e.stopImmediatePropagation) e.stopImmediatePropagation(); }
     build();
     var v = vehicle();
     ctx = { title: v.title, vin: v.vin, price: v.price, dealer: v.dealer, dealerUrl: url };
@@ -198,15 +198,18 @@
   function close() { if (backdrop) backdrop.classList.remove('bstlf-open'); }
 
   function init() {
-    var url = dealerUrl();
-    if (!url) return; // not a VDP / no dealer CTA — do nothing
-    // Intercept clicks on any link to the dealer's listing URL (the two button CTAs +
-    // any inline "their site" link). Delegated so it covers the sticky CTA too.
+    // Attach the interceptor UNCONDITIONALLY. The dealer CTA is built by another VDP
+    // embed AFTER DOMContentLoaded, so we can't gate on it existing yet — resolve the
+    // dealer URL at click time, and match the CTA by id as a fallback. Capture phase +
+    // stopImmediatePropagation/preventDefault fully swallow the click (incl. target=_blank).
     document.addEventListener('click', function (e) {
-      var a = e.target.closest && e.target.closest('a');
+      var a = e.target && e.target.closest && e.target.closest('a');
       if (!a) return;
-      var href = a.getAttribute('href');
-      if (href && href === url) open(url, e);
+      var cur = dealerUrl();
+      var isDealerLink = a.id === 'bst-main-cta' || a.id === 'bst-slim-cta' ||
+        (cur && a.getAttribute('href') === cur);
+      if (!isDealerLink) return;
+      open(a.getAttribute('href') || cur, e);
     }, true);
   }
 
