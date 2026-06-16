@@ -22,6 +22,15 @@
 
   function getCurrentZip() { return localStorage.getItem(STORAGE_ZIP) || DEFAULT_ZIP; }
 
+  // Crawlers render from Google/Bing IPs (often far outside our coverage), so without this
+  // their renderer could IP-detect out-of-range and paint the overlay into the DOM Google
+  // evaluates — an on-load modal reads as an "intrusive interstitial". Suppressing a popup
+  // by bot UA is not cloaking (page content is identical); we also skip IP-detect for bots.
+  function isCrawler() {
+    var ua = (navigator && navigator.userAgent) || '';
+    return /bot|crawl|spider|slurp|google-inspectiontool|googleother|storebot|adsbot|mediapartners|bingpreview|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|slackbot|whatsapp|linkedinbot|embedly|pinterest|lighthouse|headlesschrome|pagespeed/i.test(ua);
+  }
+
   // The pill shows a place name, not a raw zip, everywhere. We cache each zip's city
   // name as we resolve it (default, IP, manual entry, geolocation) and look it up lazily
   // for any zip we don't have yet.
@@ -405,7 +414,7 @@
     return ov;
   }
   function maybeShowCoverageOverlay() {
-    if (getCityMode()) return;
+    if (getCityMode() || isCrawler()) return;
     try { if (localStorage.getItem(STORAGE_COVERAGE_SEEN)) return; } catch (e) {}
     var ll = getCurrentLatLng();
     if (!ll || !isOutOfCoverage(ll.lat, ll.lng)) return;
@@ -422,7 +431,7 @@
     // Non-city pages: IP-detect whenever we still have no stored zip, so a previously
     // failed/blocked attempt self-heals on the next load (applyZip persists only on
     // success). City pages stay city-anchored and never IP-personalize.
-    if (!getCityMode() && !localStorage.getItem(STORAGE_ZIP)) {
+    if (!getCityMode() && !isCrawler() && !localStorage.getItem(STORAGE_ZIP)) {
       ipAutoDetect()
         .then(function(loc) { return applyZip(loc.zip, loc.lat, loc.lng, loc.city); })
         .then(function() { maybeShowCoverageOverlay(); })
