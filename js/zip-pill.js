@@ -5,9 +5,9 @@
     var ms = document.createElement('style');
     ms.id = 'bst-zip-modal-styles';
     ms.textContent =
-      '.bst-zip-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99998;display:none;}' +
-      '.bst-zip-backdrop.bst-zip-backdrop-open{display:block;}' +
-      '.bst-zip-flyout{position:fixed;top:50%;left:50%;right:auto;transform:translate(-50%,-50%);width:calc(100vw - 32px);max-width:320px;min-width:0;}' +
+      '.bst-zip-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99998;display:none;align-items:center;justify-content:center;padding:16px;}' +
+      '.bst-zip-backdrop.bst-zip-backdrop-open{display:flex;}' +
+      '.bst-zip-flyout{position:static;transform:none;top:auto;left:auto;right:auto;width:100%;max-width:320px;min-width:0;margin:0;}' +
       '.bst-zip-flyout-close{position:absolute;top:6px;right:8px;width:28px;height:28px;border:none;background:transparent;color:#999;font-size:20px;line-height:1;cursor:pointer;padding:0;}';
     (document.head || document.documentElement).appendChild(ms);
   })();
@@ -236,12 +236,13 @@
     } else {
       pill.querySelector('.bst-zip-display').textContent = displayText;
     }
-    // Portal the modal to <body> so position:fixed centers against the viewport — inside the
-    // pill it can land under a transformed/positioned ancestor (e.g. the hero) and mis-center.
+    // Put the card INSIDE the shared backdrop and let the backdrop flex-center it. As a child
+    // it always paints above its own dim layer (never dimmed) and centers via flexbox, which
+    // sidesteps the position:fixed containing-block trap when an ancestor is transformed.
     var flyout = document.createElement('div');
     flyout.className = 'bst-zip-flyout';
     flyout.innerHTML = buildFlyout(zip, cityMode);
-    (document.body || document.documentElement).appendChild(flyout);
+    bstGetBackdrop().appendChild(flyout);
     var input = flyout.querySelector('.bst-zip-input');
     var saveBtn = flyout.querySelector('.bst-zip-save');
     var detectBtn = flyout.querySelector('.bst-zip-detect');
