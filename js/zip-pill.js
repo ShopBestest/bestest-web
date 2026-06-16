@@ -7,16 +7,18 @@
   var STORAGE_ZIP = 'bst_user_zip';
   var STORAGE_ZIP_LATLNG_PREFIX = 'bst_zip_latlng_';
   var STORAGE_ZIP_CITY_PREFIX = 'bst_zip_city_';
+  var STORAGE_COVERAGE_SEEN = 'bst_coverage_notice_seen';
   var IPAPI_URL = 'https://ipapi.co/json/';
   var ZIPPOPOTAMUS_URL = 'https://api.zippopotam.us/us/';
 
   // Coverage area: within COVERAGE_RADIUS_MI of 92657 (Newport Coast). Used only to show
   // an informational "outside coverage" note — it never filters inventory.
-  var COVERAGE_CENTER_LAT = 33.5943, COVERAGE_CENTER_LNG = -117.8334, COVERAGE_RADIUS_MI = 25;
+  var COVERAGE_CENTER_LAT = 33.5943, COVERAGE_CENTER_LNG = -117.8334, COVERAGE_RADIUS_MI = 30;
 
   var PIN_SVG = '<svg class="bst-zip-pin" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
   var DETECT_PIN_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
   var SPINNER_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>';
+  var COV_PIN_SVG = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1a6f4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
 
   function getCurrentZip() { return localStorage.getItem(STORAGE_ZIP) || DEFAULT_ZIP; }
 
@@ -280,8 +282,9 @@
       }
       applyZip(val).then(function() {
         var ll = getCurrentLatLng();
-        // Keep the flyout open to surface the coverage note when the chosen zip is out of area.
-        if (ll && isOutOfCoverage(ll.lat, ll.lng)) showCoverage(true); else closeFlyout();
+        // Keep the flyout open to surface the coverage note when the chosen zip is out of area,
+        // and fire the one-time overlay (no-ops if already seen).
+        if (ll && isOutOfCoverage(ll.lat, ll.lng)) { showCoverage(true); maybeShowCoverageOverlay(); } else closeFlyout();
       }).catch(function() { showError('Could not find that zip code'); });
     }
 
@@ -300,7 +303,7 @@
       browserGeolocate()
         .then(function(loc) {
           if (cityMode) { goToBroadWithZip(loc.zip, loc.lat, loc.lng); return; }
-          return applyZip(loc.zip, loc.lat, loc.lng, loc.city).then(function() { closeFlyout(); });
+          return applyZip(loc.zip, loc.lat, loc.lng, loc.city).then(function() { closeFlyout(); maybeShowCoverageOverlay(); });
         })
         .catch(function(err) { showError(err.message || 'Could not detect location'); })
         .then(function() {
@@ -368,6 +371,49 @@
     wireAllPills();
   }
 
+  // One-time "outside coverage" overlay. Shown once per visitor (localStorage flag) when
+  // their detected/entered location is out of range. Never on city pages; client-only so
+  // it never touches server-rendered/indexed content.
+  function buildCoverageOverlay() {
+    var existing = document.getElementById('bst-cov-overlay');
+    if (existing) return existing;
+    var ov = document.createElement('div');
+    ov.id = 'bst-cov-overlay';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-modal', 'true');
+    ov.setAttribute('aria-labelledby', 'bst-cov-title');
+    ov.style.cssText = "position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);padding:20px;font-family:'Montserrat',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;";
+    ov.innerHTML =
+      '<div style="background:#fff;border-radius:14px;max-width:380px;width:100%;padding:28px 24px;text-align:center;position:relative;box-shadow:0 16px 48px rgba(0,0,0,0.18);">' +
+        '<button type="button" class="bst-cov-close" aria-label="Close" style="position:absolute;top:8px;right:12px;width:30px;height:30px;border:none;background:transparent;color:#999;font-size:22px;line-height:1;cursor:pointer;padding:0;">×</button>' +
+        '<div style="width:52px;height:52px;border-radius:50%;background:#e3f1e9;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">' + COV_PIN_SVG + '</div>' +
+        '<h2 id="bst-cov-title" style="font-size:19px;font-weight:700;margin:0 0 10px;color:#1a1a1a;line-height:1.3;">Not from the area?</h2>' +
+        '<p style="font-size:14px;line-height:1.6;color:#555;margin:0 0 20px;">Bestest is live in our home market of Orange County as we prep our national rollout.</p>' +
+        '<button type="button" class="bst-cov-cta" style="width:100%;background:#1a6f4a;color:#fff;border:none;border-radius:8px;padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;">Check us out</button>' +
+      '</div>';
+    (document.body || document.documentElement).appendChild(ov);
+    function dismiss() {
+      ov.style.display = 'none';
+      try { localStorage.setItem(STORAGE_COVERAGE_SEEN, '1'); } catch (e) {}
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape') dismiss(); }
+    ov._bstOnKey = onKey;
+    ov.querySelector('.bst-cov-close').addEventListener('click', dismiss);
+    ov.querySelector('.bst-cov-cta').addEventListener('click', dismiss);
+    ov.addEventListener('click', function(e) { if (e.target === ov) dismiss(); });
+    return ov;
+  }
+  function maybeShowCoverageOverlay() {
+    if (getCityMode()) return;
+    try { if (localStorage.getItem(STORAGE_COVERAGE_SEEN)) return; } catch (e) {}
+    var ll = getCurrentLatLng();
+    if (!ll || !isOutOfCoverage(ll.lat, ll.lng)) return;
+    var ov = buildCoverageOverlay();
+    ov.style.display = 'flex';
+    document.addEventListener('keydown', ov._bstOnKey);
+  }
+
   function init() {
     if (!localStorage.getItem(STORAGE_ZIP_LATLNG_PREFIX + DEFAULT_ZIP)) {
       localStorage.setItem(STORAGE_ZIP_LATLNG_PREFIX + DEFAULT_ZIP, DEFAULT_LAT + ',' + DEFAULT_LNG);
@@ -379,7 +425,10 @@
     if (!getCityMode() && !localStorage.getItem(STORAGE_ZIP)) {
       ipAutoDetect()
         .then(function(loc) { return applyZip(loc.zip, loc.lat, loc.lng, loc.city); })
+        .then(function() { maybeShowCoverageOverlay(); })
         .catch(function() {});
+    } else {
+      maybeShowCoverageOverlay();
     }
     wireAllPills();
     waitForSrpAndInject();
