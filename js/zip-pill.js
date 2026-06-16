@@ -7,9 +7,12 @@
   var STORAGE_ZIP = 'bst_user_zip';
   var STORAGE_ZIP_LATLNG_PREFIX = 'bst_zip_latlng_';
   var STORAGE_ZIP_CITY_PREFIX = 'bst_zip_city_';
-  var STORAGE_AUTODETECTED = 'bst_zip_autodetected';
   var IPAPI_URL = 'https://ipapi.co/json/';
   var ZIPPOPOTAMUS_URL = 'https://api.zippopotam.us/us/';
+
+  // Coverage area: within COVERAGE_RADIUS_MI of 92657 (Newport Coast). Used only to show
+  // an informational "outside coverage" note — it never filters inventory.
+  var COVERAGE_CENTER_LAT = 33.5943, COVERAGE_CENTER_LNG = -117.8334, COVERAGE_RADIUS_MI = 25;
 
   var PIN_SVG = '<svg class="bst-zip-pin" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
   var DETECT_PIN_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
@@ -49,6 +52,25 @@
     ensureCity(getCurrentZip()).then(function() { refreshAllPills(); });
   }
 
+  function getCachedLatLng(zip) {
+    var raw = localStorage.getItem(STORAGE_ZIP_LATLNG_PREFIX + zip);
+    if (!raw) return null;
+    var p = raw.split(','); var lat = parseFloat(p[0]), lng = parseFloat(p[1]);
+    return (isNaN(lat) || isNaN(lng)) ? null : { lat: lat, lng: lng };
+  }
+  function getCurrentLatLng() { return getCachedLatLng(getCurrentZip()); }
+  function haversineMiles(lat1, lng1, lat2, lng2) {
+    var R = 3958.8, toRad = Math.PI / 180;
+    var dLat = (lat2 - lat1) * toRad, dLng = (lng2 - lng1) * toRad;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  function isOutOfCoverage(lat, lng) {
+    if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) return false;
+    return haversineMiles(lat, lng, COVERAGE_CENTER_LAT, COVERAGE_CENTER_LNG) > COVERAGE_RADIUS_MI;
+  }
+
   var BROAD_PATH = '/used-cars';
   // On city/combo pages Webflow sets window.BS_CITY = { name, lat, lng }. When present,
   // the pill shows the city name and changing location navigates to the broad SRP, so the
@@ -60,7 +82,21 @@
   }
   function goToBroadWithZip(zip, lat, lng) {
     if (lat != null && lng != null) saveZipAndLatLng(zip, lat, lng);
-    window.location.href = BROAD_PATH + '?zip=' + encodeURIComponent(zip);
+    // Carry the city/combo page's active filters to the broad SRP so changing location
+    // keeps the user's filters. User-applied filters + sort already live in the current
+    // query string (the engine keeps it in sync); a combo page's defining facets live in
+    // window.BS_PREFILTER and are kept out of the URL, so merge them back in.
+    var params = new URLSearchParams(window.location.search);
+    var pf = window.BS_PREFILTER;
+    if (pf) {
+      ['make', 'model', 'body_style', 'powertrain', 'price', 'miles', 'year'].forEach(function(k) {
+        if (!params.get(k) && Array.isArray(pf[k]) && pf[k].length) params.set(k, pf[k].join(','));
+      });
+    }
+    // City pages default to nearest-first; preserve that intent at the destination.
+    if (getCityMode() && !params.get('sort')) params.set('sort', 'distance-asc');
+    params.set('zip', zip);
+    window.location.href = BROAD_PATH + '?' + params.toString();
   }
   function isValidZipFormat(z) { return /^\d{5}$/.test(z); }
   function saveZipAndLatLng(zip, lat, lng) {
@@ -139,7 +175,8 @@
       '<div class="bst-zip-error-msg"></div>' +
       '<button type="button" class="bst-zip-save">' + saveText + '</button>' +
       '<div class="bst-zip-divider"><span>or</span></div>' +
-      '<button type="button" class="bst-zip-detect">' + DETECT_PIN_SVG + 'Use my location</button>';
+      '<button type="button" class="bst-zip-detect">' + DETECT_PIN_SVG + 'Use my location</button>' +
+      '<div class="bst-zip-coverage" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #eee;font-size:11px;line-height:1.4;color:#9a6a00;">Heads up — that\'s outside our current coverage area (Orange County). We\'ll still show you the nearest curated cars.</div>';
   }
 
   function wirePill(pill) {
@@ -169,7 +206,10 @@
     var saveBtn = flyout.querySelector('.bst-zip-save');
     var detectBtn = flyout.querySelector('.bst-zip-detect');
     var errorMsg = flyout.querySelector('.bst-zip-error-msg');
+    var coverageNote = flyout.querySelector('.bst-zip-coverage');
 
+    function showCoverage(out) { if (coverageNote) coverageNote.style.display = out ? 'block' : 'none'; }
+    function refreshCoverageForActive() { var ll = getCurrentLatLng(); showCoverage(!!ll && isOutOfCoverage(ll.lat, ll.lng)); }
     function showError(msg) { input.classList.add('bst-zip-error'); errorMsg.textContent = msg; }
     function clearError() { input.classList.remove('bst-zip-error'); errorMsg.textContent = ''; }
     function positionFlyout() {
@@ -201,6 +241,7 @@
     function openFlyout() {
       document.querySelectorAll('.bst-zip-flyout.bst-zip-flyout-open').forEach(function(f) { if (f !== flyout) f.classList.remove('bst-zip-flyout-open'); });
       input.value = cityMode ? '' : getCurrentZip();
+      if (!cityMode) refreshCoverageForActive(); else showCoverage(false);
       positionFlyout();
       flyout.classList.add('bst-zip-flyout-open');
       setTimeout(function() { input.focus(); input.select(); }, 50);
@@ -232,8 +273,16 @@
           .catch(function() { showError('Could not find that zip code'); });
         return;
       }
-      if (val === getCurrentZip()) { closeFlyout(); return; }
-      applyZip(val).then(function() { closeFlyout(); }).catch(function() { showError('Could not find that zip code'); });
+      if (val === getCurrentZip()) {
+        refreshCoverageForActive();
+        if (coverageNote && coverageNote.style.display === 'block') return;
+        closeFlyout(); return;
+      }
+      applyZip(val).then(function() {
+        var ll = getCurrentLatLng();
+        // Keep the flyout open to surface the coverage note when the chosen zip is out of area.
+        if (ll && isOutOfCoverage(ll.lat, ll.lng)) showCoverage(true); else closeFlyout();
+      }).catch(function() { showError('Could not find that zip code'); });
     }
 
     saveBtn.addEventListener('click', function(e) { e.preventDefault(); submitInput(); });
@@ -324,11 +373,10 @@
       localStorage.setItem(STORAGE_ZIP_LATLNG_PREFIX + DEFAULT_ZIP, DEFAULT_LAT + ',' + DEFAULT_LNG);
     }
     saveZipCity(DEFAULT_ZIP, DEFAULT_CITY);
-    var storedZip = localStorage.getItem(STORAGE_ZIP);
-    var alreadyAutodetected = localStorage.getItem(STORAGE_AUTODETECTED);
-    // City pages stay city-anchored — never IP-personalize them.
-    if (!getCityMode() && !storedZip && !alreadyAutodetected) {
-      localStorage.setItem(STORAGE_AUTODETECTED, '1');
+    // Non-city pages: IP-detect whenever we still have no stored zip, so a previously
+    // failed/blocked attempt self-heals on the next load (applyZip persists only on
+    // success). City pages stay city-anchored and never IP-personalize.
+    if (!getCityMode() && !localStorage.getItem(STORAGE_ZIP)) {
       ipAutoDetect()
         .then(function(loc) { return applyZip(loc.zip, loc.lat, loc.lng, loc.city); })
         .catch(function() {});
