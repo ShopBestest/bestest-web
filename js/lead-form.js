@@ -10,8 +10,16 @@
 (function () {
   var ENDPOINT = (typeof window.BS_LEADS_URL === 'string' && window.BS_LEADS_URL) ||
     'https://bestest-leads.sweet-paper-5a21.workers.dev';
-  var CONSENT_TEXT = 'I agree to be contacted by Bestest and the dealer about this vehicle ' +
-    'by call, text, and email. Message and data rates may apply.';
+  var TERMS_URL = '/terms', PRIVACY_URL = '/privacy';
+  var CONSENT_TEXT = 'By clicking Check availability, I agree to share my info with this dealer and ' +
+    'to be contacted by Bestest and the dealer (and their agents) by email — and, if I provide my ' +
+    'phone number, by call and text, including by automated means. This isn’t a condition of any ' +
+    'purchase, and I can opt out anytime. Message and data rates may apply. See our Terms and Privacy Policy.';
+  function consentHtml() {
+    return CONSENT_TEXT
+      .replace('Terms', '<a href="' + TERMS_URL + '" target="_blank" rel="noopener">Terms</a>')
+      .replace('Privacy Policy', '<a href="' + PRIVACY_URL + '" target="_blank" rel="noopener">Privacy Policy</a>');
+  }
 
   function dealerUrl() {
     var cta = document.getElementById('bst-main-cta') || document.getElementById('bst-slim-cta');
@@ -69,7 +77,8 @@
       ".bstlf-more.bstlf-show{display:block;}" +
       ".bstlf-check{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#333;line-height:1.4;margin:8px 0;cursor:pointer;}" +
       ".bstlf-check input{margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#1a6f4a;}" +
-      ".bstlf-consent{font-size:11px;color:#666;}" +
+      ".bstlf-consent{font-size:11px;color:#777;line-height:1.45;margin:10px 0 0;}" +
+      ".bstlf-consent a{color:#1a6f4a;text-decoration:underline;}" +
       ".bstlf-submit{width:100%;margin-top:12px;padding:13px;background:#1a6f4a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s;}" +
       ".bstlf-submit:hover{background:#155539;}" +
       ".bstlf-submit:disabled{opacity:.6;cursor:default;}" +
@@ -107,8 +116,8 @@
               '<label class="bstlf-check"><input type="checkbox" class="bstlf-financing"> I’m interested in financing</label>' +
               '<label class="bstlf-check"><input type="checkbox" class="bstlf-tradein"> I have a trade-in</label>' +
             '</div>' +
-            '<label class="bstlf-check"><input type="checkbox" class="bstlf-consent"><span class="bstlf-consent">' + CONSENT_TEXT + '</span></label>' +
             '<button type="submit" class="bstlf-submit">Check availability</button>' +
+            '<p class="bstlf-consent">' + consentHtml() + '</p>' +
             '<div class="bstlf-err-msg" aria-live="polite"></div>' +
           '</form>' +
         '</div>' +
@@ -143,10 +152,9 @@
       var name = val('.bstlf-name'), email = val('.bstlf-email'), phone = val('.bstlf-phone');
       var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       var phoneOk = phone.replace(/\D/g, '').length >= 10;
-      var consent = backdrop.querySelector('.bstlf-consent').checked;
       flagErr('.bstlf-name', !name); flagErr('.bstlf-email', !emailOk); flagErr('.bstlf-phone', !phoneOk);
       if (!name || !emailOk || !phoneOk) { errMsg.textContent = 'Please enter your name, a valid email, and phone.'; return; }
-      if (!consent) { errMsg.textContent = 'Please check the consent box so we (and the dealer) can reach you.'; return; }
+      // By-clicking consent: submitting the form IS the agreement (disclosure shown above).
 
       submit.disabled = true; submit.textContent = 'Sending…';
       var payload = {
