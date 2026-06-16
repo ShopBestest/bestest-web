@@ -1,5 +1,17 @@
 (function(){if(document.getElementById('bst-zip-pill-styles'))return;var s=document.createElement('style');s.id='bst-zip-pill-styles';s.textContent="/* Shared zip pill styles \u2014 homepage hero + SRP filter bar */\n\n.bst-zip-pill {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  font-size: 12px;\n  color: #1a6f4a;\n  font-weight: 600;\n  cursor: pointer;\n  user-select: none;\n  line-height: 1;\n  padding: 5px 11px;\n  white-space: nowrap;\n  position: relative;\n  border-radius: 14px;\n  background: transparent;\n  border: none;\n  font-family: inherit;\n  outline: none;\n}\n.bst-zip-pill:hover .bst-zip-display,\n.bst-zip-pill:hover .bst-zip-pin { opacity: 0.75; transition: opacity 0.15s; }\n.bst-zip-pill:focus-visible { outline: 2px solid #1a6f4a; outline-offset: 2px; }\n.bst-zip-pill svg.bst-zip-pin { width: 11px; height: 11px; flex-shrink: 0; }\n.bst-zip-pill .bst-zip-display { font-variant-numeric: tabular-nums; }\n\n@media (max-width: 767px) {\n  #bst-srp-zip-pill-desktop { display: none !important; }\n  #bst-srp-zip-pill-mobile { display: inline-flex; padding: 0; }\n}\n@media (min-width: 768px) {\n  #bst-srp-zip-pill-mobile { display: none !important; }\n}\n\n.bst-zip-flyout {\n  position: fixed;\n  background: #fff;\n  border: 1px solid #e0e0e0;\n  border-radius: 12px;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.10);\n  padding: 14px;\n  min-width: 220px;\n  z-index: 99999;\n  display: none;\n  cursor: default;\n  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;\n}\n.bst-zip-flyout.bst-zip-flyout-open { display: block; }\n.bst-zip-flyout-label {\n  display: block;\n  font-size: 11px;\n  font-weight: 700;\n  text-transform: uppercase;\n  letter-spacing: 0.06em;\n  color: #888;\n  margin-bottom: 8px;\n}\n.bst-zip-flyout input[type=\"text\"] {\n  width: 100%;\n  padding: 9px 12px;\n  border: 1px solid #d0d0d0;\n  border-radius: 8px;\n  font-size: 14px;\n  font-family: inherit;\n  color: #1a1a1a;\n  box-sizing: border-box;\n  font-variant-numeric: tabular-nums;\n  outline: none;\n  transition: border-color 0.15s;\n}\n.bst-zip-flyout input[type=\"text\"]:focus { border-color: #1a6f4a; }\n.bst-zip-flyout input[type=\"text\"].bst-zip-error { border-color: #c0392b; }\n.bst-zip-flyout .bst-zip-error-msg {\n  font-size: 11px;\n  color: #c0392b;\n  margin-top: 4px;\n  min-height: 14px;\n}\n.bst-zip-save {\n  display: block;\n  width: 100%;\n  margin-top: 6px;\n  padding: 9px 12px;\n  background: #1a6f4a;\n  color: #fff;\n  border: none;\n  border-radius: 8px;\n  font-size: 13px;\n  font-weight: 600;\n  font-family: inherit;\n  cursor: pointer;\n  transition: background 0.15s;\n}\n.bst-zip-save:hover { background: #155539; }\n.bst-zip-divider {\n  display: flex;\n  align-items: center;\n  text-align: center;\n  margin: 10px 0 8px;\n  color: #aaa;\n  font-size: 11px;\n  letter-spacing: 0.04em;\n}\n.bst-zip-divider::before,\n.bst-zip-divider::after {\n  content: \"\";\n  flex: 1;\n  border-top: 1px solid #eee;\n}\n.bst-zip-divider span { padding: 0 10px; }\n.bst-zip-detect {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 6px;\n  width: 100%;\n  padding: 8px 12px;\n  background: transparent;\n  color: #1a1a1a;\n  border: 1px solid #e0e0e0;\n  border-radius: 8px;\n  font-size: 13px;\n  font-weight: 500;\n  font-family: inherit;\n  cursor: pointer;\n  transition: background 0.15s, border-color 0.15s;\n}\n.bst-zip-detect:hover { background: #f5f5f5; border-color: #c0c0c0; }\n.bst-zip-detect:disabled { opacity: 0.6; cursor: not-allowed; }\n.bst-zip-detect svg { width: 13px; height: 13px; flex-shrink: 0; }\n.bst-zip-detect.bst-zip-detect-loading svg { animation: bst-zip-spin 0.8s linear infinite; }\n@keyframes bst-zip-spin { to { transform: rotate(360deg); } }\n\n@media (max-width: 767px) {\n  .bst-zip-flyout {\n    min-width: 240px;\n    max-width: calc(100vw - 32px);\n  }\n}\n";(document.head||document.documentElement).appendChild(s);})();
 (function() {
+  (function() {
+    if (document.getElementById('bst-zip-modal-styles')) return;
+    var ms = document.createElement('style');
+    ms.id = 'bst-zip-modal-styles';
+    ms.textContent =
+      '.bst-zip-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99998;display:none;}' +
+      '.bst-zip-backdrop.bst-zip-backdrop-open{display:block;}' +
+      '.bst-zip-flyout{position:fixed;top:50%;left:50%;right:auto;transform:translate(-50%,-50%);width:calc(100vw - 32px);max-width:320px;min-width:0;}' +
+      '.bst-zip-flyout-close{position:absolute;top:6px;right:8px;width:28px;height:28px;border:none;background:transparent;color:#999;font-size:20px;line-height:1;cursor:pointer;padding:0;}' +
+      '.bst-zip-coverage{overflow-wrap:anywhere;}';
+    (document.head || document.documentElement).appendChild(ms);
+  })();
   var DEFAULT_ZIP = '92868';
   var DEFAULT_LAT = 33.7875;
   var DEFAULT_LNG = -117.8776;
@@ -29,6 +41,25 @@
   function isCrawler() {
     var ua = (navigator && navigator.userAgent) || '';
     return /bot|crawl|spider|slurp|google-inspectiontool|googleother|storebot|adsbot|mediapartners|bingpreview|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|slackbot|whatsapp|linkedinbot|embedly|pinterest|lighthouse|headlesschrome|pagespeed/i.test(ua);
+  }
+
+  // The zip module renders as a centered modal (always front-and-center wherever the pill
+  // sits) over a shared dimming backdrop, instead of a popover anchored to the pill.
+  function bstHideBackdrop() { var b = document.getElementById('bst-zip-backdrop'); if (b) b.classList.remove('bst-zip-backdrop-open'); }
+  function bstCloseAllFlyouts() {
+    document.querySelectorAll('.bst-zip-flyout.bst-zip-flyout-open').forEach(function(f) { f.classList.remove('bst-zip-flyout-open'); });
+    bstHideBackdrop();
+  }
+  function bstGetBackdrop() {
+    var b = document.getElementById('bst-zip-backdrop');
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'bst-zip-backdrop';
+      b.className = 'bst-zip-backdrop';
+      (document.body || document.documentElement).appendChild(b);
+      b.addEventListener('click', bstCloseAllFlyouts);
+    }
+    return b;
   }
 
   // The pill shows a place name, not a raw zip, everywhere. We cache each zip's city
@@ -181,7 +212,8 @@
   function buildFlyout(zip, cityMode) {
     var label = cityMode ? 'Shop all cars near you' : 'Zip code';
     var saveText = cityMode ? 'See all cars' : 'Save';
-    return '<span class="bst-zip-flyout-label">' + label + '</span>' +
+    return '<button type="button" class="bst-zip-flyout-close" aria-label="Close">×</button>' +
+      '<span class="bst-zip-flyout-label">' + label + '</span>' +
       '<input type="text" class="bst-zip-input" maxlength="5" inputmode="numeric" placeholder="' + (cityMode ? 'Enter your zip' : '') + '" value="' + (cityMode ? '' : zip) + '">' +
       '<div class="bst-zip-error-msg"></div>' +
       '<button type="button" class="bst-zip-save">' + saveText + '</button>' +
@@ -223,37 +255,12 @@
     function refreshCoverageForActive() { var ll = getCurrentLatLng(); showCoverage(!!ll && isOutOfCoverage(ll.lat, ll.lng)); }
     function showError(msg) { input.classList.add('bst-zip-error'); errorMsg.textContent = msg; }
     function clearError() { input.classList.remove('bst-zip-error'); errorMsg.textContent = ''; }
-    function positionFlyout() {
-      var rect = pill.getBoundingClientRect();
-      var vw = window.innerWidth;
-      var fw = 260;
-      var margin = 16;
-      flyout.style.top = (rect.bottom + 6) + 'px';
-      if (rect.left + fw > vw - margin) {
-        flyout.style.left = 'auto';
-        flyout.style.right = Math.max(margin, vw - rect.right) + 'px';
-      } else {
-        flyout.style.left = rect.left + 'px';
-        flyout.style.right = 'auto';
-      }
-      // Clamp: if either edge ended up off-screen on a narrow viewport
-      // (e.g. mobile with the pill centered), pin the flyout to fit within
-      // [margin, vw - margin] so it never overflows the viewport.
-      var fRect = flyout.getBoundingClientRect();
-      if (fRect.left < margin) {
-        flyout.style.left = margin + 'px';
-        flyout.style.right = 'auto';
-      } else if (fRect.right > vw - margin) {
-        flyout.style.left = 'auto';
-        flyout.style.right = margin + 'px';
-      }
-    }
-    function closeFlyout() { flyout.classList.remove('bst-zip-flyout-open'); clearError(); }
+    function closeFlyout() { flyout.classList.remove('bst-zip-flyout-open'); clearError(); bstHideBackdrop(); }
     function openFlyout() {
       document.querySelectorAll('.bst-zip-flyout.bst-zip-flyout-open').forEach(function(f) { if (f !== flyout) f.classList.remove('bst-zip-flyout-open'); });
       input.value = cityMode ? '' : getCurrentZip();
       if (!cityMode) refreshCoverageForActive(); else showCoverage(false);
-      positionFlyout();
+      bstGetBackdrop().classList.add('bst-zip-backdrop-open');
       flyout.classList.add('bst-zip-flyout-open');
       setTimeout(function() { input.focus(); input.select(); }, 50);
     }
@@ -267,6 +274,8 @@
       if ((e.key === 'Enter' || e.key === ' ') && !flyout.contains(e.target)) { e.preventDefault(); openFlyout(); }
     });
     flyout.addEventListener('click', function(e) { e.stopPropagation(); });
+    var flyoutClose = flyout.querySelector('.bst-zip-flyout-close');
+    if (flyoutClose) flyoutClose.addEventListener('click', function(e) { e.preventDefault(); closeFlyout(); });
     input.addEventListener('input', function() {
       clearError();
       var val = input.value.replace(/\D/g, '').substring(0, 5);
@@ -322,19 +331,10 @@
         });
     });
 
-    window.addEventListener('scroll', function() {
-      if (flyout.classList.contains('bst-zip-flyout-open')) positionFlyout();
-    }, true);
-    window.addEventListener('resize', function() {
-      if (flyout.classList.contains('bst-zip-flyout-open')) positionFlyout();
-    });
   }
 
-  document.addEventListener('click', function(e) {
-    document.querySelectorAll('.bst-zip-flyout.bst-zip-flyout-open').forEach(function(f) {
-      if (!f.parentElement.contains(e.target)) f.classList.remove('bst-zip-flyout-open');
-    });
-  });
+  document.addEventListener('click', function() { bstCloseAllFlyouts(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') bstCloseAllFlyouts(); });
 
   function wireAllPills() {
     document.querySelectorAll('.bst-zip-pill').forEach(wirePill);
