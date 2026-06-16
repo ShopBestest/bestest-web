@@ -219,7 +219,7 @@
       '<button type="button" class="bst-zip-save">' + saveText + '</button>' +
       '<div class="bst-zip-divider"><span>or</span></div>' +
       '<button type="button" class="bst-zip-detect">' + DETECT_PIN_SVG + 'Use my location</button>' +
-      '<div class="bst-zip-coverage" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #eee;font-size:11px;line-height:1.4;color:#9a6a00;">Heads up — that\'s outside our current coverage area (Orange County). We\'ll still show you the nearest curated cars.</div>';
+      '<div class="bst-zip-coverage" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #eee;font-size:11px;line-height:1.4;color:#9a6a00;">Heads up — that\'s outside our current coverage area of Orange County, California. We\'ll still show you the cars anyway.</div>';
   }
 
   function wirePill(pill) {
