@@ -8,8 +8,7 @@
       '.bst-zip-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99998;display:none;}' +
       '.bst-zip-backdrop.bst-zip-backdrop-open{display:block;}' +
       '.bst-zip-flyout{position:fixed;top:50%;left:50%;right:auto;transform:translate(-50%,-50%);width:calc(100vw - 32px);max-width:320px;min-width:0;}' +
-      '.bst-zip-flyout-close{position:absolute;top:6px;right:8px;width:28px;height:28px;border:none;background:transparent;color:#999;font-size:20px;line-height:1;cursor:pointer;padding:0;}' +
-      '.bst-zip-coverage{overflow-wrap:anywhere;}';
+      '.bst-zip-flyout-close{position:absolute;top:6px;right:8px;width:28px;height:28px;border:none;background:transparent;color:#999;font-size:20px;line-height:1;cursor:pointer;padding:0;}';
     (document.head || document.documentElement).appendChild(ms);
   })();
   var DEFAULT_ZIP = '92868';
@@ -218,8 +217,7 @@
       '<div class="bst-zip-error-msg"></div>' +
       '<button type="button" class="bst-zip-save">' + saveText + '</button>' +
       '<div class="bst-zip-divider"><span>or</span></div>' +
-      '<button type="button" class="bst-zip-detect">' + DETECT_PIN_SVG + 'Use my location</button>' +
-      '<div class="bst-zip-coverage" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #eee;font-size:11px;line-height:1.4;color:#9a6a00;">Heads up — that\'s outside our current coverage area of Orange County, California. We\'ll still show you the cars anyway.</div>';
+      '<button type="button" class="bst-zip-detect">' + DETECT_PIN_SVG + 'Use my location</button>';
   }
 
   function wirePill(pill) {
@@ -238,28 +236,23 @@
     } else {
       pill.querySelector('.bst-zip-display').textContent = displayText;
     }
-    var flyout = pill.querySelector('.bst-zip-flyout');
-    if (!flyout) {
-      flyout = document.createElement('div');
-      flyout.className = 'bst-zip-flyout';
-      flyout.innerHTML = buildFlyout(zip, cityMode);
-      pill.appendChild(flyout);
-    }
+    // Portal the modal to <body> so position:fixed centers against the viewport — inside the
+    // pill it can land under a transformed/positioned ancestor (e.g. the hero) and mis-center.
+    var flyout = document.createElement('div');
+    flyout.className = 'bst-zip-flyout';
+    flyout.innerHTML = buildFlyout(zip, cityMode);
+    (document.body || document.documentElement).appendChild(flyout);
     var input = flyout.querySelector('.bst-zip-input');
     var saveBtn = flyout.querySelector('.bst-zip-save');
     var detectBtn = flyout.querySelector('.bst-zip-detect');
     var errorMsg = flyout.querySelector('.bst-zip-error-msg');
-    var coverageNote = flyout.querySelector('.bst-zip-coverage');
 
-    function showCoverage(out) { if (coverageNote) coverageNote.style.display = out ? 'block' : 'none'; }
-    function refreshCoverageForActive() { var ll = getCurrentLatLng(); showCoverage(!!ll && isOutOfCoverage(ll.lat, ll.lng)); }
     function showError(msg) { input.classList.add('bst-zip-error'); errorMsg.textContent = msg; }
     function clearError() { input.classList.remove('bst-zip-error'); errorMsg.textContent = ''; }
     function closeFlyout() { flyout.classList.remove('bst-zip-flyout-open'); clearError(); bstHideBackdrop(); }
     function openFlyout() {
       document.querySelectorAll('.bst-zip-flyout.bst-zip-flyout-open').forEach(function(f) { if (f !== flyout) f.classList.remove('bst-zip-flyout-open'); });
       input.value = cityMode ? '' : getCurrentZip();
-      if (!cityMode) refreshCoverageForActive(); else showCoverage(false);
       bstGetBackdrop().classList.add('bst-zip-backdrop-open');
       flyout.classList.add('bst-zip-flyout-open');
       setTimeout(function() { input.focus(); input.select(); }, 50);
@@ -293,16 +286,11 @@
           .catch(function() { showError('Could not find that zip code'); });
         return;
       }
-      if (val === getCurrentZip()) {
-        refreshCoverageForActive();
-        if (coverageNote && coverageNote.style.display === 'block') return;
-        closeFlyout(); return;
-      }
+      if (val === getCurrentZip()) { closeFlyout(); return; }
       applyZip(val).then(function() {
-        var ll = getCurrentLatLng();
-        // Keep the flyout open to surface the coverage note when the chosen zip is out of area,
-        // and fire the one-time overlay (no-ops if already seen).
-        if (ll && isOutOfCoverage(ll.lat, ll.lng)) { showCoverage(true); maybeShowCoverageOverlay(); } else closeFlyout();
+        closeFlyout();
+        // An out-of-area zip fires the one-time overlay (no-ops if already seen).
+        maybeShowCoverageOverlay();
       }).catch(function() { showError('Could not find that zip code'); });
     }
 
