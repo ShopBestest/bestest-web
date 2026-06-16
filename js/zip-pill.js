@@ -7,7 +7,7 @@
     ms.textContent =
       '.bst-zip-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99998;display:none;align-items:center;justify-content:center;padding:16px;}' +
       '.bst-zip-backdrop.bst-zip-backdrop-open{display:flex;}' +
-      '.bst-zip-flyout{position:static;transform:none;top:auto;left:auto;right:auto;width:100%;max-width:320px;min-width:0;margin:0;}' +
+      '.bst-zip-flyout{position:static !important;transform:none !important;top:auto !important;left:auto !important;right:auto !important;bottom:auto !important;width:100% !important;max-width:320px !important;min-width:0 !important;margin:0 !important;}' +
       '.bst-zip-flyout-close{position:absolute;top:6px;right:8px;width:28px;height:28px;border:none;background:transparent;color:#999;font-size:20px;line-height:1;cursor:pointer;padding:0;}';
     (document.head || document.documentElement).appendChild(ms);
   })();
