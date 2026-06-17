@@ -60,7 +60,7 @@ body.bsx-broad .bsx-title { margin: 0; }
 .bsx-chip .bsx-ct    { font-size: 11px; font-weight: 500; }
 /* Active (included in current filter, or no filter applied yet) */
 .bsx-chip.bsx-on  { color: #1a1a1a; border-color: #1a6f4a; }
-.bsx-chip.bsx-on .bsx-ct { color: #888; }
+.bsx-chip.bsx-on .bsx-ct { color: #6b7280; }
 /* Inactive (deselected by user) */
 .bsx-chip.bsx-off { color: #aaa; border-color: #e5e0d0; }
 .bsx-chip.bsx-off .bsx-ct { color: #aaa; }
@@ -70,7 +70,7 @@ body.bsx-broad .bsx-title { margin: 0; }
 
 .bsx-pills-row { display: flex; align-items: center; gap: 12px; }
 .bsx-pills-row .bs-pills { flex: 1; min-width: 0; }
-.bsx-allcars { font-size: 12px; color: #888; text-decoration: none; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-weight: 500; }
+.bsx-allcars { font-size: 12px; color: #6b7280; text-decoration: none; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-weight: 500; }
 .bsx-allcars:hover { color: #1a1a1a; }
 .bsx-allcars-mob { display: none; }
 
@@ -88,17 +88,17 @@ body.bsx-broad .bsx-title { margin: 0; }
   display: none;
 }
 .bsx-picker.bsx-open { display: block; }
-.bsx-pgrouplabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #888; background: #f3f3f0; padding: 7px 14px; margin: 0; }
+.bsx-pgrouplabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #6b7280; background: #f3f3f0; padding: 7px 14px; margin: 0; }
 .bsx-pitem { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; padding: 11px 14px; cursor: pointer; text-decoration: none; color: inherit; border-bottom: 0.5px solid #f2f0e8; }
 .bsx-pitem:hover { background: #faf8f1; }
 .bsx-pitem.bsx-pactive { background: #e8f3ec; }
 .bsx-pitem.bsx-pactive .bsx-pname { color: #1a6f4a; }
 .bsx-ptext { min-width: 0; }
 .bsx-pname { font-size: 15px; font-weight: 700; color: #1a1a1a; margin: 0 0 2px; line-height: 1.25; }
-.bsx-peg { font-size: 12px; color: #888; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bsx-peg { font-size: 12px; color: #6b7280; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bsx-parrow { color: #c0c0c0; font-size: 14px; flex-shrink: 0; }
 .bsx-pitem:hover .bsx-parrow { color: #1a1a1a; }
-.bsx-pallcars { padding: 10px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #888; font-weight: 500; border-top: 0.5px solid #e0e0e0; margin-top: 4px; text-decoration: none; }
+.bsx-pallcars { padding: 10px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #6b7280; font-weight: 500; border-top: 0.5px solid #e0e0e0; margin-top: 4px; text-decoration: none; }
 .bsx-pallcars:hover { background: #f5f5f5; color: #1a1a1a; }
 .bsx-pallcars.bsx-pactive { background: #f3f3f0; color: #1a1a1a; font-weight: 600; }
 
@@ -129,7 +129,7 @@ body.bsx-broad .bsx-title { margin: 0; }
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0;
-  color: #999;
+  color: #6b7280;
   font-weight: 500;
   cursor: pointer;
   font-family: inherit;

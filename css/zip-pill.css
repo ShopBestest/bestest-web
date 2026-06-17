@@ -53,7 +53,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #888;
+  color: #6b7280;
   margin-bottom: 8px;
 }
 .bst-zip-flyout input[type="text"] {
@@ -98,7 +98,7 @@
   align-items: center;
   text-align: center;
   margin: 10px 0 8px;
-  color: #aaa;
+  color: #6b7280;
   font-size: 11px;
   letter-spacing: 0.04em;
 }

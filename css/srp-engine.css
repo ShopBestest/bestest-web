@@ -14,15 +14,15 @@
 .bs-meta { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 14px; line-height:1.4; margin-top:6px; min-height:16px; }
 @media (max-width: 767px) { .bs-meta { justify-content:flex-start; } }
 .bs-meta .bsx-allcars { white-space:nowrap; }
-.bs-count { font-size:11px; color:#888; opacity:0; transition:opacity .2s ease; white-space:nowrap; }
+.bs-count { font-size:11px; color:#6b7280; opacity:0; transition:opacity .2s ease; white-space:nowrap; }
 .bs-count.bs-ready { opacity:1; }
-.bs-clearall { font-size:10px; color:#bbb; cursor:pointer; background:none; border:none; padding:0; display:none; text-decoration:underline; text-underline-offset:2px; white-space:nowrap; }
-.bs-clearall:hover { color:#888; }
+.bs-clearall { font-size:10px; color:#6b7280; cursor:pointer; background:none; border:none; padding:0; display:none; text-decoration:underline; text-underline-offset:2px; white-space:nowrap; }
+.bs-clearall:hover { color:#6b7280; }
 .bs-clearall.bs-vis { display:block; }
 .bs-drop { position:fixed; background:#fff; border:1px solid #e0e0e0; border-radius:12px; padding:16px; min-width:240px; max-width:320px; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,.08); display:none; }
 .bs-drop.bs-open { display:block; }
 .bs-drop-segment { min-width:300px; max-width:380px; }
-.bs-drop-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#888; margin:0 0 10px; }
+.bs-drop-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#6b7280; margin:0 0 10px; }
 .bs-opts { display:grid; grid-auto-flow:column; grid-template-columns:1fr 1fr; grid-template-rows:repeat(12,auto); gap:4px 12px; max-height:260px; overflow-y:auto; overflow-x:hidden; }
 @media (max-width:600px){ .bs-opts { grid-template-columns:1fr; grid-template-rows:none; grid-auto-flow:row; } }
 .bs-opts.bs-1col { column-count:1; }
@@ -30,13 +30,13 @@
 .bs-opt input { width:14px; height:14px; cursor:pointer; flex-shrink:0; margin-top:2px; accent-color:#1a1a1a; }
 .bs-opt.bs-disabled { opacity:.35; cursor:not-allowed; pointer-events:none; }
 .bs-opt.bs-hidden { display:none; }
-.bs-eg { font-size:11px; color:#aaa; display:block; }
-.bs-model-group, .bs-seg-group { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#888; padding:8px 0 4px; border-bottom:1px solid #f0f0f0; margin-bottom:2px; }
+.bs-eg { font-size:11px; color:#6b7280; display:block; }
+.bs-model-group, .bs-seg-group { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#6b7280; padding:8px 0 4px; border-bottom:1px solid #f0f0f0; margin-bottom:2px; }
 .bs-model-group:first-child, .bs-seg-group:first-child { padding-top:0; }
-.bs-empty-msg { font-size:12px; color:#888; padding:8px 4px; line-height:1.5; }
+.bs-empty-msg { font-size:12px; color:#6b7280; padding:8px 4px; line-height:1.5; }
 .bs-foot { margin-top:12px; display:flex; gap:8px; }
 .bs-apply { flex:1; padding:8px; background:#1a1a1a; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; }
-.bs-reset { padding:8px 12px; background:none; color:#888; border:1px solid #e0e0e0; border-radius:8px; font-size:13px; cursor:pointer; }
+.bs-reset { padding:8px 12px; background:none; color:#6b7280; border:1px solid #e0e0e0; border-radius:8px; font-size:13px; cursor:pointer; }
 .bs-sort-opt { padding:9px 10px; font-size:13px; color:#1a1a1a; cursor:pointer; border-radius:6px; transition:background .1s; display:flex; align-items:center; gap:8px; }
 .bs-sort-opt:hover { background:#f5f5f5; }
 .bs-sort-opt.bs-sel { font-weight:600; }
@@ -61,3 +61,4 @@
 .car-card { height:100% !important; box-sizing:border-box !important; min-width:0 !important; cursor:pointer !important; }
 .listing-image { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; height: 100%; background: #f0f0f0; }
 .car-card .w-button { width:100% !important; box-sizing:border-box !important; white-space:normal !important; }
+.car-listing-button { background:#1a6f4a !important; }

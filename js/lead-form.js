@@ -77,7 +77,7 @@
       ".bstlf-more.bstlf-show{display:block;}" +
       ".bstlf-check{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#333;line-height:1.4;margin:8px 0;cursor:pointer;}" +
       ".bstlf-check input{margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#1a6f4a;}" +
-      ".bstlf-consent{font-size:11px;color:#777;line-height:1.45;margin:10px 0 0;}" +
+      ".bstlf-consent{font-size:11px;color:#6b7280;line-height:1.45;margin:10px 0 0;}" +
       ".bstlf-consent a{color:#1a6f4a;text-decoration:underline;}" +
       ".bstlf-submit{width:100%;margin-top:12px;padding:13px;background:#1a6f4a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s;}" +
       ".bstlf-submit:hover{background:#155539;}" +
