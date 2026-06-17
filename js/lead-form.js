@@ -176,13 +176,19 @@
           if (res && res.ok) {
             backdrop.querySelector('.bstlf-form-wrap').style.display = 'none';
             backdrop.querySelector('.bstlf-done').style.display = 'block';
+            track('generate_lead', { vin: ctx.vin, dealer_name: ctx.dealer, value: ctx.price || undefined, currency: 'USD' });
           } else { throw new Error((res && res.error) || 'failed'); }
         })
         .catch(function () {
           submit.disabled = false; submit.textContent = 'Check availability';
           errMsg.textContent = 'Something went wrong sending that. Please try again, or call the dealer.';
+          track('lead_form_submit_error', { vin: ctx.vin, dealer_name: ctx.dealer });
         });
     });
+  }
+
+  function track(name, params) {
+    try { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); } catch (e) {}
   }
 
   function open(url, e) {
@@ -201,6 +207,7 @@
     backdrop.querySelector('.bstlf-veh').textContent = vehLine;
     openedAt = Date.now();
     backdrop.classList.add('bstlf-open');
+    track('lead_form_open', { vin: ctx.vin, dealer_name: ctx.dealer, price: ctx.price });
     setTimeout(function () { var n = backdrop.querySelector('.bstlf-name'); if (n) n.focus(); }, 60);
   }
 
