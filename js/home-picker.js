@@ -1,15 +1,16 @@
 /* home-picker.js — homepage make/model/segment search.
-   Replaces the legacy inline homepage <script>. Reads the live roster from KV via
-   the model-pages worker (/best-used/_roster.json, same-origin), so the dropdown
-   stays in sync with Airtable MM automatically — no redeploy on status changes.
+   Replaces the legacy inline homepage <script>. Reads the live roster from the feed
+   worker (GET ?roster, CORS) which serves KV models:roster, so the dropdown stays in
+   sync with Airtable MM automatically — no redeploy on status changes.
    Routes by Bestest Status:
      Approved (A) -> /used-cars SRP (make+model filter)
-     Fun/Banned   -> /best-used/{slug} (worker serves the explainer)
+     Fun (F)      -> /just-for-fun?make=&model=
+     Banned/other -> /not-recommended?make=&model=
    Embed on homepage, before </body>:
    <script src="https://cdn.jsdelivr.net/gh/ShopBestest/bestest-web@<sha>/js/home-picker.js" defer></script>
 */
 (function () {
-  var ROSTER_URL = '/best-used/_roster.json';
+  var ROSTER_URL = (window.BS_FEED_URL || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/') + '?roster';
 
   // Populated from the roster fetch.
   var MODELS = {};            // { make: [{ m: model, s: 'A|B|F', slug }] }
@@ -79,10 +80,11 @@
     bstNavigate({ segment: filterValue, zip: bstState.zip });
   }
   function bstNavigateMake(make) { bstNavigate({ make: make, zip: bstState.zip }); }
-  // Approved -> SRP; Fun/Banned -> the canonical /best-used/{slug} explainer.
+  // Approved -> SRP; Fun -> /just-for-fun; Banned/Needs-verification -> /not-recommended.
   function bstNavigateMakeModel(make, model, status, slug) {
     if (status === 'A') { bstNavigate({ make: make, model: model, zip: bstState.zip }); return; }
-    window.location.href = '/best-used/' + slug;
+    var page = (status === 'F') ? '/just-for-fun' : '/not-recommended';
+    window.location.href = page + qs({ make: make, model: model });
   }
 
   function bstRenderMakes(container, onSelect) {
