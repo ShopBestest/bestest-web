@@ -4,8 +4,8 @@
    sync with Airtable MM automatically — no redeploy on status changes.
    Routes by Bestest Status:
      Approved (A) -> /used-cars SRP (make+model filter)
-     Fun (F)      -> /just-for-fun?make=&model=
-     Banned/other -> /not-recommended?make=&model=
+     Fun (F)      -> /fun-cars?make=&model=
+     Banned/other -> /not-bestest?make=&model=
    Embed on homepage, before </body>:
    <script src="https://cdn.jsdelivr.net/gh/ShopBestest/bestest-web@<sha>/js/home-picker.js" defer></script>
 */
@@ -80,10 +80,10 @@
     bstNavigate({ segment: filterValue, zip: bstState.zip });
   }
   function bstNavigateMake(make) { bstNavigate({ make: make, zip: bstState.zip }); }
-  // Approved -> SRP; Fun -> /just-for-fun; Banned/Needs-verification -> /not-recommended.
+  // Approved -> SRP; Fun -> /fun-cars; Banned/Needs-verification -> /not-bestest.
   function bstNavigateMakeModel(make, model, status, slug) {
     if (status === 'A') { bstNavigate({ make: make, model: model, zip: bstState.zip }); return; }
-    var page = (status === 'F') ? '/just-for-fun' : '/not-recommended';
+    var page = (status === 'F') ? '/fun-cars' : '/not-bestest';
     window.location.href = page + qs({ make: make, model: model });
   }
 
