@@ -47,16 +47,16 @@
       '<p class="bst-fun-lede">The homework’s different, too: how a used one was actually driven and maintained, what it’ll cost to insure, which options are worth paying for, how values hold on a car bought with the heart. We leave those calls to the enthusiasts and specialists who love making them — and keep our focus on the most reliable, best-value everyday cars, the ones we can stand behind.</p>' +
       '<div class="bst-fun-split">' +
         '<div class="bst-fun-col">' +
-          '<p class="bst-fun-col-h">What Bestest optimizes for</p>' +
-          '<ul><li>Reliability you can count on for years</li><li>Resale value that holds up</li><li>Safety and everyday practicality</li><li>A clean, low-mileage, dealer-certified example</li></ul>' +
-          '<a class="bst-fun-cta bst-fun-cta-primary" href="/used-cars">Shop the best everyday cars on Bestest →</a>' +
-        '</div>' +
-        '<div class="bst-fun-col">' +
           '<p class="bst-fun-col-h">What a fun car is about</p>' +
           '<ul><li>How it makes you feel behind the wheel</li><li>Performance, sound and style</li><li>Track days, weekend drives, the badge</li><li>Trade-offs you happily accept for all that</li></ul>' +
           '<a class="bst-fun-cta bst-fun-cta-out" href="' + autotrader + '" target="_blank" rel="noopener nofollow">' +
             '<span>Shop used ' + nameHTML + ' on Autotrader</span>' + EXT +
           '</a>' +
+        '</div>' +
+        '<div class="bst-fun-col">' +
+          '<p class="bst-fun-col-h">What Bestest optimizes for</p>' +
+          '<ul><li>Reliability you can count on for years</li><li>Resale value that holds up</li><li>Safety and everyday practicality</li><li>A clean, low-mileage, dealer-certified example</li></ul>' +
+          '<a class="bst-fun-cta bst-fun-cta-primary" href="/used-cars">Shop the best everyday cars on Bestest →</a>' +
         '</div>' +
       '</div>' +
     '</section>';

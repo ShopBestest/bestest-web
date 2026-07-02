@@ -1,7 +1,8 @@
-/* not-on-bestest.js — "we don't carry this model" page.
+/* not-on-bestest.js — "this model isn't on Bestest" page (/not-bestest).
    Renders into <div id="bst-notcarried"></div>. Reads ?make=&model= from the URL.
    Used for Banned / Needs-verification models routed from the homepage picker.
-   Self-loads Chart.js (4.4.1) for the all-cars pillar comparison.
+   Two-box checkbox comparison (this car vs Bestest cars); each box carries its own CTA:
+   this-car box -> used listings on Autotrader (new tab); Bestest box -> the SRP.
    Page should be set to noindex in Webflow; this script also injects a robots meta as backup.
    Embed on the Webflow page, before </body>:
    <script src="https://cdn.jsdelivr.net/gh/ShopBestest/bestest-web@<sha>/js/not-on-bestest.js" defer></script>
@@ -10,7 +11,6 @@
   var MOUNT = document.getElementById('bst-notcarried');
   if (!MOUNT) return;
 
-  // Belt-and-suspenders noindex (primary control is the Webflow page setting).
   if (!document.querySelector('meta[name="robots"]')) {
     var m = document.createElement('meta');
     m.name = 'robots'; m.content = 'noindex, follow';
@@ -18,13 +18,6 @@
   }
 
   var GREEN = '#15A36D';
-
-  // All-cars pillar comparison (new scoring engine, Include vs Exclude; market_signal omitted — empty table-wide).
-  var PILLARS = ['Critics', 'Internal', 'Safety', 'Reliability', 'Value'];
-  var OTHER   = [89.5, 89.5, 82.8, 85.1, 89.5];
-
-  // Locked standard copy (mirrors the site-wide "Which cars make the cut?" overlay).
-  var STANDARD = "Bestest was founded by the former head of reviews and ratings for Kelley Blue Book, who's spent more than 20 years helping shoppers find the good cars and avoid the bad ones. The only cars you'll find on Bestest are the ones also ranked highly by trusted institutions like Consumer Reports, Kelley Blue Book, Car and Driver, and NHTSA, with extra emphasis on reliability and resale value. In addition, every car on Bestest is offered by a manufacturer-certified franchise dealer, and has no more than five model years or 50,000 miles on the clock.";
 
   function param(k) {
     var v = new URLSearchParams(window.location.search).get(k);
@@ -34,125 +27,81 @@
   function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 
   var make = param('make'), model = param('model');
-  var label = (make + ' ' + model).trim();
-  var nameHTML = label ? '<strong>' + esc(label) + '</strong>' : 'this vehicle';
+  var name = (make + ' ' + model).trim();
+  var nameHTML = name ? esc(name) : 'This car';
+  var autotrader = (make && model)
+    ? 'https://www.autotrader.com/cars-for-sale/' + slug(make) + '/' + slug(model)
+    : 'https://www.autotrader.com/cars-for-sale/all-cars';
 
-  var shop = '';
-  if (make && model) {
-    var mk = slug(make), md = slug(model);
-    shop =
-      '<div class="bst-nc-shop">' +
-        '<p class="bst-nc-shop-h">Still want to research the ' + esc(model) + '? These are good places to start:</p>' +
-        '<div class="bst-nc-links">' +
-          '<a href="https://www.edmunds.com/' + mk + '/' + md + '/" target="_blank" rel="noopener nofollow">Edmunds</a>' +
-          '<a href="https://www.kbb.com/' + mk + '/' + md + '/" target="_blank" rel="noopener nofollow">Kelley Blue Book</a>' +
-          '<a href="https://www.cars.com/research/' + mk + '-' + md + '/" target="_blank" rel="noopener nofollow">Cars.com</a>' +
-        '</div>' +
-      '</div>';
+  var EXT = '<svg class="bst-nc-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  // Same three criteria in both columns — checked for Bestest, unchecked for this car.
+  var CRITERIA = [
+    'Ranked among the best by Consumer Reports, KBB, Car and Driver & NHTSA',
+    'Strong on the reliability and resale value we weight most heavily',
+    'Vetted and recommended by Bestest'
+  ];
+  function checkRows(on) {
+    return CRITERIA.map(function (c) {
+      var box = on
+        ? '<span class="bst-chk bst-chk-on">' + CHECK + '</span>'
+        : '<span class="bst-chk bst-chk-off"></span>';
+      return '<li' + (on ? '' : ' class="bst-off-row"') + '>' + box + '<span>' + c + '</span></li>';
+    }).join('');
   }
 
   MOUNT.innerHTML =
     '<section class="bst-nc">' +
-      '<h1 class="bst-nc-title">Sorry — ' + nameHTML + ' didn’t make the cut.</h1>' +
-      '<p class="bst-nc-lede">It isn’t on Bestest, which means it didn’t clear our bar on the things that matter most to everyday buyers. ' +
-        'That doesn’t make it a bad car everywhere — just one we’d tell you to do a little more homework on.</p>' +
-      '<div class="bst-nc-chartwrap">' +
-        '<p class="bst-nc-chart-h">How the cars we don’t list tend to score</p>' +
-        '<div class="bst-nc-chart"><canvas id="bstNotCarriedChart" role="img" ' +
-          'aria-label="Bestest-approved cars hold a 100 percent baseline across five scoring pillars; cars Bestest does not list score consistently lower, from about 83 to 90 percent.">' +
-          'Bestest-approved cars hold the 100 percent baseline across all five pillars. The cars we don’t list score consistently lower — roughly 83–90 percent — across reliability, value retention, safety, critical reception and our own testing.' +
-        '</canvas></div>' +
-        '<p class="bst-nc-chart-cap">Across every pillar we score, the cars we leave out land below our approved set — with the biggest gaps on the reliability and resale value we weight most heavily.</p>' +
+      '<h1 class="bst-nc-title">The <strong>' + nameHTML + '</strong> isn’t Bestest material.</h1>' +
+      '<p class="bst-nc-lede">Which isn’t the same as saying it’s a bad car — plenty of the cars we leave off are perfectly good, and the ' + esc(model || 'this one') + ' may well be one of them. It just didn’t clear the bar we hold for reliability and resale value, the traits that make a used car easy to stand behind. So it’s not as easy for us to recommend as the cars on Bestest. Here’s the difference:</p>' +
+      '<div class="bst-nc-split">' +
+        '<div class="bst-nc-col bst-nc-col-model">' +
+          '<p class="bst-nc-col-h">The ' + nameHTML + '</p>' +
+          '<ul class="bst-nc-checks">' + checkRows(false) + '</ul>' +
+          '<a class="bst-nc-cta bst-nc-cta-out" href="' + autotrader + '" target="_blank" rel="noopener nofollow">' +
+            '<span>Shop used ' + nameHTML + ' on Autotrader</span>' + EXT +
+          '</a>' +
+        '</div>' +
+        '<div class="bst-nc-col bst-nc-col-best">' +
+          '<p class="bst-nc-col-h">Bestest cars</p>' +
+          '<ul class="bst-nc-checks">' + checkRows(true) + '</ul>' +
+          '<a class="bst-nc-cta bst-nc-cta-primary" href="/used-cars">Shop the best everyday cars on Bestest →</a>' +
+        '</div>' +
       '</div>' +
-      '<p class="bst-nc-standard">' + esc(STANDARD) + '</p>' +
-      shop +
-      '<div class="bst-nc-cta"><a class="bst-nc-btn" href="/used-cars">Browse the cars that did make the cut →</a></div>' +
     '</section>';
 
   injectStyles();
-  loadChart(renderChart);
-
-  function renderChart() {
-    var canvas = document.getElementById('bstNotCarriedChart');
-    if (!canvas || typeof Chart === 'undefined') return;
-    var labelPlugin = {
-      id: 'ncInlineLabels',
-      afterDatasetsDraw: function (chart) {
-        var ctx = chart.ctx, sc = chart.scales;
-        var fs = chart.width < 480 ? 12 : 13;
-        ctx.save();
-        ctx.font = '500 ' + fs + "px Montserrat, system-ui, sans-serif";
-        ctx.textAlign = 'center';
-        ctx.fillStyle = GREEN; ctx.textBaseline = 'bottom';
-        ctx.fillText('Bestest-approved', sc.x.getPixelForValue(2), sc.y.getPixelForValue(100) - 8);
-        ctx.fillStyle = '#5F5E5A'; ctx.textBaseline = 'top';
-        ctx.fillText('Cars we don’t list', sc.x.getPixelForValue(2), sc.y.getPixelForValue(82.8) + 12);
-        ctx.restore();
-      }
-    };
-    new Chart(canvas.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: PILLARS,
-        datasets: [
-          { label: 'Bestest-approved', data: [100, 100, 100, 100, 100], borderColor: GREEN, borderWidth: 4, pointRadius: 0, fill: false, tension: 0, order: 1 },
-          { label: 'Cars we don’t list', data: OTHER, borderColor: '#5F5E5A', backgroundColor: 'rgba(95,94,90,0.13)', borderWidth: 2, pointRadius: 0, fill: '-1', tension: 0, order: 2 }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        layout: { padding: { top: 28, bottom: 4, left: 4, right: 4 } },
-        plugins: { legend: { display: false }, tooltip: { enabled: false } },
-        scales: {
-          y: {
-            min: 50, max: 105,
-            ticks: { font: { size: 11, family: 'Montserrat, system-ui, sans-serif' }, color: '#888780',
-              callback: function (v) { return (v === 50 || v === 100) ? v + '%' : ''; } },
-            afterBuildTicks: function (a) { a.ticks = a.ticks.filter(function (t) { return t.value === 50 || t.value === 100; }); },
-            grid: { color: function (c) { return c.tick.value === 100 ? 'rgba(21,163,109,0.4)' : 'rgba(180,178,169,0.18)'; },
-              lineWidth: function (c) { return c.tick.value === 100 ? 1.5 : 1; } },
-            border: { display: false }
-          },
-          x: {
-            ticks: { font: { size: 12, family: 'Montserrat, system-ui, sans-serif' }, color: '#444441', autoSkip: false, maxRotation: 0 },
-            grid: { display: false }, border: { color: 'rgba(180,178,169,0.4)' }
-          }
-        }
-      },
-      plugins: [labelPlugin]
-    });
-  }
-
-  function loadChart(cb) {
-    if (typeof Chart !== 'undefined') { cb(); return; }
-    var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
-    s.onload = cb;
-    s.onerror = function () { /* chart is enhancement-only; text fallback stays */ };
-    document.head.appendChild(s);
-  }
 
   function injectStyles() {
     if (document.getElementById('bst-nc-styles')) return;
     var s = document.createElement('style'); s.id = 'bst-nc-styles';
     s.textContent =
-      ".bst-nc{max-width:720px;margin:0 auto;padding:8px 0 48px;font-family:'Montserrat',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;}" +
+      ".bst-nc, .bst-nc * { font-family: 'Montserrat', sans-serif !important; }" +
+      ".bst-nc{max-width:720px;margin:0 auto;padding:8px 0 48px;color:#1a1a1a;}" +
       ".bst-nc-title{font-size:30px;line-height:1.2;font-weight:700;margin:0 0 14px;}" +
       ".bst-nc-lede{font-size:17px;line-height:1.55;color:#333;margin:0 0 28px;}" +
-      ".bst-nc-chartwrap{background:#f0f7f2;border-radius:12px;padding:20px 18px 16px;margin:0 0 28px;}" +
-      ".bst-nc-chart-h{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#5F5E5A;margin:0 0 6px;}" +
-      ".bst-nc-chart{position:relative;height:230px;}" +
-      ".bst-nc-chart-cap{font-size:13px;line-height:1.5;color:#5F5E5A;margin:12px 2px 0;}" +
-      ".bst-nc-standard{font-size:14px;line-height:1.65;color:#444;border-left:3px solid " + GREEN + ";padding:2px 0 2px 16px;margin:0 0 28px;}" +
-      ".bst-nc-shop{margin:0 0 28px;}" +
-      ".bst-nc-shop-h{font-size:15px;font-weight:600;margin:0 0 10px;}" +
-      ".bst-nc-links{display:flex;gap:10px;flex-wrap:wrap;}" +
-      ".bst-nc-links a{font-size:14px;font-weight:600;color:#1a6f4a;text-decoration:none;border:1px solid #cfe3d7;border-radius:20px;padding:7px 14px;transition:background .15s;}" +
-      ".bst-nc-links a:hover{background:#e8f3ec;}" +
-      ".bst-nc-cta{margin-top:8px;}" +
-      ".bst-nc-btn{display:inline-block;background:#1a6f4a;color:#fff;font-size:15px;font-weight:600;text-decoration:none;padding:12px 22px;border-radius:10px;}" +
-      ".bst-nc-btn:hover{background:#155539;}" +
-      "@media(max-width:600px){.bst-nc-title{font-size:24px;}.bst-nc-lede{font-size:16px;}.bst-nc-chart{height:200px;}}";
+      ".bst-nc-split{display:grid;grid-template-columns:1fr 1fr;gap:16px;}" +
+      ".bst-nc-col{border-radius:12px;padding:18px;display:flex;flex-direction:column;}" +
+      ".bst-nc-col-model{background:#f7f6f2;}" +
+      ".bst-nc-col-best{background:#f0f7f2;}" +
+      ".bst-nc-col-h{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5F5E5A;margin:0 0 14px;}" +
+      ".bst-nc-col-best .bst-nc-col-h{color:" + GREEN + ";}" +
+      ".bst-nc-checks{list-style:none;margin:0 0 16px;padding:0;}" +
+      ".bst-nc-checks li{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;line-height:1.4;color:#333;margin:0 0 12px;}" +
+      ".bst-nc-checks li.bst-off-row{color:#9a988f;}" +
+      ".bst-chk{flex-shrink:0;width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;}" +
+      ".bst-chk-on{background:" + GREEN + ";color:#fff;}" +
+      ".bst-chk-on svg{width:13px;height:13px;}" +
+      ".bst-chk-off{background:#fff;border:1.5px solid #d8d6cc;}" +
+      ".bst-nc-cta{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-align:center;font-size:14px;font-weight:600;text-decoration:none;padding:11px 16px;border-radius:10px;line-height:1.3;}" +
+      ".bst-nc-cta-primary{background:#1a6f4a;color:#fff;}" +
+      ".bst-nc-cta-primary:hover{background:#155539;}" +
+      ".bst-nc-cta-out{background:#fff;color:#1a6f4a;border:1px solid #cfe3d7;}" +
+      ".bst-nc-cta-out:hover{background:#e8f3ec;}" +
+      ".bst-nc-ext{width:15px;height:15px;flex-shrink:0;}" +
+      "@media(max-width:600px){.bst-nc-title{font-size:24px;}.bst-nc-lede{font-size:16px;}.bst-nc-split{grid-template-columns:1fr;}}";
     document.head.appendChild(s);
   }
 })();
