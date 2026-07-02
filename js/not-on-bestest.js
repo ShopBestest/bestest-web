@@ -102,7 +102,8 @@
     MOUNT.innerHTML =
       '<section class="bst-nc">' +
         '<h1 class="bst-nc-title">The <strong>' + nameHTML + '</strong> isn’t Bestest material.</h1>' +
-        '<p class="bst-nc-body">The cars we don’t allow on Bestest aren’t necessarily bad cars, they’re just not among that segment’s best cars. Founded by the former head of vehicle reviews and ratings at Kelley Blue Book, the only cars you’ll find on Bestest are those that earn consistently high marks across nearly a dozen trusted sources ranging from Consumer Reports to Car and Driver. Bestest is the used-car listings site designed for quality-focused, Nordstrom-type shoppers who don’t want to bother with anything but the good stuff.</p>' +
+        '<p class="bst-nc-body">The cars we don’t allow on Bestest aren’t necessarily bad cars, they’re just not among the segment’s best cars. Founded by the former head of vehicle reviews and ratings at Kelley Blue Book, the only cars you’ll find on Bestest are the same ones that earn consistently high marks across trusted sources ranging from Consumer Reports to Car and Driver.</p>' +
+        '<p class="bst-nc-body">Bestest is the used-car marketplace designed for quality-focused, Nordstrom-type shoppers who don’t want to bother with anything but the good stuff.</p>' +
         graphBlock +
         '<div class="bst-nc-ctas">' +
           '<div class="bst-nc-card bst-nc-card-alt">' +
