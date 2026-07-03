@@ -31,9 +31,15 @@
   var name = (make + ' ' + model).trim();
   var nameHTML = name ? esc(name) : 'This one';
   // Autotrader resolves simple {make}/{model} slugs (verified), so no mapping needed.
-  var autotrader = (make && model)
+  var UTM = '?utm_source=shopbestest&utm_medium=referral&utm_campaign=fun_cars';
+  var autotrader = ((make && model)
     ? 'https://www.autotrader.com/cars-for-sale/' + slug(make) + '/' + slug(model)
-    : 'https://www.autotrader.com/cars-for-sale/all-cars';
+    : 'https://www.autotrader.com/cars-for-sale/all-cars') + UTM;
+
+  // GA4 outbound tracking (house style: guarded window.gtag, per lead-form.js).
+  function track(name, params) {
+    try { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); } catch (e) {}
+  }
 
   // Feather "external-link" icon — signals the Autotrader link opens off-site / new tab.
   var EXT = '<svg class="bst-fun-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -62,6 +68,13 @@
     '</section>';
 
   injectStyles();
+
+  var outLink = MOUNT.querySelector('.bst-fun-cta-out');
+  if (outLink) {
+    outLink.addEventListener('click', function () {
+      track('outbound_autotrader', { make: make, model: model, source_page: 'fun_cars' });
+    });
+  }
 
   function injectStyles() {
     if (document.getElementById('bst-fun-styles')) return;
