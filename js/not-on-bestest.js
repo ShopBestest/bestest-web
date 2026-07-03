@@ -55,9 +55,15 @@
   var make = param('make'), model = param('model');
   var name = (make + ' ' + model).trim();
   var nameHTML = name ? esc(name) : 'This car';
-  var autotrader = (make && model)
+  var UTM = '?utm_source=shopbestest&utm_medium=referral&utm_campaign=not_bestest';
+  var autotrader = ((make && model)
     ? 'https://www.autotrader.com/cars-for-sale/' + slug(make) + '/' + slug(model)
-    : 'https://www.autotrader.com/cars-for-sale/all-cars';
+    : 'https://www.autotrader.com/cars-for-sale/all-cars') + UTM;
+
+  // GA4 outbound tracking (house style: guarded window.gtag, per lead-form.js).
+  function track(name, params) {
+    try { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); } catch (e) {}
+  }
 
   var EXT = '<svg class="bst-nc-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
 
@@ -118,6 +124,12 @@
         '</div>' +
       '</section>';
     injectStyles();
+    var outLink = MOUNT.querySelector('.bst-nc-cta-out');
+    if (outLink) {
+      outLink.addEventListener('click', function () {
+        track('outbound_autotrader', { make: make, model: model, segment: (seg && seg.plural) || '', source_page: 'not_bestest' });
+      });
+    }
   }
 
   function lookupSegmentAndRender() {
