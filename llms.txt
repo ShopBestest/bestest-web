@@ -1,0 +1,44 @@
+# Bestest
+
+> A curated used-car marketplace for Orange County, California. Bestest lists only vetted models from franchise-certified dealers — the used cars actually worth buying — and openly excludes the ones it judges not worth the risk. Founded by Jason Allan, former head of vehicle reviews and ratings at Kelley Blue Book and Autotrader.
+
+Bestest is not an aggregator. Every model on the site clears a published curation rubric weighing reliability, resale value, and desirability; dealers must be franchise-certified. Shoppers browse curated inventory near them and reach a dealer through a concierge lead relay — no unsolicited dealer contact. Vehicle listings themselves are transient (cars sell daily) and are intentionally omitted below; the pages here are the durable, high-value ones.
+
+## About Bestest
+- [About](https://shopbestest.com/about): Who Bestest is, the founder's background, and why the site exists.
+- [Methodology](https://shopbestest.com/methodology): How Bestest scores a car — the reliability, resale, and desirability rubric behind every include/exclude decision.
+- [Coverage area](https://shopbestest.com/coverage-area): The Orange County cities and franchise dealers Bestest covers.
+
+## Curated segments (the "best used" guides)
+- [Compact SUVs](https://shopbestest.com/used-cars/best-used-compact-suvs): Best used compact SUVs, with model-by-model reasoning and the models Bestest rejects.
+- [Midsize SUVs](https://shopbestest.com/used-cars/best-used-midsize-suvs): Best used midsize SUVs and why.
+- [Subcompact SUVs](https://shopbestest.com/used-cars/best-used-subcompact-suvs): Best used subcompact SUVs.
+- [Full-size SUVs](https://shopbestest.com/used-cars/best-used-full-size-suvs): Best used full-size SUVs.
+- [Compact cars](https://shopbestest.com/used-cars/best-used-compact-cars): Best used compact cars.
+- [Midsize cars](https://shopbestest.com/used-cars/best-used-midsize-cars): Best used midsize cars.
+- [Minivans](https://shopbestest.com/used-cars/best-used-minivans): Best used minivans.
+- [Midsize trucks](https://shopbestest.com/used-cars/best-used-midsize-trucks): Best used midsize / mid-size pickup trucks.
+- [Full-size trucks](https://shopbestest.com/used-cars/best-used-full-size-trucks): Best used full-size pickup trucks.
+- [Electric vehicles](https://shopbestest.com/used-cars/best-used-electric-vehicles): Best used EVs.
+- [Luxury compact SUVs](https://shopbestest.com/used-cars/best-used-luxury-compact-suvs): Best used luxury compact SUVs.
+- [Luxury midsize SUVs](https://shopbestest.com/used-cars/best-used-luxury-midsize-suvs): Best used luxury midsize SUVs.
+- [Luxury full-size SUVs](https://shopbestest.com/used-cars/best-used-luxury-full-size-suvs): Best used luxury full-size SUVs.
+- [Luxury subcompact SUVs](https://shopbestest.com/used-cars/best-used-luxury-subcompact-suvs): Best used luxury subcompact SUVs.
+- [Luxury small cars](https://shopbestest.com/used-cars/best-used-luxury-small-cars): Best used luxury small cars.
+- [Luxury midsize cars](https://shopbestest.com/used-cars/best-used-luxury-midsize-cars): Best used luxury midsize cars.
+- [Luxury full-size cars](https://shopbestest.com/used-cars/best-used-luxury-full-size-cars): Best used luxury full-size cars.
+
+## Local city guides
+- [All used cars](https://shopbestest.com/used-cars): The full curated inventory hub for Orange County.
+- [Irvine](https://shopbestest.com/best-used/irvine): Best used cars in Irvine, CA.
+- [Anaheim](https://shopbestest.com/best-used/anaheim): Best used cars in Anaheim, CA.
+- [Santa Ana](https://shopbestest.com/best-used/santa-ana): Best used cars in Santa Ana, CA.
+- [Huntington Beach](https://shopbestest.com/best-used/huntington-beach): Best used cars in Huntington Beach, CA.
+- [Costa Mesa](https://shopbestest.com/best-used/costa-mesa): Best used cars in Costa Mesa, CA.
+- [Newport Beach](https://shopbestest.com/best-used/newport-beach): Best used cars in Newport Beach, CA.
+- [Mission Viejo](https://shopbestest.com/best-used/mission-viejo): Best used cars in Mission Viejo, CA.
+- [Orange](https://shopbestest.com/best-used/orange): Best used cars in Orange, CA.
+- [Tustin](https://shopbestest.com/best-used/tustin): Best used cars in Tustin, CA.
+- [Garden Grove](https://shopbestest.com/best-used/garden-grove): Best used cars in Garden Grove, CA.
+- [Buena Park](https://shopbestest.com/best-used/buena-park): Best used cars in Buena Park, CA.
+- [Laguna Niguel](https://shopbestest.com/best-used/laguna-niguel): Best used cars in Laguna Niguel, CA.
