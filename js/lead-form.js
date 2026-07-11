@@ -68,7 +68,7 @@
     var d = el.dataset;
     return {
       year: d.year || '', make: d.make || '', model: d.model || '', trim: d.trim || '',
-      price: d.price || '', dealer: d.dealerName || '', vin: d.vin || '',
+      segment: d.segment || '', price: d.price || '', dealer: d.dealerName || '', vin: d.vin || '',
       certified: d.isCertified === 'true'
     };
   }
@@ -190,19 +190,38 @@
           if (res && res.ok) {
             backdrop.querySelector('.bstlf-form-wrap').style.display = 'none';
             backdrop.querySelector('.bstlf-done').style.display = 'block';
-            track('generate_lead', { vin: ctx.vin, dealer_name: ctx.dealer, value: ctx.price || undefined, currency: 'USD' });
+            track('generate_lead', ctxParams({ value: (Number(ctx.price) > 0 ? Number(ctx.price) : undefined), currency: 'USD' }));
           } else { throw new Error((res && res.error) || 'failed'); }
         })
         .catch(function () {
           submit.disabled = false; submit.textContent = 'Check availability';
           errMsg.textContent = 'Something went wrong sending that. Please try again, or call the dealer.';
-          track('lead_form_submit_error', { vin: ctx.vin, dealer_name: ctx.dealer });
+          track('lead_form_submit_error', ctxParams());
         });
     });
   }
 
   function track(name, params) {
     try { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); } catch (e) {}
+  }
+
+  // Vehicle context attached to every lead event, mirroring the VDP embed's vp
+  // param names (view_vdp etc.) so GA4 can slice lead CTR + conversion by
+  // model/make/segment and tally leads by dealer. gtag drops undefined params.
+  function ctxParams(extra) {
+    var priceNum = Number(ctx.price);
+    var p = {
+      vin:           ctx.vin || undefined,
+      model_year:    ctx.year || undefined,
+      vehicle_make:  ctx.make || undefined,
+      vehicle_model: ctx.model || undefined,
+      vehicle_trim:  ctx.trim || undefined,
+      segment:       ctx.segment || undefined,
+      dealer_name:   ctx.dealer || undefined,
+      listing_price: (priceNum > 0 ? priceNum : undefined)
+    };
+    if (extra) for (var k in extra) p[k] = extra[k];
+    return p;
   }
 
   function open(url, e) {
@@ -214,7 +233,11 @@
     var longName  = (dd && [dd.certified ? 'Certified' : 'Used', dd.year, dd.make, dd.model, dd.trim].filter(Boolean).join(' ')) || v.title;
     var price  = (dd && dd.price) || v.price;
     var dealer = (dd && dd.dealer) || v.dealer;
-    ctx = { title: v.title, vin: (dd && dd.vin) || v.vin, price: price, dealer: dealer, dealerUrl: url };
+    ctx = {
+      title: v.title, vin: (dd && dd.vin) || v.vin, price: price, dealer: dealer, dealerUrl: url,
+      year: (dd && dd.year) || '', make: (dd && dd.make) || '', model: (dd && dd.model) || '',
+      trim: (dd && dd.trim) || '', segment: (dd && dd.segment) || ''
+    };
 
     // reset to a fresh form each open
     backdrop.querySelector('.bstlf-form-wrap').style.display = 'block';
@@ -240,7 +263,7 @@
 
     openedAt = Date.now();
     backdrop.classList.add('bstlf-open');
-    track('lead_form_open', { vin: ctx.vin, dealer_name: ctx.dealer, price: ctx.price });
+    track('lead_form_open', ctxParams());
     setTimeout(function () { var n = backdrop.querySelector('.bstlf-first'); if (n) n.focus(); }, 60);
   }
 
