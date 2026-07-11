@@ -55,6 +55,9 @@
   var make = param('make'), model = param('model');
   var name = (make + ' ' + model).trim();
   var nameHTML = name ? esc(name) : 'This car';
+  var titleHTML = name
+    ? 'The <strong>' + esc(name) + '</strong> isn’t Bestest material.'
+    : 'This <strong>car</strong> isn’t Bestest material.';
   var UTM = '?utm_source=shopbestest&utm_medium=referral&utm_campaign=not_bestest';
   var autotrader = ((make && model)
     ? 'https://www.autotrader.com/cars-for-sale/' + slug(make) + '/' + slug(model)
@@ -107,7 +110,7 @@
 
     MOUNT.innerHTML =
       '<section class="bst-nc">' +
-        '<h1 class="bst-nc-title">The <strong>' + nameHTML + '</strong> isn’t Bestest material.</h1>' +
+        '<h1 class="bst-nc-title">' + titleHTML + '</h1>' +
         '<p class="bst-nc-body">The cars we don’t allow on Bestest aren’t necessarily bad cars, they’re just not among the segment’s best cars. Founded by the former head of vehicle reviews and ratings at Kelley Blue Book, the only cars you’ll find on Bestest are the same ones that earn consistently high marks across trusted sources ranging from Consumer Reports to Car and Driver.</p>' +
         '<p class="bst-nc-body">Bestest is the used-car marketplace designed for quality-focused, Nordstrom-type shoppers who don’t want to bother with anything but the good stuff.</p>' +
         graphBlock +
