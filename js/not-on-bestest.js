@@ -153,7 +153,7 @@
     var s = document.createElement('style'); s.id = 'bst-nc-styles';
     s.textContent =
       ".bst-nc, .bst-nc * { font-family: 'Montserrat', sans-serif; }" +
-      ".bst-nc{max-width:720px;margin:0 auto;padding:8px 0 40px;color:#1a1a1a;}" +
+      ".bst-nc{max-width:720px;margin:0 auto;padding:8px 20px 40px;color:#1a1a1a;box-sizing:border-box;}" +
       ".bst-nc-title{font-size:30px;line-height:1.2;font-weight:700;margin:0 0 16px;}" +
       ".bst-nc-body{font-size:16.5px;line-height:1.6;color:#333;margin:0 0 22px;}" +
       ".bst-nc-graph{background:#faf9f6;border:0.5px solid #e7e5dd;border-radius:12px;padding:18px 16px 8px;margin:0 0 26px;}" +
