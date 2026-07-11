@@ -309,6 +309,28 @@
     optsContainer.innerHTML=html;
   }
   function updateDropdownAvailability(filterKey){if(filterKey==='sort')return;if(IS_SRP&&filterKey==='segment')return;var availability=computeAvailability(filterKey);var drop=document.getElementById('bsd-'+filterKey);if(!drop)return;var filter=getFilterByKey(filterKey);var hideEmpty=filter&&filter.hideEmpty;drop.querySelectorAll('.bs-opt').forEach(function(label){var cb=label.querySelector('input');if(!cb)return;var val=cb.value;var available=availability[val];var show=cb.checked||available;if(hideEmpty){if(show){label.classList.remove('bs-hidden');label.classList.remove('bs-disabled');}else{label.classList.add('bs-hidden');}}else{if(show)label.classList.remove('bs-disabled');else label.classList.add('bs-disabled');}});}
+  // Derive Make/Model options from the live feed so the filters show ALL and ONLY
+  // nameplates with >=1 live listing. Falls back to the hardcoded MAIN_* lists if the
+  // feed is empty/unavailable. Broad /used-cars only — segment SRPs filter models via
+  // the chip row, not these pills.
+  function deriveFromFeed(){
+    var mk={},mbm={};
+    allItems.forEach(function(d){if(!d.make)return;mk[d.make]=true;if(d.model){(mbm[d.make]=mbm[d.make]||{})[d.model]=true;}});
+    var makes=Object.keys(mk).sort(),modelsByMake={};
+    makes.forEach(function(m){modelsByMake[m]=Object.keys(mbm[m]||{}).sort();});
+    return {makes:makes,modelsByMake:modelsByMake};
+  }
+  function applyDynamicMakeModel(){
+    if(IS_SRP)return;
+    var d=deriveFromFeed();
+    if(!d.makes.length)return; // keep hardcoded fallback when the feed didn't load
+    MODELS_BY_MAKE=d.modelsByMake;
+    ALL_MODELS=(function(){var s={};d.makes.forEach(function(m){d.modelsByMake[m].forEach(function(x){s[x]=true;});});return Object.keys(s);})();
+    MAKES_BY_MODEL=(function(){var map={};d.makes.forEach(function(m){d.modelsByMake[m].forEach(function(x){(map[x]=map[x]||[]).push(m);});});return map;})();
+    var mf=getFilterByKey('make');if(mf)mf.opts=d.makes.map(function(v){return {v:v};});
+    var drop=document.getElementById('bsd-make');
+    if(drop){var oc=drop.querySelector('.bs-opts');if(oc)oc.innerHTML=d.makes.map(function(m){var c=state.make.indexOf(m)!==-1?' checked':'';return '<label class="bs-opt"><input type="checkbox" data-key="make" value="'+escAttr(m)+'"'+c+'> <span>'+escHtml(m)+'</span></label>';}).join('');}
+  }
   // ── Feed load ───────────────────────────────────────────────────────────────
   function readFeedCache(){try{var raw=sessionStorage.getItem(FEED_CACHE_KEY);if(!raw)return null;var p=JSON.parse(raw);if(!p||!p.timestamp||!p.records)return null;if(Date.now()-p.timestamp>CACHE_TTL_MS){sessionStorage.removeItem(FEED_CACHE_KEY);return null;}return p.records;}catch(e){return null;}}
   function writeFeedCache(records){try{sessionStorage.setItem(FEED_CACHE_KEY,JSON.stringify({timestamp:Date.now(),records:records}));}catch(e){}}
@@ -329,6 +351,7 @@
   }
   function onFeed(records){
     allItems=records.map(mapRecord);
+    applyDynamicMakeModel();
     loadComplete=true;
     hideProgress();
     fullReady();

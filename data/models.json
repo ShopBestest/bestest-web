@@ -1,0 +1,1765 @@
+{
+"generated": "2026-06-27",
+"source": "MM table appFjTccRHQNPVp1X",
+"makes": [
+"Acura",
+"Alfa Romeo",
+"Audi",
+"BMW",
+"Buick",
+"Cadillac",
+"Chevrolet",
+"Chrysler",
+"Dodge",
+"Fiat",
+"Ford",
+"GMC",
+"Genesis",
+"Honda",
+"Hyundai",
+"Infiniti",
+"Jeep",
+"Kia",
+"Land Rover",
+"Lexus",
+"Lincoln",
+"Mazda",
+"Mercedes-Benz",
+"Mini",
+"Mitsubishi",
+"Nissan",
+"Polestar",
+"Porsche",
+"Ram",
+"Subaru",
+"Tesla",
+"Toyota",
+"Volkswagen",
+"Volvo"
+],
+"models": {
+"Hyundai": [
+{
+"m": "Elantra",
+"s": "Approved",
+"seg": "Compact Car"
+},
+{
+"m": "Elantra N",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "IONIQ 9",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Ioniq 5",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Ioniq 6",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Kona",
+"s": "Approved",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Kona EV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Kona N",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Nexo",
+"s": "Banned",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Palisade",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Santa Cruz",
+"s": "Approved",
+"seg": "Compact/Midsize Truck"
+},
+{
+"m": "Santa Fe",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Sonata",
+"s": "Approved",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Tucson",
+"s": "Approved",
+"seg": "Compact SUV"
+},
+{
+"m": "Venue",
+"s": "Banned",
+"seg": "Subcompact SUV"
+}
+],
+"Porsche": [
+{
+"m": "718",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "911",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Cayenne",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "Macan",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "Panamera",
+"s": "Approved",
+"seg": "Luxury Full-Size Car"
+},
+{
+"m": "Taycan",
+"s": "Approved",
+"seg": "Electric Vehicles"
+}
+],
+"Infiniti": [
+{
+"m": "Q50",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "Q60",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "QX50",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "QX55",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "QX60",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "QX80",
+"s": "Banned",
+"seg": "Luxury Full-Size SUV"
+}
+],
+"Audi": [
+{
+"m": "A3",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "A4",
+"s": "Approved",
+"seg": "Luxury Small Car"
+},
+{
+"m": "A5",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "A6",
+"s": "Approved",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "A6 Sportback e-tron",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "A7",
+"s": "Approved",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "A8",
+"s": "Approved",
+"seg": "Luxury Full-Size Car"
+},
+{
+"m": "Q3",
+"s": "Approved",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "Q4 Sportback e-tron",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Q4 e-tron",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Q4 e-tron Sportback",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Q5",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "Q6 Sportback e-tron",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Q6 e-tron",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Q7",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "Q8",
+"s": "Approved",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "Q8 Sportback e-tron",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Q8 e-Tron",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "R8",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "RS 3",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "RS 5",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "RS 6",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "RS 7",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "TT",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "e-tron GT",
+"s": "Approved",
+"seg": "Electric Vehicles"
+}
+],
+"BMW": [
+{
+"m": "2 Series",
+"s": "Approved",
+"seg": "Luxury Small Car"
+},
+{
+"m": "3 Series",
+"s": "Approved",
+"seg": "Luxury Small Car"
+},
+{
+"m": "4 Series",
+"s": "Approved",
+"seg": "Luxury Small Car"
+},
+{
+"m": "5 Series",
+"s": "Approved",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "6 Series",
+"s": "Banned",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "7 Series",
+"s": "Approved",
+"seg": "Luxury Full-Size Car"
+},
+{
+"m": "8 Series",
+"s": "Approved",
+"seg": "Luxury Full-Size Car"
+},
+{
+"m": "M2",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "M3",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "M4",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "M5",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "M8",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "X1",
+"s": "Approved",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "X2",
+"s": "Approved",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "X3",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "X4",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "X5",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "X6",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "X7",
+"s": "Approved",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "XM",
+"s": "Banned",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "Z4",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "iX",
+"s": "Approved",
+"seg": "Electric Vehicles"
+}
+],
+"Mercedes-Benz": [
+{
+"m": "A-Class",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "AMG C-Class",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "AMG E-Class",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "AMG GT",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "B-Class",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "C-Class",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "CLA",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "CLE",
+"s": "Approved",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "CLS",
+"s": "Banned",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "E-Class",
+"s": "Approved",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "EQB",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EQE",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EQE SUV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EQE Sedan",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EQS",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EQS SUV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EQS-Sedan",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "G-Class",
+"s": "Approved",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "GL",
+"s": "Banned",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "GLA",
+"s": "Approved",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "GLB",
+"s": "Approved",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "GLC",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "GLE",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "GLS",
+"s": "Approved",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "Metris",
+"s": "Banned",
+"seg": "Van"
+},
+{
+"m": "S-Class",
+"s": "Approved",
+"seg": "Luxury Full-Size Car"
+},
+{
+"m": "SL",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Sprinter",
+"s": "Banned",
+"seg": "Van"
+}
+],
+"GMC": [
+{
+"m": "Acadia",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Canyon",
+"s": "Banned",
+"seg": "Compact/Midsize Truck"
+},
+{
+"m": "Hummer EV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Savana",
+"s": "Banned",
+"seg": "Van"
+},
+{
+"m": "Sierra 1500",
+"s": "Approved",
+"seg": "Full-Size Truck"
+},
+{
+"m": "Terrain",
+"s": "Banned",
+"seg": "Compact SUV"
+},
+{
+"m": "Yukon",
+"s": "Approved",
+"seg": "Full-Size SUV"
+},
+{
+"m": "Yukon XL",
+"s": "Approved",
+"seg": "Full-Size SUV"
+}
+],
+"Jeep": [
+{
+"m": "Cherokee",
+"s": "Banned",
+"seg": "Compact SUV"
+},
+{
+"m": "Compass",
+"s": "Banned",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Gladiator",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Grand Cherokee",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Grand Cherokee L",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Grand Wagoneer",
+"s": "Banned",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "Recon",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Renegade",
+"s": "Banned",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Wagoneer",
+"s": "Banned",
+"seg": "Full-Size SUV"
+},
+{
+"m": "Wagoneer S",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Wrangler",
+"s": "Fun",
+"seg": "Fun Cars"
+}
+],
+"Chevrolet": [
+{
+"m": "Blazer",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Blazer EV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Bolt EUV",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Bolt EV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Camaro",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Colorado",
+"s": "Banned",
+"seg": "Compact/Midsize Truck"
+},
+{
+"m": "Corvette",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Equinox",
+"s": "Banned",
+"seg": "Compact SUV"
+},
+{
+"m": "Equinox EV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Express",
+"s": "Banned",
+"seg": "Van"
+},
+{
+"m": "Malibu",
+"s": "Banned",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Silverado 1500",
+"s": "Approved",
+"seg": "Full-Size Truck"
+},
+{
+"m": "Silverado 1500 Limited",
+"s": "Banned",
+"seg": "Full-Size Truck"
+},
+{
+"m": "Suburban",
+"s": "Approved",
+"seg": "Full-Size SUV"
+},
+{
+"m": "Tahoe",
+"s": "Approved",
+"seg": "Full-Size SUV"
+},
+{
+"m": "TrailBlazer",
+"s": "Banned",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Traverse",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Trax",
+"s": "Banned",
+"seg": "Subcompact SUV"
+}
+],
+"Cadillac": [
+{
+"m": "CT4",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "CT5",
+"s": "Banned",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "Escalade",
+"s": "Approved",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "Escalade IQ EV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Lyriq",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Optiq",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Vistiq",
+"s": "Banned",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "XT4",
+"s": "Banned",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "XT5",
+"s": "Banned",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "XT6",
+"s": "Banned",
+"seg": "Luxury Midsize SUV"
+}
+],
+"Honda": [
+{
+"m": "Accord",
+"s": "Approved",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "CR-V",
+"s": "Approved",
+"seg": "Compact SUV"
+},
+{
+"m": "Civic",
+"s": "Approved",
+"seg": "Compact Car"
+},
+{
+"m": "Civic Hatchback",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Civic Type R",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "HR-V",
+"s": "Approved",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Insight",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Odyssey",
+"s": "Approved",
+"seg": "Minivan"
+},
+{
+"m": "Passport",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Pilot",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Prelude",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Prologue",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Ridgeline",
+"s": "Approved",
+"seg": "Compact/Midsize Truck"
+}
+],
+"Nissan": [
+{
+"m": "Altima",
+"s": "Approved",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Ariya",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Armada",
+"s": "Banned",
+"seg": "Full-Size SUV"
+},
+{
+"m": "Frontier",
+"s": "Approved",
+"seg": "Compact/Midsize Truck"
+},
+{
+"m": "GT-R",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Kicks",
+"s": "Banned",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Leaf",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Maxima",
+"s": "Banned",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Murano",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Pathfinder",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Rogue",
+"s": "Banned",
+"seg": "Compact SUV"
+},
+{
+"m": "Sentra",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Titan",
+"s": "Banned",
+"seg": "Full-Size Truck"
+},
+{
+"m": "Versa",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Z",
+"s": "Fun",
+"seg": "Fun Cars"
+}
+],
+"Ram": [
+{
+"m": "1500",
+"s": "Approved",
+"seg": "Full-Size Truck"
+},
+{
+"m": "ProMaster",
+"s": "Banned",
+"seg": "Van"
+},
+{
+"m": "ProMaster City",
+"s": "Banned",
+"seg": "Van"
+}
+],
+"Acura": [
+{
+"m": "ADX",
+"s": "Banned",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "Integra",
+"s": "Approved",
+"seg": "Luxury Small Car"
+},
+{
+"m": "MDX",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "RDX",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "TLX",
+"s": "Approved",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "ZDX",
+"s": "Banned",
+"seg": "Electric Vehicles"
+}
+],
+"Toyota": [
+{
+"m": "4Runner",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "C-HR",
+"s": "Banned",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Camry",
+"s": "Approved",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Corolla",
+"s": "Approved",
+"seg": "Compact Car"
+},
+{
+"m": "Corolla Cross",
+"s": "Approved",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Crown",
+"s": "Approved",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Crown Signia",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "GR Corolla",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "GR86",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Grand Highlander",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Highlander",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Land Cruiser",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Mirai",
+"s": "Banned",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Prius",
+"s": "Approved",
+"seg": "Compact Car"
+},
+{
+"m": "RAV4",
+"s": "Approved",
+"seg": "Compact SUV"
+},
+{
+"m": "Sequoia",
+"s": "Approved",
+"seg": "Full-Size SUV"
+},
+{
+"m": "Sienna",
+"s": "Approved",
+"seg": "Minivan"
+},
+{
+"m": "Supra",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Tacoma",
+"s": "Approved",
+"seg": "Compact/Midsize Truck"
+},
+{
+"m": "Tundra",
+"s": "Approved",
+"seg": "Full-Size Truck"
+},
+{
+"m": "Venza",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "bZ4X",
+"s": "Banned",
+"seg": "Electric Vehicles"
+}
+],
+"Alfa Romeo": [
+{
+"m": "4C",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "Giulia",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "Stelvio",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "Tonale",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+}
+],
+"Kia": [
+{
+"m": "Carnival",
+"s": "Approved",
+"seg": "Minivan"
+},
+{
+"m": "EV6",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EV9",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "K4",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "K5",
+"s": "Approved",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Niro",
+"s": "Approved",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Niro EV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Rio",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Seltos",
+"s": "Approved",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Sorento",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Soul",
+"s": "Approved",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Sportage",
+"s": "Approved",
+"seg": "Compact SUV"
+},
+{
+"m": "Telluride",
+"s": "Approved",
+"seg": "Midsize SUV"
+}
+],
+"Ford": [
+{
+"m": "Bronco",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Bronco Sport",
+"s": "Banned",
+"seg": "Subcompact SUV"
+},
+{
+"m": "E-Series",
+"s": "Banned",
+"seg": "Van"
+},
+{
+"m": "Edge",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Escape",
+"s": "Banned",
+"seg": "Compact SUV"
+},
+{
+"m": "Expedition",
+"s": "Approved",
+"seg": "Full-Size SUV"
+},
+{
+"m": "Explorer",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "F-150",
+"s": "Approved",
+"seg": "Full-Size Truck"
+},
+{
+"m": "F-150 Lightning",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Maverick",
+"s": "Approved",
+"seg": "Compact/Midsize Truck"
+},
+{
+"m": "Mustang",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Mustang Mach E",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Mustang Mach-E",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Ranger",
+"s": "Banned",
+"seg": "Compact/Midsize Truck"
+},
+{
+"m": "Transit",
+"s": "Banned",
+"seg": "Van"
+}
+],
+"Lexus": [
+{
+"m": "ES",
+"s": "Approved",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "GX",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "IS",
+"s": "Approved",
+"seg": "Luxury Small Car"
+},
+{
+"m": "LC",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "LS",
+"s": "Approved",
+"seg": "Luxury Full-Size Car"
+},
+{
+"m": "LX",
+"s": "Approved",
+"seg": "Luxury Full-Size SUV"
+},
+{
+"m": "NX",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "RC",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "RC F",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "RX",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "RZ",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "TX",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "UX",
+"s": "Approved",
+"seg": "Luxury Subcompact SUV"
+}
+],
+"Tesla": [
+{
+"m": "Cybertruck",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Model 3",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Model S",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Model X",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Model Y",
+"s": "Approved",
+"seg": "Electric Vehicles"
+}
+],
+"Mitsubishi": [
+{
+"m": "Eclipse Cross",
+"s": "Banned",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Mirage",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Outlander",
+"s": "Banned",
+"seg": "Compact SUV"
+},
+{
+"m": "Outlander Sport",
+"s": "Banned",
+"seg": "Subcompact SUV"
+}
+],
+"Lincoln": [
+{
+"m": "Aviator",
+"s": "Banned",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "Corsair",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "MKX/Nautilus",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "Nautilus",
+"s": "Banned",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "Navigator",
+"s": "Approved",
+"seg": "Luxury Full-Size SUV"
+}
+],
+"Mazda": [
+{
+"m": "CX-30",
+"s": "Approved",
+"seg": "Subcompact SUV"
+},
+{
+"m": "CX-5",
+"s": "Approved",
+"seg": "Compact SUV"
+},
+{
+"m": "CX-50",
+"s": "Approved",
+"seg": "Compact SUV"
+},
+{
+"m": "CX-70",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "CX-9",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "CX-90",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "MX-5 Miata",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Mazda3",
+"s": "Approved",
+"seg": "Compact Car"
+}
+],
+"Subaru": [
+{
+"m": "Ascent",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "BRZ",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Crosstrek",
+"s": "Approved",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Forester",
+"s": "Approved",
+"seg": "Compact SUV"
+},
+{
+"m": "Impreza",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Legacy",
+"s": "Approved",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Outback",
+"s": "Approved",
+"seg": "Midsize SUV"
+},
+{
+"m": "Solterra",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "WRX",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "WRX STI",
+"s": "Fun",
+"seg": "Fun Cars"
+}
+],
+"Fiat": [
+{
+"m": "500",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "500L",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "500X",
+"s": "Banned",
+"seg": "Subcompact SUV"
+}
+],
+"Volkswagen": [
+{
+"m": "Arteon",
+"s": "Banned",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Atlas",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Atlas Sport",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "GTI",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Golf",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Golf R",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "ID. Buzz",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "ID.4",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Jetta",
+"s": "Banned",
+"seg": "Compact Car"
+},
+{
+"m": "Taos",
+"s": "Banned",
+"seg": "Subcompact SUV"
+},
+{
+"m": "Tiguan",
+"s": "Banned",
+"seg": "Compact SUV"
+}
+],
+"Volvo": [
+{
+"m": "60-Series",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "90-Series",
+"s": "Banned",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "C40",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EX30",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "EX90",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "XC40",
+"s": "Banned",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "XC60",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "XC90",
+"s": "Banned",
+"seg": "Luxury Midsize SUV"
+}
+],
+"Genesis": [
+{
+"m": "G70",
+"s": "Approved",
+"seg": "Luxury Small Car"
+},
+{
+"m": "G80",
+"s": "Banned",
+"seg": "Luxury Midsize Car"
+},
+{
+"m": "G90",
+"s": "Banned",
+"seg": "Luxury Full-Size Car"
+},
+{
+"m": "GV60",
+"s": "Approved",
+"seg": "Electric Vehicles"
+},
+{
+"m": "GV70",
+"s": "Approved",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "GV80",
+"s": "Approved",
+"seg": "Luxury Midsize SUV"
+}
+],
+"Polestar": [
+{
+"m": "2",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "3",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "4",
+"s": "Banned",
+"seg": "Electric Vehicles"
+}
+],
+"Dodge": [
+{
+"m": "Challenger",
+"s": "Fun",
+"seg": "Fun Cars"
+},
+{
+"m": "Charger",
+"s": "Banned",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Charger BEV",
+"s": "Banned",
+"seg": "Electric Vehicles"
+},
+{
+"m": "Durango",
+"s": "Banned",
+"seg": "Midsize SUV"
+},
+{
+"m": "Hornet",
+"s": "Banned",
+"seg": "Subcompact SUV"
+}
+],
+"Mini": [
+{
+"m": "Cooper",
+"s": "Banned",
+"seg": "Luxury Small Car"
+},
+{
+"m": "Countryman",
+"s": "Banned",
+"seg": "Compact SUV"
+}
+],
+"Land Rover": [
+{
+"m": "Range Rover Velar",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+}
+],
+"Buick": [
+{
+"m": "Enclave",
+"s": "Banned",
+"seg": "Luxury Midsize SUV"
+},
+{
+"m": "Encore GX",
+"s": "Banned",
+"seg": "Luxury Subcompact SUV"
+},
+{
+"m": "Envision",
+"s": "Banned",
+"seg": "Luxury Compact SUV"
+},
+{
+"m": "Envista",
+"s": "Banned",
+"seg": "Luxury Subcompact SUV"
+}
+],
+"Chrysler": [
+{
+"m": "300",
+"s": "Banned",
+"seg": "Midsize/Full-size Car"
+},
+{
+"m": "Pacifica",
+"s": "Banned",
+"seg": "Minivan"
+},
+{
+"m": "Voyager",
+"s": "Banned",
+"seg": "Minivan"
+}
+]
+}
+}
