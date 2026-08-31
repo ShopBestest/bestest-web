@@ -170,11 +170,11 @@
   function fmtPrice(n){return n>0?'$'+n.toLocaleString('en-US',{maximumFractionDigits:0}):'';}
   function fmtMiles(n){return n>0?n.toLocaleString('en-US',{maximumFractionDigits:0})+' mi':'';}
   // Freshness chip (replaces the dealer name on cards — dealers stay anonymous
-  // pre-lead, matching the VDP). Young cars get their age; 14+ days falls back to
-  // the dealer city so the slot never advertises staleness. Thresholds mirror
-  // lead-form.js's scarcity line.
+  // pre-lead, matching the VDP). Young cars get their age; 14+ days leaves the slot
+  // empty rather than advertising staleness (city + distance already render in
+  // distance.js's .bst-distance-row). Thresholds mirror lead-form.js's scarcity line.
   function fmtFreshness(d){
-    if(d.fsDays==null||d.fsDays>=14)return d.city||'';
+    if(d.fsDays==null||d.fsDays>=14)return '';
     if(d.fsDays===0)return 'Listed today';
     if(d.fsDays===1)return 'Listed yesterday';
     return 'Listed '+d.fsDays+' days ago';
