@@ -86,6 +86,8 @@
       lat:(typeof r.la==='number')?r.la:(r.la?parseFloat(r.la):null),
       lng:(typeof r.ln==='number')?r.ln:(r.ln?parseFloat(r.ln):null),
       city:r.dc||'', trim:r.tr||'', dealer:r.dn||'',
+      // days since the car entered the feed (fs = first_seen date), or null
+      fsDays:r.fs?Math.max(0,Math.floor((Date.now()-(new Date(r.fs).getTime()||Date.now()))/86400000)):null,
       img:img, imgSmall:img.replace(/w_\d+/,'w_480'),
       href:r.slug?'/used/'+r.slug:'#',
       title:r.t||(year+' '+(r.mk||'')+' '+(r.md||'')).trim()
@@ -167,6 +169,16 @@
   function escHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function fmtPrice(n){return n>0?'$'+n.toLocaleString('en-US',{maximumFractionDigits:0}):'';}
   function fmtMiles(n){return n>0?n.toLocaleString('en-US',{maximumFractionDigits:0})+' mi':'';}
+  // Freshness chip (replaces the dealer name on cards — dealers stay anonymous
+  // pre-lead, matching the VDP). Young cars get their age; 14+ days falls back to
+  // the dealer city so the slot never advertises staleness. Thresholds mirror
+  // lead-form.js's scarcity line.
+  function fmtFreshness(d){
+    if(d.fsDays==null||d.fsDays>=14)return d.city||'';
+    if(d.fsDays===0)return 'Listed today';
+    if(d.fsDays===1)return 'Listed yesterday';
+    return 'Listed '+d.fsDays+' days ago';
+  }
   // ── Card construction ───────────────────────────────────────────────────────
   // Mirrors the live Webflow card markup verbatim so distance.js (.car-card data-attrs),
   // styles, and any downstream JS keep working. Trust-badge row is the static BADGE_TEXT.
@@ -181,7 +193,7 @@
         '<div class="car-listing-name-wrapper">'+
           '<h2 class="heading">'+escHtml(heading)+'</h2>'+
           '<div class="div-block-10"><div class="text-block-2">'+escHtml(d.trim)+'</div><div class="text-block-14">•</div><div class="miles">'+escHtml(fmtMiles(d.miles))+'</div></div>'+
-          '<div class="text-block-4">'+escHtml(d.dealer)+'</div>'+
+          '<div class="text-block-4">'+escHtml(fmtFreshness(d))+'</div>'+
           '<h3 class="price">'+escHtml(fmtPrice(d.price))+'</h3>'+
           '<div class="text-block-15">'+escHtml(d.make)+'</div>'+
           '<div class="text-block-16">'+escHtml(d.year)+'</div>'+

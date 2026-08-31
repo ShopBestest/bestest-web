@@ -12,19 +12,13 @@
     'https://bestest-leads.sweet-paper-5a21.workers.dev';
   var TERMS_URL = '/terms', PRIVACY_URL = '/privacy';
 
-  // Scarcity line ("Listed N days ago — …"). Sell-through measured 2026-08-31 from
-  // 5,996 sold listings in Airtable (first_seen_at_date -> sold_date): median 7 days,
-  // p75 11, near-uniform across segments — hence one site-wide claim, no per-segment map.
-  // Cars older than maxAgeToShow are the slow tail; the line is suppressed for them
-  // rather than shown with numbers that would contradict the car in front of the shopper.
-  // Claim switches at the median so the line never contradicts the car it sits on:
-  // a 3-day-old car gets the median claim, a 12-day-old car the p75 one.
-  var SCARCITY = {
-    claimYoung: 'half the cars on Bestest are gone within a week',
-    claimOlder: 'most cars on Bestest are gone within two weeks',
-    medianDays: 7,
-    maxAgeToShow: 14
-  };
+  // "Likely to sell within X days": survival medians measured 2026-08-31 from 5,996
+  // sold listings in Airtable (first_seen_at_date -> sold_date). SELL_REMAINING[n] =
+  // median days remaining for a car already listed n days, so every rendered claim is
+  // a true >=50% statement. Cars 14+ days old get silence: the math stays honest to
+  // ~day 24, but the line would volunteer staleness the shopper otherwise wouldn't
+  // know, and only ~10% of live inventory is that old. Refresh alongside the stats.
+  var SELL_REMAINING = [7, 6, 5, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3];
   // Same feed + sessionStorage cache as srp-engine.js (key/format shared deliberately:
   // an SRP visit earlier in the session makes this lookup free and instant).
   var FEED_URL = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) ||
@@ -74,11 +68,119 @@
   }
 
   function daysLine(days) {
-    if (days == null || days > SCARCITY.maxAgeToShow) return '';
+    if (days == null || days < 0 || days >= SELL_REMAINING.length) return '';
     var listed = days === 0 ? 'Listed today' : days === 1 ? 'Listed yesterday' : 'Listed ' + days + ' days ago';
-    var claim = days <= SCARCITY.medianDays ? SCARCITY.claimYoung : SCARCITY.claimOlder;
-    return listed + ' — ' + claim + '.';
+    var rem = SELL_REMAINING[days];
+    return listed + '. Likely to sell within ' + (rem >= 7 ? 'a week' : rem + ' days') + '.';
   }
+
+  // One shared feed lookup per page: the VDP scarcity line consumes it at load and
+  // the modal reuses the cached value for GA's days_listed param.
+  var daysListedCache, daysListedCbs = [];
+  function getListedDays(cb) {
+    if (daysListedCache !== undefined) { cb(daysListedCache); return; }
+    daysListedCbs.push(cb);
+    if (daysListedCbs.length > 1) return;
+    lookupListedDays(function (days) {
+      daysListedCache = days;
+      daysListedCbs.splice(0).forEach(function (f) { f(days); });
+    });
+  }
+  // ── VDP brand & conversion layer (2026-08-31 redesign) ──────────────────────
+  // Pre-lead the dealer stays anonymous: the .bcf-dealer-line header (name +
+  // "A BESTEST-APPROVED DEALER") is hidden — the checkmarks already claim dealer
+  // approval, and the name returns in the post-submit confirmation. The segment tag
+  // and current-page crumb go too (breadcrumb + claim panel carry the segment, the
+  // H1 carries the name; dropping the crumb puts the CTA on the mobile landing
+  // screen). CSS is injected at script-execute so none of it ever paints.
+  (function vdpCss() {
+    if (document.getElementById('bst-vdp-styles')) return;
+    var s = document.createElement('style');
+    s.id = 'bst-vdp-styles';
+    s.textContent =
+      '.bcf-dealer-line{display:none!important;}' +
+      'a.bst-segment-link{display:none!important;}' +
+      '.bst-crumb-current{display:none!important;}' +
+      '.bst-claim-panel{margin:6px 0 10px;padding:12px 14px;background:#fff;border:1px solid #d8e4dc;border-radius:8px;}' +
+      '.bst-claim-lead{margin:0 0 10px;font-size:14px;color:#0e1523;line-height:1.5;font-weight:500;}' +
+      '.bst-claim-lead b{font-weight:700;}' +
+      '.bst-days-line{margin:10px 0 2px;font-size:13px;font-weight:600;color:#1a6f4a;text-align:center;line-height:1.4;}';
+    (document.head || document.documentElement).appendChild(s);
+  })();
+
+  // "Luxury Compact SUV" -> "luxury compact SUVs"; "Electric Vehicles" -> "electric vehicles"
+  function segmentPhrase(seg) {
+    var s = (seg || '').toLowerCase().replace(/\bsuvs?\b/g, function (m) { return m.toUpperCase(); });
+    if (!s) return 'used cars';
+    if (!/s$/i.test(s)) s += 's';
+    return s;
+  }
+
+  function enhanceVdp() {
+    var dd = dataDiv();
+    if (!dd) return;
+
+    // Claim panel: superlative headline + the existing checkmarks as its proof.
+    var rail = document.getElementById('bst-rail-top');
+    var checks = null;
+    if (rail) {
+      var divs = rail.getElementsByTagName('div');
+      for (var i = 0; i < divs.length; i++) {
+        var t = divs[i].textContent;
+        // last match = innermost container holding exactly the three check rows
+        if (/Recommended model/.test(t) && /Approved dealer/.test(t) && /Qualified listing/.test(t)) checks = divs[i];
+      }
+    }
+    if (checks && !document.querySelector('.bst-claim-panel')) {
+      var panel = document.createElement('div');
+      panel.className = 'bst-claim-panel';
+      var lead = document.createElement('p');
+      lead.className = 'bst-claim-lead';
+      lead.innerHTML = 'This is one of the <b>best ' + segmentPhrase(dd.segment) +
+        '</b> for sale in Orange County right now.';
+      checks.parentNode.insertBefore(panel, checks);
+      panel.appendChild(lead);
+      panel.appendChild(checks);
+    }
+
+    // Hiding .bst-crumb-current can strand a trailing ">" separator — hide that too,
+    // but only if the preceding element really is a bare separator.
+    var cur = document.querySelector('.bst-crumb-current');
+    if (cur && cur.previousElementSibling && /^[\s>\/›»·-]*$/.test(cur.previousElementSibling.textContent)) {
+      cur.previousElementSibling.style.display = 'none';
+    }
+
+    // Scarcity line under the main CTA. The CTA is built by the VDP embed after
+    // DOMContentLoaded, so poll briefly for it.
+    var tries = 0;
+    var timer = setInterval(function () {
+      var cta = document.getElementById('bst-main-cta');
+      if (cta) {
+        clearInterval(timer);
+        getListedDays(function (days) {
+          var line = daysLine(days);
+          if (!line || document.querySelector('.bst-days-line')) return;
+          var p = document.createElement('p');
+          p.className = 'bst-days-line';
+          p.textContent = line;
+          cta.parentNode.insertBefore(p, cta.nextSibling);
+        });
+      } else if (++tries > 40) clearInterval(timer);
+    }, 250);
+  }
+
+  // Interim tagline swap, site-wide, until the navbar is edited in Webflow — once
+  // the Designer copy says "Shop the shortlist." this matches nothing and no-ops.
+  function swapTagline() {
+    var els = document.querySelectorAll('div,p,span');
+    for (var i = 0; i < els.length; i++) {
+      if (!els[i].firstElementChild && /^\s*Only the used cars worth buying\.?\s*$/i.test(els[i].textContent)) {
+        els[i].textContent = 'Shop the shortlist.';
+        return;
+      }
+    }
+  }
+
   var CONSENT_TEXT = 'By clicking Check availability, I agree to share my info with this dealer and ' +
     'to be contacted by Bestest and the dealer (and their agents) by email — and, if I provide my ' +
     'phone number, by call and text, including by automated means. This isn’t a condition of any ' +
@@ -153,8 +255,7 @@
       ".bstlf-close{position:absolute;top:8px;right:12px;width:30px;height:30px;border:none;background:transparent;color:#999;font-size:22px;line-height:1;cursor:pointer;padding:0;}" +
       ".bstlf-title{font-size:18px;font-weight:700;color:#0e1523;margin:0 6px 4px 0;line-height:1.3;}" +
       ".bstlf-sub{font-size:13px;color:#666;margin:0 0 16px;line-height:1.45;}" +
-      ".bstlf-days{font-size:12.5px;font-weight:600;color:#1a6f4a;margin:-10px 0 16px;line-height:1.4;display:none;}" +
-      ".bstlf-days.bstlf-show{display:block;}" +
+      ".bstlf-note{font-size:12.5px;font-weight:500;color:#4b5563;margin:-10px 0 16px;line-height:1.5;}" +
       ".bstlf-field{margin-bottom:10px;}" +
       ".bstlf-name-row{display:flex;gap:10px;}" +
       ".bstlf-name-row .bstlf-input{flex:1 1 0;min-width:0;}" +
@@ -191,7 +292,7 @@
         '<div class="bstlf-form-wrap">' +
           '<h2 class="bstlf-title" id="bstlf-title">Check availability</h2>' +
           '<p class="bstlf-sub bstlf-veh"></p>' +
-          '<p class="bstlf-days" aria-live="polite"></p>' +
+          '<p class="bstlf-note">We’ll send this straight to the dealer’s sales desk. You’ll hear back by email. No spam from Bestest, ever.</p>' +
           '<form class="bstlf-form" novalidate>' +
             '<input class="bstlf-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">' +
             '<div class="bstlf-field bstlf-name-row">' +
@@ -318,20 +419,14 @@
     backdrop.querySelector('.bstlf-err-msg').textContent = '';
     var sub = backdrop.querySelector('.bstlf-submit'); sub.disabled = false; sub.textContent = 'Check availability';
 
-    var vehLine = longName + (dealer ? ' · ' + dealer : '');
-    backdrop.querySelector('.bstlf-veh').textContent = vehLine;
+    // Pre-lead the dealer stays anonymous here too (name still rides the payload and
+    // GA params, and is revealed in the confirmation). Urgency lives on the VDP; the
+    // modal's job is the payoff promise (.bstlf-note, static in the markup).
+    backdrop.querySelector('.bstlf-veh').textContent = longName;
 
-    // Scarcity line, filled in async (instant when the session already has the SRP feed
-    // cached). Guarded against a stale fill if the modal was closed and reopened on
-    // another car (single-VDP pages make that unlikely, but the guard is free).
-    var daysEl = backdrop.querySelector('.bstlf-days');
-    daysEl.textContent = ''; daysEl.classList.remove('bstlf-show');
     var openToken = openedAt = Date.now();
-    lookupListedDays(function (days) {
-      if (openToken !== openedAt) return;
-      if (days != null) ctx.daysListed = days; // rides along on generate_lead params
-      var line = daysLine(days);
-      if (line) { daysEl.textContent = line; daysEl.classList.add('bstlf-show'); }
+    getListedDays(function (days) {
+      if (openToken === openedAt && days != null) ctx.daysListed = days;
     });
 
     // Prefill an editable, low-pressure message naming the exact car + price.
@@ -367,6 +462,9 @@
       if (!isDealerLink) return;
       open(a.getAttribute('href') || cur, e);
     }, true);
+
+    swapTagline();
+    enhanceVdp();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
