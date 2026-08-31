@@ -11,6 +11,74 @@
   var ENDPOINT = (typeof window.BS_LEADS_URL === 'string' && window.BS_LEADS_URL) ||
     'https://bestest-leads.sweet-paper-5a21.workers.dev';
   var TERMS_URL = '/terms', PRIVACY_URL = '/privacy';
+
+  // Scarcity line ("Listed N days ago — …"). Sell-through measured 2026-08-31 from
+  // 5,996 sold listings in Airtable (first_seen_at_date -> sold_date): median 7 days,
+  // p75 11, near-uniform across segments — hence one site-wide claim, no per-segment map.
+  // Cars older than maxAgeToShow are the slow tail; the line is suppressed for them
+  // rather than shown with numbers that would contradict the car in front of the shopper.
+  // Claim switches at the median so the line never contradicts the car it sits on:
+  // a 3-day-old car gets the median claim, a 12-day-old car the p75 one.
+  var SCARCITY = {
+    claimYoung: 'half the cars on Bestest are gone within a week',
+    claimOlder: 'most cars on Bestest are gone within two weeks',
+    medianDays: 7,
+    maxAgeToShow: 14
+  };
+  // Same feed + sessionStorage cache as srp-engine.js (key/format shared deliberately:
+  // an SRP visit earlier in the session makes this lookup free and instant).
+  var FEED_URL = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) ||
+    'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/';
+  var FEED_CACHE_KEY = 'bestest_feed_cache_v3', FEED_CACHE_TTL_MS = 60 * 60 * 1000;
+
+  function readFeedCache() {
+    try {
+      var p = JSON.parse(sessionStorage.getItem(FEED_CACHE_KEY));
+      if (!p || !p.timestamp || !p.records) return null;
+      if (Date.now() - p.timestamp > FEED_CACHE_TTL_MS) return null;
+      return p.records;
+    } catch (e) { return null; }
+  }
+
+  function fetchFeed(cb) {
+    var cached = readFeedCache();
+    if (cached) { cb(cached); return; }
+    fetch(FEED_URL, { credentials: 'omit' })
+      .then(function (r) { if (!r.ok) throw new Error('feed ' + r.status); return r.json(); })
+      .then(function (records) {
+        if (!Array.isArray(records) || !records.length) throw new Error('empty feed');
+        try { sessionStorage.setItem(FEED_CACHE_KEY, JSON.stringify({ timestamp: Date.now(), records: records })); } catch (e) {}
+        cb(records);
+      })
+      .catch(function () { cb(null); });
+  }
+
+  // Days since this VDP's car entered the Bestest feed (record matched by /used/{slug}),
+  // or null when unknown. Conservative: first-seen-by-Bestest, never the dealer's claim.
+  function lookupListedDays(cb) {
+    var m = location.pathname.match(/^\/used\/([^\/]+)\/?$/);
+    if (!m) { cb(null); return; }
+    var slug = decodeURIComponent(m[1]);
+    fetchFeed(function (records) {
+      if (!records) { cb(null); return; }
+      for (var i = 0; i < records.length; i++) {
+        if (records[i].slug === slug) {
+          var fs = Date.parse(records[i].fs || '');
+          if (isNaN(fs)) { cb(null); return; }
+          cb(Math.max(0, Math.floor((Date.now() - fs) / 86400000)));
+          return;
+        }
+      }
+      cb(null);
+    });
+  }
+
+  function daysLine(days) {
+    if (days == null || days > SCARCITY.maxAgeToShow) return '';
+    var listed = days === 0 ? 'Listed today' : days === 1 ? 'Listed yesterday' : 'Listed ' + days + ' days ago';
+    var claim = days <= SCARCITY.medianDays ? SCARCITY.claimYoung : SCARCITY.claimOlder;
+    return listed + ' — ' + claim + '.';
+  }
   var CONSENT_TEXT = 'By clicking Check availability, I agree to share my info with this dealer and ' +
     'to be contacted by Bestest and the dealer (and their agents) by email — and, if I provide my ' +
     'phone number, by call and text, including by automated means. This isn’t a condition of any ' +
@@ -85,6 +153,8 @@
       ".bstlf-close{position:absolute;top:8px;right:12px;width:30px;height:30px;border:none;background:transparent;color:#999;font-size:22px;line-height:1;cursor:pointer;padding:0;}" +
       ".bstlf-title{font-size:18px;font-weight:700;color:#0e1523;margin:0 6px 4px 0;line-height:1.3;}" +
       ".bstlf-sub{font-size:13px;color:#666;margin:0 0 16px;line-height:1.45;}" +
+      ".bstlf-days{font-size:12.5px;font-weight:600;color:#1a6f4a;margin:-10px 0 16px;line-height:1.4;display:none;}" +
+      ".bstlf-days.bstlf-show{display:block;}" +
       ".bstlf-field{margin-bottom:10px;}" +
       ".bstlf-name-row{display:flex;gap:10px;}" +
       ".bstlf-name-row .bstlf-input{flex:1 1 0;min-width:0;}" +
@@ -121,6 +191,7 @@
         '<div class="bstlf-form-wrap">' +
           '<h2 class="bstlf-title" id="bstlf-title">Check availability</h2>' +
           '<p class="bstlf-sub bstlf-veh"></p>' +
+          '<p class="bstlf-days" aria-live="polite"></p>' +
           '<form class="bstlf-form" novalidate>' +
             '<input class="bstlf-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">' +
             '<div class="bstlf-field bstlf-name-row">' +
@@ -218,7 +289,8 @@
       vehicle_trim:  ctx.trim || undefined,
       segment:       ctx.segment || undefined,
       dealer_name:   ctx.dealer || undefined,
-      listing_price: (priceNum > 0 ? priceNum : undefined)
+      listing_price: (priceNum > 0 ? priceNum : undefined),
+      days_listed:   (typeof ctx.daysListed === 'number' ? ctx.daysListed : undefined)
     };
     if (extra) for (var k in extra) p[k] = extra[k];
     return p;
@@ -249,6 +321,19 @@
     var vehLine = longName + (dealer ? ' · ' + dealer : '');
     backdrop.querySelector('.bstlf-veh').textContent = vehLine;
 
+    // Scarcity line, filled in async (instant when the session already has the SRP feed
+    // cached). Guarded against a stale fill if the modal was closed and reopened on
+    // another car (single-VDP pages make that unlikely, but the guard is free).
+    var daysEl = backdrop.querySelector('.bstlf-days');
+    daysEl.textContent = ''; daysEl.classList.remove('bstlf-show');
+    var openToken = openedAt = Date.now();
+    lookupListedDays(function (days) {
+      if (openToken !== openedAt) return;
+      if (days != null) ctx.daysListed = days; // rides along on generate_lead params
+      var line = daysLine(days);
+      if (line) { daysEl.textContent = line; daysEl.classList.add('bstlf-show'); }
+    });
+
     // Prefill an editable, low-pressure message naming the exact car + price.
     var priceStr = fmtPrice(price);
     backdrop.querySelector('.bstlf-message').value =
@@ -261,7 +346,6 @@
       ', a factory-authorized, Bestest-approved Orange County dealer. Expect them to get back to ' +
       'you shortly. Thanks for using Bestest!';
 
-    openedAt = Date.now();
     backdrop.classList.add('bstlf-open');
     track('lead_form_open', ctxParams());
     setTimeout(function () { var n = backdrop.querySelector('.bstlf-first'); if (n) n.focus(); }, 60);
