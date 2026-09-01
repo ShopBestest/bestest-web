@@ -187,20 +187,20 @@
     return '<div role="listitem" class="w-dyn-item">'+
       '<div data-body-type="'+escAttr(d.body_type)+'" data-dealer-city="'+escAttr(d.city)+'" data-dealer-lat="'+(d.lat!=null?d.lat:'')+'" data-dealer-lng="'+(d.lng!=null?d.lng:'')+'" data-photo-count="'+(d.photoCount||0)+'" class="car-card">'+
         '<div class="hero_image_url">'+escHtml(d.img)+'</div>'+
-        '<a href="'+escAttr(d.href)+'" class="listing-image-wrapper w-inline-block">'+
+        '<a href="'+escAttr(d.href)+'" aria-label="'+escAttr('View '+heading)+'" class="listing-image-wrapper w-inline-block">'+
           '<img src="'+escAttr(d.imgSmall)+'" loading="lazy" decoding="async" alt="'+escAttr(heading)+'" class="listing-image"/>'+
         '</a>'+
         '<div class="car-listing-name-wrapper">'+
           '<h2 class="heading">'+escHtml(heading)+'</h2>'+
           '<div class="div-block-10"><div class="text-block-2">'+escHtml(d.trim)+'</div><div class="text-block-14">•</div><div class="miles">'+escHtml(fmtMiles(d.miles))+'</div></div>'+
           '<div class="text-block-4">'+escHtml(fmtFreshness(d))+'</div>'+
-          '<h3 class="price">'+escHtml(fmtPrice(d.price))+'</h3>'+
+          '<div class="price">'+escHtml(fmtPrice(d.price))+'</div>'+
           '<div class="text-block-15">'+escHtml(d.make)+'</div>'+
           '<div class="text-block-16">'+escHtml(d.year)+'</div>'+
           '<div class="text-block-17">'+escHtml(d.powertrain)+'</div>'+
           '<div class="text-block-18">'+escHtml(d.segment)+'</div>'+
           '<div class="text-block-19">'+escHtml(d.model)+'</div>'+
-          '<div class="div-block-11"><a href="'+escAttr(d.href)+'" class="primary-button car-listing-button w-button">See listing</a><div class="text-block-7">'+BADGE_TEXT+'</div></div>'+
+          '<div class="div-block-11"><a href="'+escAttr(d.href)+'" aria-label="'+escAttr('See listing: '+heading)+'" class="primary-button car-listing-button w-button">See listing</a><div class="text-block-7">'+BADGE_TEXT+'</div></div>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -403,6 +403,21 @@
     makeCardsClickable(cards);
     if(window.BestestDistance&&typeof window.BestestDistance.refresh==='function')window.BestestDistance.refresh();
     updateCount();updatePills();renderPag(mobile);
+    injectItemListSchema(visible);
+  }
+  // ItemList JSON-LD for the rendered page of results. The SRP is client-rendered,
+  // so schema injected here is exactly what Google's renderer indexes; refreshed on
+  // every render so it tracks the visible filter/sort/page state.
+  function injectItemListSchema(visible){
+    try{
+      var items=[];
+      for(var i=0;i<visible.length;i++){
+        items.push({'@type':'ListItem','position':i+1,'name':visible[i].title,'url':location.origin+visible[i].href});
+      }
+      var el=document.getElementById('bs-itemlist-schema');
+      if(!el){el=document.createElement('script');el.type='application/ld+json';el.id='bs-itemlist-schema';document.head.appendChild(el);}
+      el.textContent=JSON.stringify({'@context':'https://schema.org','@type':'ItemList','numberOfItems':items.length,'itemListElement':items});
+    }catch(e){}
   }
   function makeCardsClickable(items){Array.prototype.forEach.call(items,function(item){if(item.dataset.bsClickable)return;var link=item.querySelector('a');var href=link&&link.getAttribute('href');if(!href)return;item.dataset.bsClickable='1';item.style.cursor='pointer';item.addEventListener('click',function(e){if(e.target.closest('a, button'))return;e.preventDefault();e.stopPropagation();window.location.href=href;},true);});}
   function renderPag(mobile){
