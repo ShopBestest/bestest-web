@@ -179,18 +179,6 @@
     }, 250);
   }
 
-  // Interim tagline swap, site-wide, until the navbar is edited in Webflow — once
-  // the Designer copy says "Shop the shortlist." this matches nothing and no-ops.
-  function swapTagline() {
-    var els = document.querySelectorAll('div,p,span');
-    for (var i = 0; i < els.length; i++) {
-      if (!els[i].firstElementChild && /^\s*Only the used cars worth buying\.?\s*$/i.test(els[i].textContent)) {
-        els[i].textContent = 'Shop the shortlist.';
-        return;
-      }
-    }
-  }
-
   var CONSENT_TEXT = 'By clicking Check availability, I agree to share my info with this dealer and ' +
     'to be contacted by Bestest and the dealer (and their agents) by email — and, if I provide my ' +
     'phone number, by call and text, including by automated means. This isn’t a condition of any ' +
@@ -473,7 +461,6 @@
       open(a.getAttribute('href') || cur, e);
     }, true);
 
-    swapTagline();
     enhanceVdp();
   }
 
