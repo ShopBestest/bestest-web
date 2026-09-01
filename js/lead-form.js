@@ -121,27 +121,37 @@
     if (!dd) return;
 
     // Claim panel: superlative headline + the existing checkmarks as its proof.
-    var rail = document.getElementById('bst-rail-top');
-    var checks = null;
-    if (rail) {
+    // The checkmarks are rendered by a VDP embed AFTER DOMContentLoaded (same as the
+    // CTA), so poll for them — a one-shot lookup here silently misses them in prod.
+    function findChecks() {
+      var rail = document.getElementById('bst-rail-top');
+      if (!rail) return null;
+      var checks = null;
       var divs = rail.getElementsByTagName('div');
       for (var i = 0; i < divs.length; i++) {
         var t = divs[i].textContent;
         // last match = innermost container holding exactly the three check rows
         if (/Recommended model/.test(t) && /Approved dealer/.test(t) && /Qualified listing/.test(t)) checks = divs[i];
       }
+      return checks;
     }
-    if (checks && !document.querySelector('.bst-claim-panel')) {
-      var panel = document.createElement('div');
-      panel.className = 'bst-claim-panel';
-      var lead = document.createElement('p');
-      lead.className = 'bst-claim-lead';
-      lead.innerHTML = 'This is one of the <b>best ' + segmentPhrase(dd.segment) +
-        '</b> for sale in Orange County right now.';
-      checks.parentNode.insertBefore(panel, checks);
-      panel.appendChild(lead);
-      panel.appendChild(checks);
-    }
+    var panelTries = 0;
+    var panelTimer = setInterval(function () {
+      var checks = findChecks();
+      if (checks) {
+        clearInterval(panelTimer);
+        if (document.querySelector('.bst-claim-panel')) return;
+        var panel = document.createElement('div');
+        panel.className = 'bst-claim-panel';
+        var lead = document.createElement('p');
+        lead.className = 'bst-claim-lead';
+        lead.innerHTML = 'This is one of the <b>best ' + segmentPhrase(dd.segment) +
+          '</b> for sale in Orange County right now.';
+        checks.parentNode.insertBefore(panel, checks);
+        panel.appendChild(lead);
+        panel.appendChild(checks);
+      } else if (++panelTries > 40) clearInterval(panelTimer);
+    }, 250);
 
     // Hiding .bst-crumb-current can strand a trailing ">" separator — hide that too,
     // but only if the preceding element really is a bare separator.
