@@ -102,9 +102,9 @@
       'a.bst-segment-link{display:none!important;}' +
       '.bst-crumb-current{display:none!important;}' +
       '.bst-claim-panel{margin:6px 0 10px;padding:12px 14px;background:#fff;border:1px solid #d8e4dc;border-radius:8px;}' +
-      '.bst-claim-lead{margin:0 0 10px;font-size:14px;color:#0e1523;line-height:1.5;font-weight:500;}' +
+      '.bst-claim-lead{margin:0 0 10px;font-size:14px;color:#0e1523;line-height:1.5;font-weight:500;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-claim-lead b{font-weight:700;}' +
-      '.bst-days-line{margin:10px 0 2px;font-size:13px;font-weight:600;color:#1a6f4a;text-align:center;line-height:1.4;}';
+      '.bst-days-line{margin:10px 0 2px;font-size:13px;font-weight:600;color:#1a6f4a;text-align:center;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}';
     (document.head || document.documentElement).appendChild(s);
   })();
 
