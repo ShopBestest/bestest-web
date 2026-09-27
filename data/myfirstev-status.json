@@ -1,0 +1,31 @@
+{
+ "checked_utc": "2026-09-27T17:24:44Z",
+ "checked_date": "2026-09-27",
+ "carb_page_revised": "8/31/2026",
+ "source": "https://ww2.arb.ca.gov/myfirstev-participating-manufacturers",
+ "used_rebate_brands": [
+  "Ford",
+  "Lucid",
+  "Rivian",
+  "Volvo"
+ ],
+ "new_only_brands": [
+  "Cadillac",
+  "Chevrolet",
+  "Genesis",
+  "Honda",
+  "Hyundai",
+  "Kia",
+  "Lexus",
+  "Nissan",
+  "Subaru",
+  "Toyota"
+ ],
+ "closed_brands": [
+  "Tesla"
+ ],
+ "pending_brands": {
+  "Mitsubishi": "Launching November 2026"
+ },
+ "brand_count": 16
+}
