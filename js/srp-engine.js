@@ -58,7 +58,9 @@
     // matches both spellings. Mild hybrids (MHEV) intentionally match no electrified
     // filter — they behave like Combustion for shopper intent.
     {key:'powertrain',label:'Powertrain',col:1,opts:[{v:'HEV',label:'Hybrid',match:['HEV','Hybrid']},{v:'PHEV',label:'Plug-in Hybrid',match:['PHEV','Plug-in Hybrid','Plug-In Hybrid']},{v:'BEV',label:'Electric',match:['BEV','EV']}]},
-    {key:'price',label:'Price',col:1,range:true,opts:[{v:'10000-20000',label:'$10k – $20k'},{v:'20000-30000',label:'$20k – $30k'},{v:'30000-40000',label:'$30k – $40k'},{v:'40000-50000',label:'$40k – $50k'},{v:'50000-999999',label:'$50k+'}]},
+    // Price bands are $5k wide where inventory is densest ($20k–$40k); options stack.
+    // Old 10k-band values in shared links are mapped onto these in LEGACY_PRICE.
+    {key:'price',label:'Price',col:1,range:true,opts:[{v:'0-20000',label:'Under $20k'},{v:'20000-25000',label:'$20k – $25k'},{v:'25000-30000',label:'$25k – $30k'},{v:'30000-35000',label:'$30k – $35k'},{v:'35000-40000',label:'$35k – $40k'},{v:'40000-50000',label:'$40k – $50k'},{v:'50000-999999',label:'$50k+'}]},
     {key:'miles',label:'Mileage',col:1,range:true,opts:[{v:'0-20000',label:'Under 20k'},{v:'20000-30000',label:'20k – 30k'},{v:'30000-40000',label:'30k – 40k'},{v:'40000-50000',label:'40k – 50k'}]},
     {key:'year',label:'Year',col:1,opts:[{v:'2024'},{v:'2023'},{v:'2022'},{v:'2021'}],hideEmpty:true},
     // Manufacturer-certified only: the feed sets cpo=1 when Marketcheck flags the car
@@ -66,6 +68,7 @@
     // a Ford store's "Blue Certified" Toyota doesn't count.
     {key:'certified',label:'Certified',col:1,opts:[{v:'cpo',label:'Certified pre-owned'}]}
   );
+  var LEGACY_PRICE={'10000-20000':['0-20000'],'20000-30000':['20000-25000','25000-30000'],'30000-40000':['30000-35000','35000-40000']};
   var MODELS_BY_MAKE=MAIN_MODELS_BY_MAKE;
   var ALL_MODELS=(function(){var seen={};Object.keys(MODELS_BY_MAKE).forEach(function(make){MODELS_BY_MAKE[make].forEach(function(model){seen[model]=true;});});return Object.keys(seen);})();
   var MAKES_BY_MODEL=(function(){var map={};Object.keys(MODELS_BY_MAKE).forEach(function(make){MODELS_BY_MAKE[make].forEach(function(model){if(!map[model])map[model]=[];map[model].push(make);});});return map;})();
@@ -74,6 +77,7 @@
   // Static trust-badge row — identical on every server-rendered card, so it's reproduced verbatim.
   var BADGE_TEXT='Recommended ✅ Model ✅ Dealer ✅ Listing';
   function expandFilterValues(filter,vals){if(!filter||!vals||!vals.length)return vals||[];if(!filter.opts.some(function(o){return o.match;}))return vals;return vals.reduce(function(acc,v){var opt=null;for(var i=0;i<filter.opts.length;i++){if(filter.opts[i].v===v){opt=filter.opts[i];break;}}if(opt&&opt.match)opt.match.forEach(function(m){if(acc.indexOf(m)===-1)acc.push(m);});else if(acc.indexOf(v)===-1)acc.push(v);return acc;},[]);}
+  function optLabel(f,v){for(var i=0;i<f.opts.length;i++)if(f.opts[i].v===v)return f.opts[i].label||v;return v;}
   function getFilterByKey(k){for(var i=0;i<FILTERS.length;i++)if(FILTERS[i].key===k)return FILTERS[i];return null;}
   // ── Feed record → internal data shape ───────────────────────────────────────
   // Compact keys from build_inventory_json.py: id y mk md tr p mi pt sg bd dn dc la ln img slug pho pm t
@@ -102,7 +106,7 @@
   function getData(rec){return rec;}
   function readURLParams(){
     var params=new URLSearchParams(window.location.search);
-    function parseListParam(key,validValues){var raw=params.get(key);if(!raw)return [];var values=raw.split(',').map(function(v){return v.trim();}).filter(Boolean);if(validValues)values=values.filter(function(v){return validValues.indexOf(v)!==-1;});return values;}
+    function parseListParam(key,validValues){var raw=params.get(key);if(!raw)return [];var values=raw.split(',').map(function(v){return v.trim();}).filter(Boolean);if(key==='price')values=values.reduce(function(acc,v){(LEGACY_PRICE[v]||[v]).forEach(function(x){if(acc.indexOf(x)===-1)acc.push(x);});return acc;},[]);if(validValues)values=values.filter(function(v){return validValues.indexOf(v)!==-1;});return values;}
     var filterValidValues={};
     FILTERS.forEach(function(f){filterValidValues[f.key]=f.opts.map(function(o){return o.v;});});
     filterValidValues.model=ALL_MODELS;
@@ -474,7 +478,7 @@
       var n=state[f.key].length;
       pill.classList.toggle('bs-active',n>0);
       var tn=pill.firstChild;
-      if(tn&&tn.nodeType===3)tn.textContent=(n===0||f.opts.length===1)?f.label+' ':n===1?f.label+' · '+state[f.key][0]+' ':f.label+' · '+n+' ';
+      if(tn&&tn.nodeType===3)tn.textContent=(n===0||f.opts.length===1)?f.label+' ':n===1?f.label+' · '+optLabel(f,state[f.key][0])+' ':f.label+' · '+n+' ';
     });
     var sortPill=document.getElementById('bsp-sort');
     if(sortPill){
