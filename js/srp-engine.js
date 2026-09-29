@@ -23,7 +23,7 @@
   if(!document.querySelector('.collection-list-2'))return;
   var PER_PAGE=24, MOBILE_PER_PAGE=PER_PAGE, BROAD_USED_CARS_PATH='/used-cars';
   var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs'};
-  var state={make:[],model:[],segment:[],body_style:[],powertrain:[],price:[],miles:[],year:[],page:1,shown:MOBILE_PER_PAGE};
+  var state={make:[],model:[],segment:[],body_style:[],powertrain:[],price:[],miles:[],year:[],certified:[],page:1,shown:MOBILE_PER_PAGE};
   var sortKey='', allItems=[], filtered=[], bsLock=false, loadComplete=false, hasActiveQuery=false, urlSyncReady=false;
   var SEGMENT_GROUPS=[
     {label:'SUVs',items:[{v:'Subcompact SUV',eg:'Honda HR-V, Mazda CX-30, Hyundai Kona…'},{v:'Compact SUV',eg:'Toyota RAV4, Honda CR-V, Mazda CX-5…'},{v:'Midsize SUV',eg:'Honda Pilot, Toyota Highlander, Kia Telluride…'},{v:'Full-Size SUV',eg:'Chevy Tahoe, Ford Expedition, Toyota Sequoia…'}]},
@@ -60,7 +60,11 @@
     {key:'powertrain',label:'Powertrain',col:1,opts:[{v:'HEV',label:'Hybrid',match:['HEV','Hybrid']},{v:'PHEV',label:'Plug-in Hybrid',match:['PHEV','Plug-in Hybrid','Plug-In Hybrid']},{v:'BEV',label:'Electric',match:['BEV','EV']}]},
     {key:'price',label:'Price',col:1,range:true,opts:[{v:'10000-20000',label:'$10k – $20k'},{v:'20000-30000',label:'$20k – $30k'},{v:'30000-40000',label:'$30k – $40k'},{v:'40000-50000',label:'$40k – $50k'},{v:'50000-999999',label:'$50k+'}]},
     {key:'miles',label:'Mileage',col:1,range:true,opts:[{v:'0-20000',label:'Under 20k'},{v:'20000-30000',label:'20k – 30k'},{v:'30000-40000',label:'30k – 40k'},{v:'40000-50000',label:'40k – 50k'}]},
-    {key:'year',label:'Year',col:1,opts:[{v:'2024'},{v:'2023'},{v:'2022'},{v:'2021'}],hideEmpty:true}
+    {key:'year',label:'Year',col:1,opts:[{v:'2024'},{v:'2023'},{v:'2022'},{v:'2021'}],hideEmpty:true},
+    // Manufacturer-certified only: the feed sets cpo=1 when Marketcheck flags the car
+    // certified AND the dealer is franchised for its make (pipeline cpo_rules.py), so
+    // a Ford store's "Blue Certified" Toyota doesn't count.
+    {key:'certified',label:'Certified',col:1,opts:[{v:'cpo',label:'Certified pre-owned'}]}
   );
   var MODELS_BY_MAKE=MAIN_MODELS_BY_MAKE;
   var ALL_MODELS=(function(){var seen={};Object.keys(MODELS_BY_MAKE).forEach(function(make){MODELS_BY_MAKE[make].forEach(function(model){seen[model]=true;});});return Object.keys(seen);})();
@@ -85,7 +89,7 @@
       photosModifiedTime:r.pm?(new Date(r.pm).getTime()||0):0,
       lat:(typeof r.la==='number')?r.la:(r.la?parseFloat(r.la):null),
       lng:(typeof r.ln==='number')?r.ln:(r.ln?parseFloat(r.ln):null),
-      city:r.dc||'', trim:r.tr||'', dealer:r.dn||'',
+      city:r.dc||'', trim:r.tr||'', dealer:r.dn||'', certified:r.cpo?'cpo':'',
       // days since the car entered the feed (fs = first_seen date), or null
       fsDays:r.fs?Math.max(0,Math.floor((Date.now()-(new Date(r.fs).getTime()||Date.now()))/86400000)):null,
       img:img, imgSmall:img.replace(/w_\d+/,'w_480'),
@@ -109,12 +113,13 @@
     state.price=parseListParam('price',filterValidValues.price);
     state.miles=parseListParam('miles',filterValidValues.miles);
     state.year=parseListParam('year',filterValidValues.year);
+    state.certified=parseListParam('certified',filterValidValues.certified);
     if(IS_SRP)state.segment=[NATIVE_SEGMENT]; else state.segment=parseListParam('segment',filterValidValues.segment);
     // Combo pages (make+city, model+city, body+city) seed their defining facet from
     // window.BS_PREFILTER so a clean path like /used-cars/toyota/rav4/irvine pre-filters
     // with no query string. URL params, when present, take precedence.
     if(window.BS_PREFILTER){
-      ['make','model','body_style','powertrain','price','miles','year'].forEach(function(k){
+      ['make','model','body_style','powertrain','price','miles','year','certified'].forEach(function(k){
         var pv=window.BS_PREFILTER[k];
         if(Array.isArray(pv)&&pv.length&&(!state[k]||!state[k].length))state[k]=pv.slice();
       });
@@ -152,6 +157,7 @@
     if(state.price.length)params.set('price',state.price.join(','));
     if(state.miles.length)params.set('miles',state.miles.join(','));
     if(state.year.length)params.set('year',state.year.join(','));
+    if(state.certified.length)params.set('certified',state.certified.join(','));
     if(sortKey)params.set('sort',sortKey);
     var qs=params.toString();
     return qs?basePath+'?'+qs:basePath;
@@ -228,7 +234,7 @@
     var bodyVals=expandFilterValues(getFilterByKey('body_style'),state.body_style);
     var ptVals=expandFilterValues(getFilterByKey('powertrain'),state.powertrain);
     var base=allItems.filter(function(d){
-      return matchList(d.make,state.make) && matchList(d.model,state.model) && matchList(d.segment,state.segment) && matchList(d.body_type,bodyVals) && matchList(d.powertrain,ptVals) && matchRange(d.price,state.price) && matchRange(d.miles,state.miles) && matchList(d.year,state.year);
+      return matchList(d.make,state.make) && matchList(d.model,state.model) && matchList(d.segment,state.segment) && matchList(d.body_type,bodyVals) && matchList(d.powertrain,ptVals) && matchRange(d.price,state.price) && matchRange(d.miles,state.miles) && matchList(d.year,state.year) && matchList(d.certified,state.certified);
     });
     filtered=sortItems(base);
   }
@@ -281,7 +287,7 @@
     var ptValsForFilter=targetFilterKey==='powertrain'?[]:expandFilterValues(getFilterByKey('powertrain'),state.powertrain);
     var base=allItems.filter(function(d){
       var modelConstraint=(targetFilterKey==='make'||targetFilterKey==='model')?true:matchList(d.model,state.model);
-      return (targetFilterKey==='make'||matchList(d.make,state.make)) && modelConstraint && (targetFilterKey==='segment'||matchList(d.segment,state.segment)) && (targetFilterKey==='body_style'||matchList(d.body_type,bodyValsForFilter)) && (targetFilterKey==='powertrain'||matchList(d.powertrain,ptValsForFilter)) && (targetFilterKey==='price'||matchRange(d.price,state.price)) && (targetFilterKey==='miles'||matchRange(d.miles,state.miles)) && (targetFilterKey==='year'||matchList(d.year,state.year));
+      return (targetFilterKey==='make'||matchList(d.make,state.make)) && modelConstraint && (targetFilterKey==='segment'||matchList(d.segment,state.segment)) && (targetFilterKey==='body_style'||matchList(d.body_type,bodyValsForFilter)) && (targetFilterKey==='powertrain'||matchList(d.powertrain,ptValsForFilter)) && (targetFilterKey==='price'||matchRange(d.price,state.price)) && (targetFilterKey==='miles'||matchRange(d.miles,state.miles)) && (targetFilterKey==='year'||matchList(d.year,state.year)) && (targetFilterKey==='certified'||matchList(d.certified,state.certified));
     });
     var filter=getFilterByKey(targetFilterKey);
     if(!filter)return {};
@@ -298,7 +304,7 @@
           var val=targetFilterKey==='price'?d.price:d.miles;
           if(val>=lo&&val<=hi){hit=true;break;}
         } else {
-          var val=targetFilterKey==='make'?d.make:targetFilterKey==='model'?d.model:targetFilterKey==='segment'?d.segment:targetFilterKey==='body_style'?d.body_type:targetFilterKey==='powertrain'?d.powertrain:targetFilterKey==='year'?d.year:null;
+          var val=targetFilterKey==='make'?d.make:targetFilterKey==='model'?d.model:targetFilterKey==='segment'?d.segment:targetFilterKey==='body_style'?d.body_type:targetFilterKey==='powertrain'?d.powertrain:targetFilterKey==='year'?d.year:targetFilterKey==='certified'?d.certified:null;
           if(matchVals.indexOf(val)!==-1){hit=true;break;}
         }
       }
@@ -468,7 +474,7 @@
       var n=state[f.key].length;
       pill.classList.toggle('bs-active',n>0);
       var tn=pill.firstChild;
-      if(tn&&tn.nodeType===3)tn.textContent=n===0?f.label+' ':n===1?f.label+' · '+state[f.key][0]+' ':f.label+' · '+n+' ';
+      if(tn&&tn.nodeType===3)tn.textContent=(n===0||f.opts.length===1)?f.label+' ':n===1?f.label+' · '+state[f.key][0]+' ':f.label+' · '+n+' ';
     });
     var sortPill=document.getElementById('bsp-sort');
     if(sortPill){
