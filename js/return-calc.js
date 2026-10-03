@@ -6,6 +6,7 @@
  *   10,000+ lb GVWR, auctions, or a buyout of your own lease
  * - 3 calendar days starting the day after signing, ending at the dealer's close of
  *   business; if the dealer is closed on day 3, it rolls to the next day it's open
+ *   (we can't know dealer hours, so the result states that rule in words)
  * - void past 400 miles driven since signing
  * - restocking fee: 1.5% of price, min $200, max $600, plus $1/mile over 250 (max $150)
  * Class prefix bstrc- avoids collisions with Webflow and the article styles. */
@@ -34,9 +35,9 @@
     '.bstrc label{display:block;font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:13px;font-weight:700;margin:0 0 5px;color:#1f2937}' +
     '.bstrc input,.bstrc select{width:100%;box-sizing:border-box;font:500 16px "Montserrat",sans-serif;padding:10px 12px;border:1px solid #c5d3ca;border-radius:8px;background:#fff;color:#0E1523}' +
     '.bstrc input:focus,.bstrc select:focus{outline:2px solid #31b56b;outline-offset:1px}' +
-    '.bstrc-closed{margin:14px 0 0;font-size:14px;line-height:1.5}' +
-    '.bstrc-closed label{display:inline-flex;align-items:center;gap:8px;font-weight:500;margin:0;cursor:pointer}' +
-    '.bstrc-closed input{width:18px;height:18px;padding:0;margin:0;accent-color:#1a6f4a}' +
+    '.bstrc .bstrc-go{display:block;width:100%;margin:16px 0 0;padding:13px 16px;border:0;border-radius:8px;background:#155539;color:#fff;font:700 16px "Montserrat",sans-serif;cursor:pointer}' +
+    '.bstrc .bstrc-go:hover{background:#1a6f4a}' +
+    '.bstrc p.bstrc-err{font-family:"Montserrat",sans-serif;font-size:14px;color:#9a3412;margin:10px 0 0}' +
     '.bstrc-out{margin:16px 0 0;background:#fff;border-radius:10px;padding:16px 18px;border:1px solid #d3e8da}' +
     '.bstrc-out.no{border-color:#f0c9a8;background:#fffaf5}' +
     '.bstrc .bstrc-out p{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;margin:6px 0 0;font-size:15px;font-weight:500;line-height:1.55;color:#1f2937}' +
@@ -69,16 +70,16 @@
           '<option value="car">Car, SUV, truck or van</option><option value="moto">Motorcycle</option><option value="offroad">Off-road vehicle</option><option value="heavy">Heavy-duty (10,000+ lb rating)</option></select></div>' +
         '<div><label for="bstrc-cond">New or used?</label><select id="bstrc-cond"><option value="used">Used (including certified pre-owned)</option><option value="new">New</option></select></div>' +
       '</div>' +
-      '<div class="bstrc-closed" hidden><label><input type="checkbox" id="bstrc-closed"> <span></span></label></div>' +
+      '<button type="button" class="bstrc-go">Check my return</button>' +
+      '<p class="bstrc-err" hidden></p>' +
       '<div class="bstrc-out" hidden aria-live="polite"></div>' +
       '</div>');
     root.appendChild(box);
 
     var $ = function (id) { return box.querySelector('#' + id); };
-    var closedWrap = box.querySelector('.bstrc-closed'), closedText = closedWrap.querySelector('span');
+    var err = box.querySelector('.bstrc-err');
     var out = box.querySelector('.bstrc-out');
-    var closedDays = 0; // how many day-3 candidates the user marked as closed
-    var lastDay3 = '';
+    var ran = false; // after the first click, edits update the result live
     var tracked = false;
 
     function num(v) { var n = parseFloat(String(v).replace(/[^0-9.]/g, '')); return isNaN(n) ? null : n; }
@@ -92,13 +93,18 @@
         try { window.gtag('event', 'return_calc_result', { covered: ok ? 'yes' : 'no' }); } catch (e) {}
       }
     }
-    function no(title, body) { closedWrap.hidden = true; show(false, '<p class="bstrc-verdict">' + title + '</p><p>' + body + '</p>'); }
+    function no(title, body) { show(false, '<p class="bstrc-verdict">' + title + '</p><p>' + body + '</p>'); }
 
     function update() {
       var price = num($('bstrc-price').value), miles = num($('bstrc-miles').value);
       var signed = parseDate($('bstrc-date').value);
       var seller = $('bstrc-seller').value, type = $('bstrc-type').value, cond = $('bstrc-cond').value;
-      if (price == null || !signed) { out.hidden = true; closedWrap.hidden = true; return; }
+      if (price == null || !signed) {
+        out.hidden = true;
+        if (ran) { err.hidden = false; err.textContent = 'Enter the car\u2019s price and the date you signed.'; }
+        return;
+      }
+      err.hidden = true;
       if (miles == null) miles = 0;
 
       if (cond === 'new') return no('New cars aren’t covered.', 'California has no return period for new cars. The 3-day right applies only to used cars.');
@@ -111,37 +117,35 @@
       if (signed > today()) return no('That date is in the future.', 'Enter the date you signed the purchase contract.');
       if (miles > MAX_MILES) return no('Over 400 miles, the right is gone.', 'The 3-day return ends once the car has been driven more than 400 miles since you signed.');
 
-      // Deadline: day 3 after signing, rolled forward past any days the dealer is closed.
-      var day3 = addDays(signed, 3);
-      if (isoDate(day3) !== lastDay3) { lastDay3 = isoDate(day3); closedDays = 0; $('bstrc-closed').checked = false; }
-      var deadline = addDays(day3, closedDays);
-      closedWrap.hidden = false;
-      closedText.textContent = 'The dealership is closed on ' + fmtDay(deadline);
+      // Deadline: day 3 after signing. If the dealer is closed that day it rolls to the next
+      // open day, which we can't know, so the result says so in words.
+      var deadline = addDays(signed, 3);
+      var wd = deadline.toLocaleDateString('en-US', { weekday: 'long' });
 
       var left = Math.round((deadline - today()) / DAY);
-      if (left < 0) return show(false, '<p class="bstrc-verdict">The window has closed.</p><p>Your last day to return it was ' + fmtDay(deadline) + ', at the dealer’s close of business. ' +
+      if (left < 0) return show(false, '<p class="bstrc-verdict">Your 3-day window has likely passed.</p><p>The deadline was closing time on ' + fmtDay(deadline) + '. ' +
+        'The one exception: if the dealership was closed that day, the deadline moved to the next day it was open. ' +
         'You may still have other options if something was misrepresented or the car has a defect.</p>');
 
       var f = fee(price, miles);
       var when = left === 0 ? 'today' : left === 1 ? 'tomorrow' : 'in ' + left + ' days';
       show(true,
         '<p class="bstrc-verdict">Yes, you can still return it.</p>' +
-        '<p class="bstrc-big">By close of business ' + fmtDay(deadline) + '</p>' +
-        '<p>That’s ' + when + '. Take the car back to the dealer in person, during business hours, in the same condition.</p>' +
+        '<p class="bstrc-big">Return it by closing time ' + fmtDay(deadline) + '</p>' +
+        '<p>That’s ' + when + '. If the dealership is closed ' + wd + ', you have until closing time the next day it’s open. ' +
+        'Take the car back in person, during business hours, in the same condition.</p>' +
         '<p class="bstrc-big">Restocking fee: ' + money(f.total) + '</p>' +
         '<p>' + (f.extra ? money(f.base) + ' (1.5% of the price, within the $200 to $600 range) plus ' + money(f.extra) + ' for the miles over 250.' :
           'That’s 1.5% of the price, within the $200 to $600 range. ' + (miles > 200 ? 'Driving past 250 miles adds $1 a mile.' : 'It stays there unless you drive more than 250 miles.')) +
-        ' It comes out of your refund, which is due within 48 hours.</p>' +
+        ' It comes out of your refund, which is due within 48 hours and covers everything else you paid, including the doc fee.</p>' +
         '<p class="bstrc-fine">An estimate from the rules as written, not legal advice. If the dealer’s cancellation form shows a different deadline or fee, ask them to explain it in writing.</p>');
     }
 
-    $('bstrc-closed').addEventListener('change', function () {
-      if (this.checked) { closedDays++; this.checked = false; }
-      update();
-    });
+    box.querySelector('.bstrc-go').addEventListener('click', function () { ran = true; update(); });
     ['bstrc-price', 'bstrc-date', 'bstrc-miles', 'bstrc-seller', 'bstrc-type', 'bstrc-cond'].forEach(function (id) {
-      $(id).addEventListener('input', update);
-      $(id).addEventListener('change', update);
+      $(id).addEventListener('input', function () { if (ran) update(); });
+      $(id).addEventListener('change', function () { if (ran) update(); });
+      $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') { ran = true; update(); } });
     });
     $('bstrc-date').max = isoDate(today());
   }
