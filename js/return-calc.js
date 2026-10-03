@@ -27,10 +27,11 @@
 
   var CSS =
     '.bstrc{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;background:#f4f8f5;border:1px solid #d3e8da;border-radius:12px;padding:22px 22px 18px;margin:8px 0 30px;color:#0E1523}' +
-    '.bstrc h3{font:800 20px/1.3 "Montserrat",sans-serif;margin:0 0 4px;color:#0E1523}' +
-    '.bstrc .bstrc-sub{font-size:14px;line-height:1.5;color:#4b5563;margin:0 0 16px}' +
+    '.bstrc h3.bstrc-h{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:20px;font-weight:800;line-height:1.3;margin:0 0 4px;color:#0E1523}' +
+    // p rules carry 2 classes + element so they beat the article template's .ba-col p (serif)
+    '.bstrc p.bstrc-sub{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.5;color:#4b5563;margin:0 0 16px}' +
     '.bstrc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}' +
-    '.bstrc label{display:block;font-size:13px;font-weight:700;margin:0 0 5px;color:#1f2937}' +
+    '.bstrc label{display:block;font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:13px;font-weight:700;margin:0 0 5px;color:#1f2937}' +
     '.bstrc input,.bstrc select{width:100%;box-sizing:border-box;font:500 16px "Montserrat",sans-serif;padding:10px 12px;border:1px solid #c5d3ca;border-radius:8px;background:#fff;color:#0E1523}' +
     '.bstrc input:focus,.bstrc select:focus{outline:2px solid #31b56b;outline-offset:1px}' +
     '.bstrc-closed{margin:14px 0 0;font-size:14px;line-height:1.5}' +
@@ -38,11 +39,11 @@
     '.bstrc-closed input{width:18px;height:18px;padding:0;margin:0;accent-color:#1a6f4a}' +
     '.bstrc-out{margin:16px 0 0;background:#fff;border-radius:10px;padding:16px 18px;border:1px solid #d3e8da}' +
     '.bstrc-out.no{border-color:#f0c9a8;background:#fffaf5}' +
-    '.bstrc-verdict{font:800 18px/1.35 "Montserrat",sans-serif;margin:0 0 6px}' +
-    '.bstrc-out.yes .bstrc-verdict{color:#155539}.bstrc-out.no .bstrc-verdict{color:#9a3412}' +
-    '.bstrc-out p{margin:6px 0 0;font-size:15px;line-height:1.55}' +
-    '.bstrc-big{font:800 22px/1.25 "Montserrat",sans-serif;color:#0E1523;margin:8px 0 2px}' +
-    '.bstrc-fine{font-size:12.5px!important;color:#6b7280;margin-top:12px!important}' +
+    '.bstrc .bstrc-out p{font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;margin:6px 0 0;font-size:15px;font-weight:500;line-height:1.55;color:#1f2937}' +
+    '.bstrc .bstrc-out p.bstrc-verdict{font-size:18px;font-weight:800;line-height:1.35;margin:0 0 6px}' +
+    '.bstrc .bstrc-out.yes p.bstrc-verdict{color:#155539}.bstrc .bstrc-out.no p.bstrc-verdict{color:#9a3412}' +
+    '.bstrc .bstrc-out p.bstrc-big{font-size:22px;font-weight:800;line-height:1.25;color:#0E1523;margin:10px 0 2px}' +
+    '.bstrc .bstrc-out p.bstrc-fine{font-size:12.5px;color:#6b7280;margin-top:12px}' +
     '@media (max-width:600px){.bstrc{padding:18px 16px 14px}.bstrc-grid{grid-template-columns:1fr}}';
 
   function el(html) { var d = document.createElement('div'); d.innerHTML = html; return d.firstChild; }
@@ -56,7 +57,7 @@
     }
     var box = el(
       '<div class="bstrc">' +
-      '<h3>Can I still return my car?</h3>' +
+      '<h3 class="bstrc-h">Can I still return my car?</h3>' +
       '<p class="bstrc-sub">Enter a few details to see your deadline and what returning it would cost. Nothing you type leaves this page.</p>' +
       '<div class="bstrc-grid">' +
         '<div><label for="bstrc-price">Car’s price (before tax and fees)</label><input id="bstrc-price" inputmode="numeric" placeholder="$24,500"></div>' +
