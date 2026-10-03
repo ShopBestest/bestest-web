@@ -120,7 +120,7 @@
       '.bst-return-row svg{flex:none;width:16px;height:16px;}' +
       '.bst-return-i{flex:none;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid #9aa8a0;border-radius:50%;font-size:10px;font-weight:700;color:#5b6b62;font-style:normal;}' +
       '.bst-return-info{margin:8px 0 0;font-size:12.5px;color:#3b4a42;line-height:1.5;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
-      '.bst-return-info p{margin:0 0 6px;}.bst-return-info a{color:#1a6f4a;font-weight:600;}' +
+      '.bst-return-info p{margin:0 0 6px;font:inherit;color:inherit;}.bst-return-info a{color:#1a6f4a;font-weight:600;}' +
       '.bst-price-note{display:inline;margin-left:8px;padding:0;border:0;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#6b7a72;vertical-align:middle;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-price-detail{margin:2px 0 4px;font-size:12px;color:#6b7a72;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}';
     (document.head || document.documentElement).appendChild(s);
