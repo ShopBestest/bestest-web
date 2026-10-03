@@ -25,6 +25,16 @@
     'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/';
   var FEED_CACHE_KEY = 'bestest_feed_cache_v3', FEED_CACHE_TTL_MS = 60 * 60 * 1000;
 
+  // California CARS Act (SB 766, Civ. Code 1784.31 + 1784.43, operative 2026-10-01):
+  // dealer-sold used cars at $50,000 or less get a 3-day right to cancel. Restocking
+  // fee = 1.5% of price, min $200, max $600, plus $1/mile over 250 (max $150); void
+  // past 400 miles. Every Bestest seller is a licensed CA dealer and the roster has no
+  // motorcycles or 10,000+ lb GVWR trucks, so the only gate needed here is price.
+  // Optional hub link: set window.BS_RETURN_HUB_URL once the rights hub is live.
+  var RETURN_MAX_PRICE = 50000;
+  function returnEligible(price) { var p = Number(price); return p > 0 && p <= RETURN_MAX_PRICE; }
+  function restockingFee(price) { return Math.round(Math.min(600, Math.max(200, 0.015 * Number(price)))); }
+
   function readFeedCache() {
     try {
       var p = JSON.parse(sessionStorage.getItem(FEED_CACHE_KEY));
@@ -104,7 +114,15 @@
       '.bst-claim-panel{margin:6px 0 10px;padding:12px 14px;background:#fff;border:1px solid #d8e4dc;border-radius:8px;}' +
       '.bst-claim-lead{margin:0 0 10px;font-size:14px;color:#0e1523;line-height:1.5;font-weight:500;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-claim-lead b{font-weight:700;}' +
-      '.bst-days-line{margin:10px 0 2px;font-size:13px;font-weight:600;color:#1a6f4a;text-align:center;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}';
+      '.bst-days-line{margin:10px 0 2px;font-size:13px;font-weight:600;color:#1a6f4a;text-align:center;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      // CARS Act row: shield (not a 4th check, since the checks are Bestest's own vetting)
+      '.bst-return-row{display:flex;align-items:center;gap:8px;width:100%;margin:10px 0 0;padding:10px 0 0;border:0;border-top:1px solid #e3ebe6;background:none;cursor:pointer;text-align:left;font-size:13px;color:#0e1523;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-return-row svg{flex:none;width:16px;height:16px;}' +
+      '.bst-return-i{flex:none;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid #9aa8a0;border-radius:50%;font-size:10px;font-weight:700;color:#5b6b62;font-style:normal;}' +
+      '.bst-return-info{margin:8px 0 0;font-size:12.5px;color:#3b4a42;line-height:1.5;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-return-info p{margin:0 0 6px;font:inherit;color:inherit;}.bst-return-info a{color:#1a6f4a;font-weight:600;}' +
+      '.bst-price-note{display:inline;margin-left:8px;padding:0;border:0;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#6b7a72;vertical-align:middle;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-price-detail{margin:2px 0 4px;font-size:12px;color:#6b7a72;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}';
     (document.head || document.documentElement).appendChild(s);
   })();
 
@@ -150,8 +168,12 @@
         checks.parentNode.insertBefore(panel, checks);
         panel.appendChild(lead);
         panel.appendChild(checks);
+        if (returnEligible(dd.price)) addReturnRow(panel, dd.price);
+        addPriceNote(); // no-op if the init-time call already ran
       } else if (++panelTries > 40) clearInterval(panelTimer);
     }, 250);
+
+    addPriceNote();
 
     // Hiding .bst-crumb-current can strand a trailing ">" separator — hide that too,
     // but only if the preceding element really is a bare separator.
@@ -179,7 +201,63 @@
     }, 250);
   }
 
-  var CONSENT_TEXT = 'By clicking Check availability, I agree to share my info with this dealer and ' +
+  // Row under the checks + tap-to-open explainer that does this car's fee math.
+  // Credits California law, never Bestest: we don't sell cars or guarantee returns.
+  function addReturnRow(panel, price) {
+    var row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'bst-return-row';
+    row.setAttribute('aria-expanded', 'false');
+    row.setAttribute('aria-controls', 'bst-return-info');
+    row.innerHTML =
+      '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 2.5 3.3v4.1c0 3.4 2.3 6.2 5.5 7.4 3.2-1.2 5.5-4 5.5-7.4V3.3L8 1.2z" fill="#31b56b"/>' +
+      '<path d="m5.4 8 1.8 1.8 3.5-3.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '<span>3-day return by California law</span><i class="bst-return-i" aria-hidden="true">i</i>';
+    var info = document.createElement('div');
+    info.id = 'bst-return-info';
+    info.className = 'bst-return-info';
+    info.hidden = true;
+    var hub = (typeof window.BS_RETURN_HUB_URL === 'string' && window.BS_RETURN_HUB_URL) || '';
+    info.innerHTML =
+      '<p>Buy this car from the dealer for $50,000 or less, and California’s CARS Act lets you return it within 3 days for any reason.</p>' +
+      '<p>For this car, the restocking fee would be about <b>' + fmtPrice(restockingFee(price)) + '</b>, plus $1 a mile for every mile over 250 (up to $150 more). ' +
+      'It has to come back with 400 miles or fewer added, in the same condition.</p>' +
+      '<p>This is a right California gives you, not a Bestest policy.' +
+      (hub ? ' <a href="' + hub + '">How it works ›</a>' : '') + '</p>';
+    row.addEventListener('click', function () {
+      var opening = info.hidden;
+      info.hidden = !opening;
+      row.setAttribute('aria-expanded', String(opening));
+      if (opening) track('return_info_open', { listing_price: Number(price) || undefined });
+    });
+    panel.appendChild(row);
+    panel.appendChild(info);
+  }
+
+  // "+ tax & registration" after the server-rendered price (the element right after
+  // #bst-rail-top). Tap reveals the full CARS Act "total price" wording.
+  function addPriceNote() {
+    var rail = document.getElementById('bst-rail-top');
+    var el = rail && rail.nextElementSibling;
+    if (!el || !/^\$[\d,]+$/.test(el.textContent.trim()) || el.querySelector('.bst-price-note')) return;
+    var note = document.createElement('button');
+    note.type = 'button';
+    note.className = 'bst-price-note';
+    note.setAttribute('aria-expanded', 'false');
+    note.textContent = '+ tax & registration';
+    var detail = document.createElement('div');
+    detail.className = 'bst-price-detail';
+    detail.hidden = true;
+    detail.textContent = 'Dealer’s advertised price. Excludes tax, title, registration and government fees.';
+    note.addEventListener('click', function () {
+      detail.hidden = !detail.hidden;
+      note.setAttribute('aria-expanded', String(!detail.hidden));
+    });
+    el.appendChild(note);
+    el.parentNode.insertBefore(detail, el.nextSibling);
+  }
+
+  var CONSENT_TEXT ='By clicking Check availability, I agree to share my info with this dealer and ' +
     'to be contacted by Bestest and the dealer (and their agents) by email — and, if I provide my ' +
     'phone number, by call and text, including by automated means. This isn’t a condition of any ' +
     'purchase, and I can opt out anytime. Message and data rates may apply. See our Terms and Privacy Policy.';
@@ -389,7 +467,8 @@
       segment:       ctx.segment || undefined,
       dealer_name:   ctx.dealer || undefined,
       listing_price: (priceNum > 0 ? priceNum : undefined),
-      days_listed:   (typeof ctx.daysListed === 'number' ? ctx.daysListed : undefined)
+      days_listed:   (typeof ctx.daysListed === 'number' ? ctx.daysListed : undefined),
+      return_eligible: (priceNum > 0 ? (returnEligible(priceNum) ? 'yes' : 'no') : undefined)
     };
     if (extra) for (var k in extra) p[k] = extra[k];
     return p;
