@@ -341,15 +341,16 @@
     });
   }
 
-  // City hubs: "See how {City} compares ↓" jump link to the city-data module (#city-cars,
-  // a CMS HTML embed below the listings). Inserted AFTER .srp-intro, not inside it, so the
-  // mobile read-more clamp never hides it. GA4: city_cars_jump_click + city_cars_view (once).
+  // City hubs: "What {City} drives ↓" jump link to the city-data module (#city-cars, a CMS HTML
+  // embed below the listings). Lives at the end of srp-engine's .bs-meta row ("1,114 Bestest
+  // listings · Clear all filters · Irvine"), so it costs ~0px above the listings on mobile
+  // (measured: first listing moves 4px). .bs-meta is built after the feed loads, so poll for it.
+  // GA4: city_cars_jump_click + city_cars_view (once, at 25% visible), both with a city param.
   var cityCarsDone = false;
   function setupCityCars() {
     if (cityCarsDone) return;
     var mod = document.getElementById('city-cars');
-    var intro = document.querySelector('.srp-intro');
-    if (!mod || !intro) return;
+    if (!mod) return;
     cityCarsDone = true;
     var city = mod.getAttribute('data-city') || '';
     var track = function (name) {
@@ -358,15 +359,20 @@
     var a = document.createElement('a');
     a.href = '#city-cars';
     a.className = 'bs-cc-jump';
-    a.textContent = 'See how ' + city + ' compares ↓';
-    a.style.cssText = 'display:inline-block;margin:2px 0 10px;font:700 14px/1.4 Montserrat,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:#1a6f4a;text-decoration:none;border-bottom:1px solid #c9dfd2';
+    a.textContent = 'What ' + city + ' drives \u2193';
+    a.style.cssText = 'font:600 12px/1.4 Montserrat,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:#1a6f4a;text-decoration:underline;text-underline-offset:2px;white-space:nowrap;margin-left:auto';
     a.addEventListener('click', function (e) {
       e.preventDefault();
       track('city_cars_jump_click');
       var y = mod.getBoundingClientRect().top + window.pageYOffset - 90;   // clear the sticky header/band
       window.scrollTo({ top: y, behavior: 'smooth' });
     });
-    intro.parentNode.insertBefore(a, intro.nextSibling);
+    var tries = 0;
+    (function place() {
+      var meta = document.querySelector('.bs-meta');
+      if (meta) { if (!meta.contains(a)) meta.appendChild(a); }
+      else if (++tries < 60) setTimeout(place, 250);
+    })();
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
         if (entries.some(function (en) { return en.isIntersecting; })) { track('city_cars_view'); io.disconnect(); }
