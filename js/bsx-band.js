@@ -345,7 +345,11 @@
   // embed below the listings). Lives at the end of srp-engine's .bs-meta row ("1,114 Bestest
   // listings · Clear all filters · Irvine"), so it costs ~0px above the listings on mobile
   // (measured: first listing moves 4px). .bs-meta is built after the feed loads, so poll for it.
-  // GA4: city_cars_jump_click + city_cars_view (once, at 25% visible), both with a city param.
+  // Desktop: the summary's closing sentence ("See what else {City} is driving, and what it's not.")
+  // becomes the jump link itself, so the link sits next to the line it describes. Mobile (<=720px)
+  // clamps the summary behind "more...", so the .bs-meta link stays there and is hidden on desktop
+  // only when the sentence link exists.
+  // GA4: city_cars_jump_click (with where: intro | meta) + city_cars_view (once, at 25% visible).
   var cityCarsDone = false;
   function setupCityCars() {
     if (cityCarsDone) return;
@@ -353,20 +357,25 @@
     if (!mod) return;
     cityCarsDone = true;
     var city = mod.getAttribute('data-city') || '';
-    var track = function (name) {
-      try { if (typeof window.gtag === 'function') window.gtag('event', name, { city: city }); } catch (e) {}
+    var track = function (name, where) {
+      try { if (typeof window.gtag === 'function') window.gtag('event', name, { city: city, where: where || '' }); } catch (e) {}
     };
+    var jump = function (where) {
+      return function (e) {
+        e.preventDefault();
+        track('city_cars_jump_click', where);
+        var y = mod.getBoundingClientRect().top + window.pageYOffset - 90;   // clear the sticky header/band
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      };
+    };
+    var hasIntroLink = linkIntroSentence(jump('intro'));
     var a = document.createElement('a');
     a.href = '#city-cars';
     a.className = 'bs-cc-jump';
     a.textContent = 'What ' + city + ' drives \u2193';
     a.style.cssText = 'font:600 12px/1.4 Montserrat,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:#1a6f4a;text-decoration:underline;text-underline-offset:2px;white-space:nowrap;margin-left:auto';
-    a.addEventListener('click', function (e) {
-      e.preventDefault();
-      track('city_cars_jump_click');
-      var y = mod.getBoundingClientRect().top + window.pageYOffset - 90;   // clear the sticky header/band
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    });
+    if (hasIntroLink) a.classList.add('bs-cc-jump-mobile');
+    a.addEventListener('click', jump('meta'));
     var tries = 0;
     (function place() {
       var meta = document.querySelector('.bs-meta');
@@ -379,6 +388,35 @@
       }, { threshold: 0.25 });
       io.observe(mod);
     }
+  }
+
+  // Wrap "See what else ... it's not." in the city summary (.srp-intro) as a link to #city-cars.
+  // The sentence is plain CMS text, so it stays crawlable text; only the anchor is added here.
+  function linkIntroSentence(onClick) {
+    var intro = document.querySelector('.srp-intro');
+    if (!intro) return false;
+    for (var n = intro.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType !== 3) continue;
+      var i = n.data.indexOf('See what else');
+      if (i < 0) continue;
+      var end = n.data.indexOf('.', i);
+      end = end < 0 ? n.data.length : end + 1;
+      var tail = n.splitText(i); tail.splitText(end - i);
+      var link = document.createElement('a');
+      link.href = '#city-cars';
+      link.className = 'bs-cc-intro-link';
+      link.style.cssText = 'color:#1a6f4a;font-weight:600;text-decoration:underline;text-underline-offset:3px';
+      link.textContent = tail.data.replace(/\.$/, '') + ' \u2193';
+      tail.parentNode.replaceChild(link, tail);
+      link.addEventListener('click', onClick);
+      if (!document.getElementById('bs-cc-jump-css')) {
+        var st = document.createElement('style'); st.id = 'bs-cc-jump-css';
+        st.textContent = '@media (min-width:721px){.bs-cc-jump-mobile{display:none!important}}';
+        document.head.appendChild(st);
+      }
+      return true;
+    }
+    return false;
   }
 
   function init() {
