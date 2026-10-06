@@ -363,6 +363,7 @@
     var jump = function (where) {
       return function (e) {
         e.preventDefault();
+        e.stopPropagation();   // Webflow's own delegated '#' smooth-scroll would otherwise win and land with no header offset
         track('city_cars_jump_click', where);
         var y = mod.getBoundingClientRect().top + window.pageYOffset - 90;   // clear the sticky header/band
         window.scrollTo({ top: y, behavior: 'smooth' });
