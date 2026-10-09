@@ -22,18 +22,21 @@
   resolveModeFromWindow();
   if(!document.querySelector('.collection-list-2'))return;
   var PER_PAGE=24, MOBILE_PER_PAGE=PER_PAGE, BROAD_USED_CARS_PATH='/used-cars';
-  var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs'};
+  var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles',Hybrids:'/used-cars/best-used-hybrids','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs'};
   var state={make:[],model:[],segment:[],body_style:[],powertrain:[],price:[],miles:[],year:[],certified:[],page:1,shown:MOBILE_PER_PAGE};
   var sortKey='', allItems=[], filtered=[], bsLock=false, loadComplete=false, hasActiveQuery=false, urlSyncReady=false;
+  // 'Hybrids' is a virtual segment (a RAV4 Hybrid stays a Compact SUV): it matches by powertrain and navigates to the
+  // hybrid SRP, whose page runs in BS_BROAD + BS_PREFILTER mode (2026-10-09).
+  var HYBRID_PT=['HEV','Hybrid','PHEV','Plug-in Hybrid','Plug-In Hybrid'];
   var SEGMENT_GROUPS=[
     {label:'SUVs',items:[{v:'Subcompact SUV',eg:'Honda HR-V, Mazda CX-30, Hyundai Kona…'},{v:'Compact SUV',eg:'Toyota RAV4, Honda CR-V, Mazda CX-5…'},{v:'Midsize SUV',eg:'Honda Pilot, Toyota Highlander, Kia Telluride…'},{v:'Full-Size SUV',eg:'Chevy Tahoe, Ford Expedition, Toyota Sequoia…'}]},
     {label:'Cars',items:[{v:'Compact Car',eg:'Toyota Corolla, Honda Civic, Mazda3…'},{v:'Midsize/Full-size Car',eg:'Honda Accord, Toyota Camry, Kia K5…'}]},
     {label:'Trucks',items:[{v:'Compact/Midsize Truck',eg:'Toyota Tacoma, Ford Maverick, Honda Ridgeline…'},{v:'Full-Size Truck',eg:'Ford F-150, Chevy Silverado, Toyota Tundra…'}]},
-    {label:'Specialty',items:[{v:'Minivan',eg:'Toyota Sienna, Honda Odyssey, Kia Carnival'},{v:'Electric Vehicles',eg:'Tesla Model Y, BMW iX, Porsche Taycan…'}]},
+    {label:'Specialty',items:[{v:'Minivan',eg:'Toyota Sienna, Honda Odyssey, Kia Carnival'},{v:'Electric Vehicles',eg:'Tesla Model Y, BMW iX, Porsche Taycan…'},{v:'Hybrids',eg:'Toyota Prius, RAV4 Hybrid, Honda CR-V Hybrid…',pt:HYBRID_PT}]},
     {label:'Luxury SUVs',items:[{v:'Luxury Subcompact SUV',eg:'BMW X1, Mercedes GLA, Audi Q3…'},{v:'Luxury Compact SUV',eg:'BMW X3, Mercedes GLC, Genesis GV70…'},{v:'Luxury Midsize SUV',eg:'Lexus RX, Audi Q7, BMW X5…'},{v:'Luxury Full-Size SUV',eg:'Cadillac Escalade, Lincoln Navigator, BMW X7…'}]},
     {label:'Luxury Cars',items:[{v:'Luxury Small Car',eg:'Audi A4, BMW 3 Series, Mercedes C-Class…'},{v:'Luxury Midsize Car',eg:'Mercedes E-Class, Audi A6, BMW 5 Series…'},{v:'Luxury Full-Size Car',eg:'BMW 7 Series, Mercedes S-Class, Lexus LS…'}]}
   ];
-  var SEGMENT_OPTS=(function(){var out=[];SEGMENT_GROUPS.forEach(function(g){g.items.forEach(function(i){out.push({v:i.v,eg:i.eg});});});return out;})();
+  var SEGMENT_OPTS=(function(){var out=[];SEGMENT_GROUPS.forEach(function(g){g.items.forEach(function(i){out.push(i.pt?{v:i.v,eg:i.eg,pt:i.pt}:{v:i.v,eg:i.eg});});});return out;})();
   // Main /used-cars + segment SRP filter config.
   // Banned nameplates (Solterra, bZ4X, Prologue, CX-9, Model X, Cybertruck)
   // deliberately omitted — Exclusions enforces the ban and hideEmpty:true would
@@ -166,6 +169,7 @@
     var qs=params.toString();
     return qs?basePath+'?'+qs:basePath;
   }
+  function segMatch(d){if(matchList(d.segment,state.segment))return true;return state.segment.indexOf('Hybrids')!==-1&&HYBRID_PT.indexOf(d.powertrain)!==-1;}
   function resolveSegmentNavigation(segmentNames){
     if(!segmentNames||segmentNames.length===0){if(window.location.pathname===BROAD_USED_CARS_PATH)return null;return buildSegmentURL(BROAD_USED_CARS_PATH);}
     if(segmentNames.length===1){var seg=segmentNames[0];if(NATIVE_SEGMENT===seg)return null;var slug=SEGMENT_TO_SLUG[seg];if(slug)return buildSegmentURL(slug);var fallback=buildSegmentURL(BROAD_USED_CARS_PATH);fallback+=(fallback.indexOf('?')===-1?'?':'&')+'segment='+encodeURIComponent(seg);return fallback;}
@@ -238,7 +242,7 @@
     var bodyVals=expandFilterValues(getFilterByKey('body_style'),state.body_style);
     var ptVals=expandFilterValues(getFilterByKey('powertrain'),state.powertrain);
     var base=allItems.filter(function(d){
-      return matchList(d.make,state.make) && matchList(d.model,state.model) && matchList(d.segment,state.segment) && matchList(d.body_type,bodyVals) && matchList(d.powertrain,ptVals) && matchRange(d.price,state.price) && matchRange(d.miles,state.miles) && matchList(d.year,state.year) && matchList(d.certified,state.certified);
+      return matchList(d.make,state.make) && matchList(d.model,state.model) && segMatch(d) && matchList(d.body_type,bodyVals) && matchList(d.powertrain,ptVals) && matchRange(d.price,state.price) && matchRange(d.miles,state.miles) && matchList(d.year,state.year) && matchList(d.certified,state.certified);
     });
     filtered=sortItems(base);
   }
@@ -291,7 +295,7 @@
     var ptValsForFilter=targetFilterKey==='powertrain'?[]:expandFilterValues(getFilterByKey('powertrain'),state.powertrain);
     var base=allItems.filter(function(d){
       var modelConstraint=(targetFilterKey==='make'||targetFilterKey==='model')?true:matchList(d.model,state.model);
-      return (targetFilterKey==='make'||matchList(d.make,state.make)) && modelConstraint && (targetFilterKey==='segment'||matchList(d.segment,state.segment)) && (targetFilterKey==='body_style'||matchList(d.body_type,bodyValsForFilter)) && (targetFilterKey==='powertrain'||matchList(d.powertrain,ptValsForFilter)) && (targetFilterKey==='price'||matchRange(d.price,state.price)) && (targetFilterKey==='miles'||matchRange(d.miles,state.miles)) && (targetFilterKey==='year'||matchList(d.year,state.year)) && (targetFilterKey==='certified'||matchList(d.certified,state.certified));
+      return (targetFilterKey==='make'||matchList(d.make,state.make)) && modelConstraint && (targetFilterKey==='segment'||segMatch(d)) && (targetFilterKey==='body_style'||matchList(d.body_type,bodyValsForFilter)) && (targetFilterKey==='powertrain'||matchList(d.powertrain,ptValsForFilter)) && (targetFilterKey==='price'||matchRange(d.price,state.price)) && (targetFilterKey==='miles'||matchRange(d.miles,state.miles)) && (targetFilterKey==='year'||matchList(d.year,state.year)) && (targetFilterKey==='certified'||matchList(d.certified,state.certified));
     });
     var filter=getFilterByKey(targetFilterKey);
     if(!filter)return {};
@@ -309,7 +313,8 @@
           if(val>=lo&&val<=hi){hit=true;break;}
         } else {
           var val=targetFilterKey==='make'?d.make:targetFilterKey==='model'?d.model:targetFilterKey==='segment'?d.segment:targetFilterKey==='body_style'?d.body_type:targetFilterKey==='powertrain'?d.powertrain:targetFilterKey==='year'?d.year:targetFilterKey==='certified'?d.certified:null;
-          if(matchVals.indexOf(val)!==-1){hit=true;break;}
+          if(opt.pt){if(opt.pt.indexOf(d.powertrain)!==-1){hit=true;break;}}
+          else if(matchVals.indexOf(val)!==-1){hit=true;break;}
         }
       }
       availability[opt.v]=hit;
