@@ -21,7 +21,8 @@
     // Positioned before Luxury so the Specialty options get maximum visibility.
     'Specialty': [
       { name: 'Minivan',           url: '/used-cars/best-used-minivans',          filterValue: 'Minivan',           examples: 'Toyota Sienna, Honda Odyssey, Kia Carnival' },
-      { name: 'Electric Vehicles', url: '/used-cars/best-used-electric-vehicles', filterValue: 'Electric Vehicles', examples: 'Tesla Model Y, BMW iX, Porsche Taycan, Mercedes-Benz EQB, Toyota bZ4X…' }
+      { name: 'Electric Vehicles', url: '/used-cars/best-used-electric-vehicles', filterValue: 'Electric Vehicles', examples: 'Tesla Model Y, BMW iX, Porsche Taycan, Mercedes-Benz EQB, Toyota bZ4X…' },
+      { name: 'Hybrids',           url: '/used-cars/best-used-hybrids',           filterValue: 'Hybrids',           examples: 'Toyota Prius, RAV4 Hybrid, Honda CR-V Hybrid, Camry Hybrid…' }
     ],
     'Luxury SUVs': [
       { name: 'Luxury Subcompact SUV', url: '/used-cars/best-used-luxury-subcompact-suvs', filterValue: 'Luxury Subcompact SUV', examples: 'BMW X1, Mercedes-Benz GLA and GLB, Audi Q3, Lexus UX, Cadillac XT4…' },
