@@ -28,6 +28,16 @@ Bestest is not an aggregator. Every model on the site clears a published curatio
 - [Luxury midsize cars](https://shopbestest.com/used-cars/best-used-luxury-midsize-cars): Best used luxury midsize cars.
 - [Luxury full-size cars](https://shopbestest.com/used-cars/best-used-luxury-full-size-cars): Best used luxury full-size cars.
 
+## Research (studies, guides and data pages)
+- [Orange County EV market](https://shopbestest.com/research/orange-county-ev-market): Weekly data page: what's on OC roads, what sold new, and what used EVs cost at local dealers, by price band and model.
+- [Used-EV buyer's guide for Orange County](https://shopbestest.com/research/used-ev-buyers-guide): How to buy a good used EV in OC.
+- [MyFirstEV eligible cars](https://shopbestest.com/research/myfirstev-eligible-cars): Every new and used EV that qualifies for California's MyFirstEV discount, model by model, checked daily.
+- [MyFirstEV used-EV discount: fewer than 40 qualifying cars](https://shopbestest.com/research/myfirstev-used-ev-discount-fewer-than-40): Why so few used EVs qualify for the $1,750 discount.
+- [California EV rebates in 2026](https://shopbestest.com/research/california-ev-rebates-stack): Every live California EV rebate, who qualifies, and what stacks.
+- [California used-car return rights](https://shopbestest.com/research/california-used-car-return-rights): The three-day return right on used cars bought from a California dealer since October 1, 2026, and how it works.
+- [Anaheim's cheap electricity and EV adoption](https://shopbestest.com/research/anaheim-ev-electricity): Where electricity is cheaper in Orange County, EV adoption runs higher.
+- [How we calculate city car data](https://shopbestest.com/research/how-we-calculate-city-car-data): Methodology behind the Orange County city pages.
+
 ## Local city guides
 - [All used cars](https://shopbestest.com/used-cars): The full curated inventory hub for Orange County.
 - [Irvine](https://shopbestest.com/best-used/irvine): Best used cars in Irvine, CA.
