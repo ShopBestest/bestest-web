@@ -30,7 +30,6 @@ Bestest is not an aggregator. Every model on the site clears a published curatio
 
 ## Research (studies, guides and data pages)
 - [Orange County EV market](https://shopbestest.com/research/orange-county-ev-market): Weekly data page: what's on OC roads, what sold new, and what used EVs cost at local dealers, by price band and model.
-- [Used-EV buyer's guide for Orange County](https://shopbestest.com/research/used-ev-buyers-guide): How to buy a good used EV in OC.
 - [MyFirstEV eligible cars](https://shopbestest.com/research/myfirstev-eligible-cars): Every new and used EV that qualifies for California's MyFirstEV discount, model by model, checked daily.
 - [MyFirstEV used-EV discount: fewer than 40 qualifying cars](https://shopbestest.com/research/myfirstev-used-ev-discount-fewer-than-40): Why so few used EVs qualify for the $1,750 discount.
 - [California EV rebates in 2026](https://shopbestest.com/research/california-ev-rebates-stack): Every live California EV rebate, who qualifies, and what stacks.
