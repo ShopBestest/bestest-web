@@ -51,3 +51,6 @@ Bestest is not an aggregator. Every model on the site clears a published curatio
 - [Garden Grove](https://shopbestest.com/best-used/garden-grove): Best used cars in Garden Grove, CA.
 - [Buena Park](https://shopbestest.com/best-used/buena-park): Best used cars in Buena Park, CA.
 - [Laguna Niguel](https://shopbestest.com/best-used/laguna-niguel): Best used cars in Laguna Niguel, CA.
+
+## Machine-readable
+- [Curation list (JSON)](https://shopbestest.com/curation.json): Bestest's full nameplate-level curation list for Orange County, updated daily. One record per model: `status` (approved / fun / not_listed / not_recommended), segment and segment URL, scoped exclusions (year, trim, powertrain, engine) with the stated reason, the live count of passing cars for sale (`for_sale_now`, with price_min / price_median), and the pass/fail checklist. Verdict and reason text appears only once approved. CC BY 4.0, attribution "Bestest (shopbestest.com)". The denominator and disclaimer strings ride in the document.
