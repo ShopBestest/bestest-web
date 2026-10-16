@@ -315,7 +315,7 @@
     return {
       year: d.year || '', make: d.make || '', model: d.model || '', trim: d.trim || '',
       segment: d.segment || '', price: d.price || '', dealer: d.dealerName || '', vin: d.vin || '',
-      certified: d.isCertified === 'true'
+      dealerPhone: d.dealerPhone || '', certified: d.isCertified === 'true'
     };
   }
 
@@ -431,20 +431,33 @@
         vehicle_title: ctx.title, vin: ctx.vin, price: ctx.price,
         dealer_name: ctx.dealer, dealer_listing_url: ctx.dealerUrl, vdp_url: location.href
       };
+      // 12 s client timeout (2026-10-13): the Worker now answers in well under a second
+      // (KV-first; Airtable happens after the response), so anything longer is the
+      // network, and the shopper should get the dealer's number instead of a spinner.
+      var SUBMIT_TIMEOUT_MS = 12000;
+      var aborter = (typeof AbortController === 'function') ? new AbortController() : null;
+      var timedOut = false;
+      var timer = setTimeout(function () { timedOut = true; if (aborter) aborter.abort(); }, SUBMIT_TIMEOUT_MS);
+      var t0 = Date.now();
       fetch(ENDPOINT, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-      }).then(function (r) { return r.json().catch(function () { return { ok: r.ok }; }); })
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        signal: aborter ? aborter.signal : undefined
+      }).then(function (r) { return r.json().catch(function () { return { ok: r.ok, error: 'http_' + r.status }; }); })
         .then(function (res) {
+          clearTimeout(timer);
           if (res && res.ok) {
             backdrop.querySelector('.bstlf-form-wrap').style.display = 'none';
             backdrop.querySelector('.bstlf-done').style.display = 'block';
-            track('generate_lead', ctxParams({ value: (Number(ctx.price) > 0 ? Number(ctx.price) : undefined), currency: 'USD' }));
+            track('generate_lead', ctxParams({ value: (Number(ctx.price) > 0 ? Number(ctx.price) : undefined), currency: 'USD', submit_ms: Date.now() - t0 }));
           } else { throw new Error((res && res.error) || 'failed'); }
         })
-        .catch(function () {
+        .catch(function (err) {
+          clearTimeout(timer);
           submit.disabled = false; submit.textContent = 'Check availability';
-          errMsg.textContent = 'Something went wrong sending that. Please try again, or call the dealer.';
-          track('lead_form_submit_error', ctxParams());
+          var reason = timedOut ? 'timeout' : ((err && err.message) || 'network');
+          var phone = ctx.dealerPhone ? ' Or call ' + (ctx.dealer || 'the dealer') + ' at ' + ctx.dealerPhone + '.' : ' Or call the dealer.';
+          errMsg.textContent = (timedOut ? 'That took too long to send. Please try once more.' : 'Something went wrong sending that. Please try again.') + phone;
+          track('lead_form_submit_error', ctxParams({ error: String(reason).slice(0, 60), submit_ms: Date.now() - t0 }));
         });
     });
   }
@@ -485,6 +498,7 @@
     var dealer = (dd && dd.dealer) || v.dealer;
     ctx = {
       title: v.title, vin: (dd && dd.vin) || v.vin, price: price, dealer: dealer, dealerUrl: url,
+      dealerPhone: (dd && dd.dealerPhone) || '',
       year: (dd && dd.year) || '', make: (dd && dd.make) || '', model: (dd && dd.model) || '',
       trim: (dd && dd.trim) || '', segment: (dd && dd.segment) || ''
     };
