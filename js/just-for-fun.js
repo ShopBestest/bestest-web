@@ -72,7 +72,7 @@
   var outLink = MOUNT.querySelector('.bst-fun-cta-out');
   if (outLink) {
     outLink.addEventListener('click', function () {
-      track('outbound_autotrader', { make: make, model: model, source_page: 'fun_cars' });
+      track('outbound_autotrader', { vehicle_make: make, vehicle_model: model, source_page: 'fun_cars' }); // 10/21: registered GA4 dims
     });
   }
 

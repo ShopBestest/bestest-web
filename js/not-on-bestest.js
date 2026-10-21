@@ -1,6 +1,8 @@
 /* not-on-bestest.js — "this model isn't Bestest material" page (/not-bestest).
    Renders into <div id="bst-notcarried"></div>. Reads ?make=&model= from the URL.
-   Looks up the model's segment from the roster (feed worker /?roster) and either:
+   Looks up the model's segment from the roster (feed worker /?roster). When the roster
+   entry carries the model's own page (p: "/best-used/ford-escape"), the body links to it
+   (2026-10-21; the homepage dropdown sends those models straight there). Then either:
      - GRAPH segments: renders the "Bestest Cars are Better" pillar graph (Bestest vs
        Other, 4 pillars, Other as % of Bestest), then two CTA cards; or
      - FALLBACK segments (luxury sedans/SUVs, EVs where the gap inverts): copy + CTAs only.
@@ -96,9 +98,13 @@
       '<g font-size="13" fill="#555" text-anchor="middle">' + axis + '</g></svg>';
   }
 
-  function render(seg) {
+  function render(seg, pagePath) {
     // A segment graphs only if it has g AND Bestest is equal-or-better on all four pillars.
     var doGraph = seg && seg.g && seg.g.every(function (v) { return v <= 100; });
+    // The model's own page, when Bestest has published one (roster `p`).
+    var pageBlock = (pagePath && pagePath.charAt(0) === '/')
+      ? '<p class="bst-nc-body bst-nc-page">Bestest has a full page on the ' + nameHTML + ': <a href="' + esc(pagePath) + '">why it isn\u2019t listed, and what to check if you buy one anyway \u2192</a></p>'
+      : '';
     var srpUrl = (seg && seg.url) || '/used-cars';
     var betterCta = seg
       ? 'Shop the Bestest ' + esc(lower(seg.plural))
@@ -113,6 +119,7 @@
         '<h1 class="bst-nc-title">' + titleHTML + '</h1>' +
         '<p class="bst-nc-body">The cars we don’t allow on Bestest aren’t necessarily bad cars, they’re just not among the segment’s best cars. Founded by the former head of vehicle reviews and ratings at Kelley Blue Book, the only cars you’ll find on Bestest are the same ones that earn consistently high marks across trusted sources ranging from Consumer Reports to Car and Driver.</p>' +
         '<p class="bst-nc-body">Bestest is the used-car marketplace designed for quality-focused, Nordstrom-type shoppers who don’t want to bother with anything but the good stuff.</p>' +
+        pageBlock +
         graphBlock +
         '<div class="bst-nc-ctas">' +
           '<div class="bst-nc-card bst-nc-card-alt">' +
@@ -130,7 +137,7 @@
     var outLink = MOUNT.querySelector('.bst-nc-cta-out');
     if (outLink) {
       outLink.addEventListener('click', function () {
-        track('outbound_autotrader', { make: make, model: model, segment: (seg && seg.plural) || '', source_page: 'not_bestest' });
+        track('outbound_autotrader', { vehicle_make: make, vehicle_model: model, segment: (seg && seg.plural) || '', source_page: 'not_bestest' }); // 10/21: registered GA4 dims
       });
     }
   }
@@ -139,7 +146,7 @@
     if (!make || !model) { render(null); return; }
     var key = slug(make + '-' + model);
     var done = false;
-    function fin(seg) { if (done) return; done = true; render(seg); }
+    function fin(seg, pagePath) { if (done) return; done = true; render(seg, pagePath); }
     // safety timeout so a slow/broken feed never leaves a blank page
     var t = setTimeout(function () { fin(null); }, 4000);
     fetch(FEED).then(function (r) { return r.json(); }).then(function (d) {
@@ -147,7 +154,7 @@
       var models = (d && d.models) || {};
       var entry = models[key];
       var segName = entry && entry.seg;
-      fin(segName ? SEGMENTS[segName] : null);
+      fin(segName ? SEGMENTS[segName] : null, entry && typeof entry.p === 'string' ? entry.p : '');
     }).catch(function () { clearTimeout(t); fin(null); });
   }
 
@@ -159,6 +166,8 @@
       ".bst-nc{max-width:720px;margin:0 auto;padding:8px 20px 40px;color:#1a1a1a;box-sizing:border-box;}" +
       ".bst-nc-title{font-size:30px;line-height:1.2;font-weight:700;margin:0 0 16px;}" +
       ".bst-nc-body{font-size:16.5px;line-height:1.6;color:#333;margin:0 0 22px;}" +
+      ".bst-nc-page a{color:" + GREEN + ";font-weight:600;text-decoration:none;border-bottom:1px solid #c9dfd2;}" +
+      ".bst-nc-page a:hover{border-bottom-color:" + GREEN + ";}" +
       ".bst-nc-graph{background:#faf9f6;border:0.5px solid #e7e5dd;border-radius:12px;padding:18px 16px 8px;margin:0 0 26px;}" +
       ".bst-nc-gh{font-size:16px;font-weight:700;color:" + GREEN + ";margin:0 0 2px;text-align:center;}" +
       ".bst-nc-ctas{display:grid;grid-template-columns:1fr 1fr;gap:16px;}" +
