@@ -137,7 +137,7 @@
     var outLink = MOUNT.querySelector('.bst-nc-cta-out');
     if (outLink) {
       outLink.addEventListener('click', function () {
-        track('outbound_autotrader', { make: make, model: model, segment: (seg && seg.plural) || '', source_page: 'not_bestest' });
+        track('outbound_autotrader', { vehicle_make: make, vehicle_model: model, segment: (seg && seg.plural) || '', source_page: 'not_bestest' }); // 10/21: registered GA4 dims
       });
     }
   }
