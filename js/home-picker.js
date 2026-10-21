@@ -5,7 +5,10 @@
    Routes by Bestest Status:
      Approved (A) -> /used-cars SRP (make+model filter)
      Fun (F)      -> /fun-cars?make=&model=
-     Banned/other -> /not-bestest?make=&model=
+     Banned/other -> the model's own page when the roster entry carries one
+                     (p: "/best-used/ford-escape", set by sync_roster.py once the
+                     MM text is Approved and the Local Pages row exists; 2026-10-21),
+                     else /not-bestest?make=&model=
    Embed on homepage, before </body>:
    <script src="https://cdn.jsdelivr.net/gh/ShopBestest/bestest-web@<sha>/js/home-picker.js" defer></script>
 */
@@ -13,7 +16,7 @@
   var ROSTER_URL = (window.BS_FEED_URL || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/') + '?roster';
 
   // Populated from the roster fetch.
-  var MODELS = {};            // { make: [{ m: model, s: 'A|B|F', slug }] }
+  var MODELS = {};            // { make: [{ m: model, s: 'A|B|F', slug, p: '/best-used/…' | '' }] }
   var MAKES = [];             // sorted make names
   var MAKE_HAS_APPROVED = {}; // { make: true } when the make has >=1 approved model
 
@@ -80,9 +83,10 @@
     bstNavigate({ segment: filterValue, zip: bstState.zip });
   }
   function bstNavigateMake(make) { bstNavigate({ make: make, zip: bstState.zip }); }
-  // Approved -> SRP; Fun -> /fun-cars; Banned/Needs-verification -> /not-bestest.
-  function bstNavigateMakeModel(make, model, status, slug) {
+  // Approved -> SRP; a model with its own page -> that page; Fun -> /fun-cars; Banned/Needs-verification -> /not-bestest.
+  function bstNavigateMakeModel(make, model, status, slug, pagePath) {
     if (status === 'A') { bstNavigate({ make: make, model: model, zip: bstState.zip }); return; }
+    if (pagePath && pagePath.charAt(0) === '/') { window.location.href = pagePath; return; }
     var page = (status === 'F') ? '/fun-cars' : '/not-bestest';
     window.location.href = page + qs({ make: make, model: model });
   }
@@ -105,14 +109,14 @@
       html += '<div class="bst-dd-item go-item go-item-primary" data-action="all"><div class="bst-dd-item-main"><span class="bst-dd-item-name">See all ' + currentMake + ' models</span></div><span class="bst-go-arrow">→</span></div>';
     }
     html += models.map(function (m) {
-      return '<div class="bst-dd-item go-item" data-action="model" data-name="' + m.m + '" data-status="' + m.s + '" data-slug="' + m.slug + '"><div class="bst-dd-item-main"><span class="bst-dd-item-name">' + m.m + '</span></div><span class="bst-go-arrow">→</span></div>';
+      return '<div class="bst-dd-item go-item" data-action="model" data-name="' + m.m + '" data-status="' + m.s + '" data-slug="' + m.slug + '" data-page="' + (m.p || '') + '"><div class="bst-dd-item-main"><span class="bst-dd-item-name">' + m.m + '</span></div><span class="bst-go-arrow">→</span></div>';
     }).join('');
     container.innerHTML = html;
     container.querySelectorAll('.bst-dd-item').forEach(function (el) {
       el.addEventListener('click', function (e) {
         e.stopPropagation();
         if (el.getAttribute('data-action') === 'all') bstNavigateMake(currentMake);
-        else bstNavigateMakeModel(currentMake, el.getAttribute('data-name'), el.getAttribute('data-status'), el.getAttribute('data-slug'));
+        else bstNavigateMakeModel(currentMake, el.getAttribute('data-name'), el.getAttribute('data-status'), el.getAttribute('data-slug'), el.getAttribute('data-page'));
       });
     });
   }
@@ -191,7 +195,7 @@
     var models = (roster && roster.models) || {};
     Object.keys(models).forEach(function (slug) {
       var e = models[slug];
-      (MODELS[e.mk] = MODELS[e.mk] || []).push({ m: e.md, s: e.s, slug: slug });
+      (MODELS[e.mk] = MODELS[e.mk] || []).push({ m: e.md, s: e.s, slug: slug, p: (typeof e.p === 'string') ? e.p : '' });
       if (e.s === 'A') MAKE_HAS_APPROVED[e.mk] = true;
     });
     Object.keys(MODELS).forEach(function (mk) { MODELS[mk].sort(function (a, b) { return a.m.localeCompare(b.m); }); });
