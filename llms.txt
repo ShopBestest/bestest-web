@@ -6,7 +6,7 @@ Bestest is not an aggregator. Every model on the site clears a published curatio
 
 ## About Bestest
 - [About](https://shopbestest.com/about): Who Bestest is, the founder's background, and why the site exists.
-- [Methodology](https://shopbestest.com/methodology): How Bestest scores a car — the reliability, resale, and desirability rubric behind every include/exclude decision.
+- [Methodology](https://shopbestest.com/methodology): How Bestest scores a car — the reliability, resale, and desirability rubric behind every include/exclude decision, and how the model pages group, rank and count the cars it doesn't list.
 - [Coverage area](https://shopbestest.com/coverage-area): The Orange County cities and franchise dealers Bestest covers.
 
 ## Curated segments (the "best used" guides)
@@ -27,6 +27,14 @@ Bestest is not an aggregator. Every model on the site clears a published curatio
 - [Luxury small cars](https://shopbestest.com/used-cars/best-used-luxury-small-cars): Best used luxury small cars.
 - [Luxury midsize cars](https://shopbestest.com/used-cars/best-used-luxury-midsize-cars): Best used luxury midsize cars.
 - [Luxury full-size cars](https://shopbestest.com/used-cars/best-used-luxury-full-size-cars): Best used luxury full-size cars.
+
+## Models Bestest doesn't list (one page per model: the verdict, the reasons, how it ranks against the listed cars, and what to check if you buy one anyway)
+- [Volkswagen Tiguan](https://shopbestest.com/best-used/volkswagen-tiguan): Should you buy a used Volkswagen Tiguan? No. One of the best compact SUVs to drive and one of the hardest to recommend once the warranty runs out; last with Kelley Blue Book among the 13 compact SUVs Bestest scores.
+- [Ford Escape](https://shopbestest.com/best-used/ford-escape): Should you buy a used Ford Escape? No. Last of the 13 on five-year resale, the lowest Consumer Reports reliability prediction in the group, and a 1.5-liter fuel-injector defect recalled three times.
+- [Chevrolet Equinox](https://shopbestest.com/best-used/chevrolet-equinox): Should you buy a used Chevrolet Equinox? Probably not. Dependable and comfortable, near the bottom of the 13 with Car and Driver and on resale; most two- and three-year-olds on Orange County lots carry fleet-level miles.
+- [Nissan Rogue](https://shopbestest.com/best-used/nissan-rogue): Should you buy a used Nissan Rogue? Probably not. Roomy and quiet with the best 2024 reliability prediction in the group, but the 2022 to 2024 1.5-liter turbo has two engine recalls and the reviews and resale sit below the listed average on every measure.
+- [Mitsubishi Outlander](https://shopbestest.com/best-used/mitsubishi-outlander): Should you buy a used Mitsubishi Outlander? Probably not. Much improved since the 2022 redesign on the Rogue's platform, and still among the worst of the 13 at holding its value.
+- [GMC Terrain](https://shopbestest.com/best-used/gmc-terrain): Should you buy a used GMC Terrain? Probably not. Among the most reliable compact SUVs in the group and last with Car and Driver and Edmunds; the most fleet-worn inventory in the segment on Orange County lots.
 
 ## Research (studies, guides and data pages)
 - [Orange County EV market](https://shopbestest.com/research/orange-county-ev-market): Weekly data page: what's on OC roads, what sold new, and what used EVs cost at local dealers, by price band and model.
