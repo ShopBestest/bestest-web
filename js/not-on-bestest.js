@@ -11,7 +11,7 @@
    <script src="https://cdn.jsdelivr.net/gh/ShopBestest/bestest-web@<sha>/js/not-on-bestest.js" defer></script>
 
    The SEGMENTS table below is regenerated from Model Scoring whenever the scoring
-   re-runs (graph_data_by_mm_segment.json). `g` = [Critics, Internal, Repair bills,
+   re-runs (graph_data_by_mm_segment.json). `g` = [Critics, Internal, Reliability (repair bills),
    Resale] as Other-% -of-Bestest; a segment graphs only if `g` is present AND every
    value is <= 100 (Bestest equal-or-better on all four). No `g` = copy-only fallback.
 */
@@ -28,23 +28,23 @@
   var GREEN = '#1a6f4a';
   var FEED = (window.BS_FEED_URL || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/') + '?roster';
 
-  // MM segment -> { plural (display), url (SRP), g:[Crit,Intl,RepairBills,Res] Other% (omit = fallback); regenerated 2026-10-21 from Model Scoring (Bestest Project Folder/staged/notbestest-graph-values-2026-10-21.json), Repair bills replaced Reliability (Jason) }
+  // MM segment -> { plural (display), url (SRP), g:[Crit,Intl,Reliability,Res] Other% (omit = fallback); regenerated 2026-10-22 from Model Scoring (Bestest Project Folder/staged/notbestest-graph-values-2026-10-22.json); Reliability = repair bills on the 30K basis (Jason 10/21-22) }
   var SEGMENTS = {
-    'Compact Car':            { plural: 'Compact Cars',          url: '/used-cars/best-used-compact-cars',            g: [95, 90, 97, 98] },
-    'Midsize/Full-size Car':  { plural: 'Midsize Cars',          url: '/used-cars/best-used-midsize-cars',            g: [89, 87, 94, 85] },
-    'Subcompact SUV':         { plural: 'Subcompact SUVs',       url: '/used-cars/best-used-subcompact-suvs',         g: [90, 92, 80, 82] },
-    'Compact SUV':            { plural: 'Compact SUVs',          url: '/used-cars/best-used-compact-suvs',            g: [93, 90, 83, 84] },
-    'Midsize SUV':            { plural: 'Midsize SUVs',          url: '/used-cars/best-used-midsize-suvs',            g: [88, 90, 59, 87] },
+    'Compact Car':            { plural: 'Compact Cars',          url: '/used-cars/best-used-compact-cars', g: [95, 90, 92, 98] },
+    'Midsize/Full-size Car':  { plural: 'Midsize Cars',          url: '/used-cars/best-used-midsize-cars' },
+    'Subcompact SUV':         { plural: 'Subcompact SUVs',       url: '/used-cars/best-used-subcompact-suvs', g: [90, 92, 90, 82] },
+    'Compact SUV':            { plural: 'Compact SUVs',          url: '/used-cars/best-used-compact-suvs', g: [93, 90, 74, 84] },
+    'Midsize SUV':            { plural: 'Midsize SUVs',          url: '/used-cars/best-used-midsize-suvs', g: [88, 90, 88, 87] },
     'Full-Size SUV':          { plural: 'Full-Size SUVs',        url: '/used-cars/best-used-full-size-suvs' },
     'Compact/Midsize Truck':  { plural: 'Midsize Trucks',        url: '/used-cars/best-used-midsize-trucks' },
     'Full-Size Truck':        { plural: 'Full-Size Trucks',      url: '/used-cars/best-used-full-size-trucks' },
-    'Minivan':                { plural: 'Minivans',              url: '/used-cars/best-used-minivans',                g: [97, 97, 74, 72] },
-    'Luxury Subcompact SUV':  { plural: 'Luxury Subcompact SUVs',url: '/used-cars/best-used-luxury-subcompact-suvs',  g: [98, 96, 92, 95] },
-    'Luxury Compact SUV':     { plural: 'Luxury Compact SUVs',   url: '/used-cars/best-used-luxury-compact-suvs',     g: [87, 91, 83, 90] },
-    'Luxury Midsize SUV':     { plural: 'Luxury Midsize SUVs',   url: '/used-cars/best-used-luxury-midsize-suvs',     g: [93, 88, 79, 92] },
+    'Minivan':                { plural: 'Minivans',              url: '/used-cars/best-used-minivans', g: [97, 97, 89, 72] },
+    'Luxury Subcompact SUV':  { plural: 'Luxury Subcompact SUVs',url: '/used-cars/best-used-luxury-subcompact-suvs', g: [98, 96, 77, 95] },
+    'Luxury Compact SUV':     { plural: 'Luxury Compact SUVs',   url: '/used-cars/best-used-luxury-compact-suvs', g: [87, 91, 78, 90] },
+    'Luxury Midsize SUV':     { plural: 'Luxury Midsize SUVs',   url: '/used-cars/best-used-luxury-midsize-suvs', g: [93, 88, 81, 92] },
     'Luxury Full-Size SUV':   { plural: 'Luxury Full-Size SUVs', url: '/used-cars/best-used-luxury-full-size-suvs' },
     'Luxury Small Car':       { plural: 'Luxury Small Cars',     url: '/used-cars/best-used-luxury-small-cars' },
-    'Luxury Midsize Car':     { plural: 'Luxury Midsize Cars',   url: '/used-cars/best-used-luxury-midsize-cars',     g: [99, 99, 67, 92] },
+    'Luxury Midsize Car':     { plural: 'Luxury Midsize Cars',   url: '/used-cars/best-used-luxury-midsize-cars', g: [99, 99, 60, 92] },
     'Luxury Full-Size Car':   { plural: 'Luxury Full-Size Cars', url: '/used-cars/best-used-luxury-full-size-cars' },
     'Electric Vehicles':      { plural: 'Electric Vehicles',     url: '/used-cars/best-used-electric-vehicles' }
   };
@@ -73,7 +73,7 @@
   var EXT = '<svg class="bst-nc-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
 
   function graphSVG(seg) {
-    var g = seg.g, XS = [70, 277, 483, 690], LBL = ['Critics', 'Internal', 'Repair bills', 'Resale'];
+    var g = seg.g, XS = [70, 277, 483, 690], LBL = ['Critics', 'Internal', 'Reliability', 'Resale'];
     var ys = g.map(function (v) { return 38 + (100 - v) * 3.6; });
     var maxY = Math.max.apply(null, ys), maxI = ys.indexOf(maxY);
     var pts = XS.map(function (x, i) { return x + ',' + ys[i].toFixed(1); }).join(' ');
@@ -85,7 +85,7 @@
     var othY = Math.min(205, maxY + 26);
     var axis = LBL.map(function (l, i) { return '<text x="' + XS[i] + '" y="240">' + l + '</text>'; }).join('');
     return '<svg viewBox="0 0 760 250" width="100%" role="img" aria-label="Bestest ' + esc(lower(seg.plural)) +
-        ' versus other ' + esc(lower(seg.plural)) + ' across critics, internal, repair bills and resale.">' +
+        ' versus other ' + esc(lower(seg.plural)) + ' across critics, internal, reliability (repair bills) and resale.">' +
       '<line x1="70" y1="38" x2="690" y2="38" stroke="#eee"/><line x1="70" y1="218" x2="690" y2="218" stroke="#eee"/>' +
       '<text x="56" y="42" text-anchor="end" font-size="12" fill="#9a988f">100%</text>' +
       '<text x="56" y="222" text-anchor="end" font-size="12" fill="#9a988f">50%</text>' +
