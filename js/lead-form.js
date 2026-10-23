@@ -12,13 +12,12 @@
     'https://bestest-leads.sweet-paper-5a21.workers.dev';
   var TERMS_URL = '/terms', PRIVACY_URL = '/privacy';
 
-  // "Likely to sell within X days": survival medians measured 2026-08-31 from 5,996
-  // sold listings in Airtable (first_seen_at_date -> sold_date). SELL_REMAINING[n] =
-  // median days remaining for a car already listed n days, so every rendered claim is
-  // a true >=50% statement. Cars 14+ days old get silence: the math stays honest to
-  // ~day 24, but the line would volunteer staleness the shopper otherwise wouldn't
-  // know, and only ~10% of live inventory is that old. Refresh alongside the stats.
-  var SELL_REMAINING = [7, 6, 5, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3];
+  // "Listed N days ago" line. The 9/1 "Likely to sell within X days" clause is gone: its
+  // survival table was built on Marketcheck's per-instance first_seen, which resets on
+  // every re-post, so it said 7-day median when the true median is ~26 days (10/23 audit).
+  // The feed's fs is now the earliest date Bestest saw the listing (marketcheck_sync
+  // listed_since). Cars 14+ days old get silence rather than advertised staleness.
+  var LISTED_DAYS_MAX = 13;
   // Same feed + sessionStorage cache as srp-engine.js (key/format shared deliberately:
   // an SRP visit earlier in the session makes this lookup free and instant).
   var FEED_URL = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) ||
@@ -78,10 +77,8 @@
   }
 
   function daysLine(days) {
-    if (days == null || days < 0 || days >= SELL_REMAINING.length) return '';
-    var listed = days === 0 ? 'Listed today' : days === 1 ? 'Listed yesterday' : 'Listed ' + days + ' days ago';
-    var rem = SELL_REMAINING[days];
-    return listed + '. Likely to sell within ' + (rem >= 7 ? 'a week' : rem + ' days') + '.';
+    if (days == null || days < 0 || days > LISTED_DAYS_MAX) return '';
+    return (days === 0 ? 'Listed today' : days === 1 ? 'Listed yesterday' : 'Listed ' + days + ' days ago') + '.';
   }
 
   // One shared feed lookup per page: the VDP scarcity line consumes it at load and
