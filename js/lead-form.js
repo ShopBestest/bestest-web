@@ -12,13 +12,9 @@
     'https://bestest-leads.sweet-paper-5a21.workers.dev';
   var TERMS_URL = '/terms', PRIVACY_URL = '/privacy';
 
-  // "Likely to sell within X days": survival medians measured 2026-08-31 from 5,996
-  // sold listings in Airtable (first_seen_at_date -> sold_date). SELL_REMAINING[n] =
-  // median days remaining for a car already listed n days, so every rendered claim is
-  // a true >=50% statement. Cars 14+ days old get silence: the math stays honest to
-  // ~day 24, but the line would volunteer staleness the shopper otherwise wouldn't
-  // know, and only ~10% of live inventory is that old. Refresh alongside the stats.
-  var SELL_REMAINING = [7, 6, 5, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3];
+  // No listed-date line on the VDP (Jason 10/23): with the true earliest-seen date only
+  // ~40% of cars are under two weeks old, so the line showed on some cars and not most.
+  // The feed's fs still rides along as GA's days_listed param on lead events.
   // Same feed + sessionStorage cache as srp-engine.js (key/format shared deliberately:
   // an SRP visit earlier in the session makes this lookup free and instant).
   var FEED_URL = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) ||
@@ -77,15 +73,7 @@
     });
   }
 
-  function daysLine(days) {
-    if (days == null || days < 0 || days >= SELL_REMAINING.length) return '';
-    var listed = days === 0 ? 'Listed today' : days === 1 ? 'Listed yesterday' : 'Listed ' + days + ' days ago';
-    var rem = SELL_REMAINING[days];
-    return listed + '. Likely to sell within ' + (rem >= 7 ? 'a week' : rem + ' days') + '.';
-  }
-
-  // One shared feed lookup per page: the VDP scarcity line consumes it at load and
-  // the modal reuses the cached value for GA's days_listed param.
+  // One shared feed lookup per page: the modal uses it for GA's days_listed param.
   var daysListedCache, daysListedCbs = [];
   function getListedDays(cb) {
     if (daysListedCache !== undefined) { cb(daysListedCache); return; }
@@ -114,7 +102,6 @@
       '.bst-claim-panel{margin:6px 0 10px;padding:12px 14px;background:#fff;border:1px solid #d8e4dc;border-radius:8px;}' +
       '.bst-claim-lead{margin:0 0 10px;font-size:14px;color:#0e1523;line-height:1.5;font-weight:500;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-claim-lead b{font-weight:700;}' +
-      '.bst-days-line{margin:10px 0 2px;font-size:13px;font-weight:600;color:#1a6f4a;text-align:center;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       // CARS Act row: shield (not a 4th check, since the checks are Bestest's own vetting)
       '.bst-return-row{display:flex;align-items:center;gap:8px;width:100%;margin:10px 0 0;padding:10px 0 0;border:0;border-top:1px solid #e3ebe6;background:none;cursor:pointer;text-align:left;font-size:13px;color:#0e1523;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-return-row svg{flex:none;width:16px;height:16px;}' +
@@ -182,23 +169,6 @@
       cur.previousElementSibling.style.display = 'none';
     }
 
-    // Scarcity line under the main CTA. The CTA is built by the VDP embed after
-    // DOMContentLoaded, so poll briefly for it.
-    var tries = 0;
-    var timer = setInterval(function () {
-      var cta = document.getElementById('bst-main-cta');
-      if (cta) {
-        clearInterval(timer);
-        getListedDays(function (days) {
-          var line = daysLine(days);
-          if (!line || document.querySelector('.bst-days-line')) return;
-          var p = document.createElement('p');
-          p.className = 'bst-days-line';
-          p.textContent = line;
-          cta.parentNode.insertBefore(p, cta.nextSibling);
-        });
-      } else if (++tries > 40) clearInterval(timer);
-    }, 250);
   }
 
   // Row under the checks + tap-to-open explainer that does this car's fee math.
