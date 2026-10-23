@@ -2,7 +2,7 @@
 
 > A curated used-car marketplace for Orange County, California. Bestest lists only vetted models from franchise-certified dealers — the used cars actually worth buying — and openly excludes the ones it judges not worth the risk. Founded by Jason Allan, former head of vehicle reviews and ratings at Kelley Blue Book and Autotrader.
 
-Bestest is not an aggregator. Every model on the site clears a published curation rubric weighing reliability, resale value, and desirability; dealers must be franchise-certified. Shoppers browse curated inventory near them and reach a dealer through a concierge lead relay — no unsolicited dealer contact. Vehicle listings themselves are transient (cars sell daily) and are intentionally omitted below; the pages here are the durable, high-value ones.
+Bestest is not an aggregator. Every model on the site clears a published curation rubric weighing reliability (measured by repair bills from insurers' California rate filings), resale value, and desirability; dealers must be franchise-certified. Shoppers browse curated inventory near them and reach a dealer through a concierge lead relay — no unsolicited dealer contact. Vehicle listings themselves are transient (cars sell daily) and are intentionally omitted below; the pages here are the durable, high-value ones.
 
 ## About Bestest
 - [About](https://shopbestest.com/about): Who Bestest is, the founder's background, and why the site exists.
@@ -30,11 +30,11 @@ Bestest is not an aggregator. Every model on the site clears a published curatio
 
 ## Models Bestest doesn't list (one page per model: the verdict, the reasons, how it ranks against the listed cars, and what to check if you buy one anyway)
 - [Volkswagen Tiguan](https://shopbestest.com/best-used/volkswagen-tiguan): Should you buy a used Volkswagen Tiguan? No. One of the best compact SUVs to drive and one of the hardest to recommend once the warranty runs out; last with Kelley Blue Book among the 13 compact SUVs Bestest scores.
-- [Ford Escape](https://shopbestest.com/best-used/ford-escape): Should you buy a used Ford Escape? No. Last of the 13 on five-year resale, the lowest Consumer Reports reliability prediction in the group, and a 1.5-liter fuel-injector defect recalled three times.
+- [Ford Escape](https://shopbestest.com/best-used/ford-escape): Should you buy a used Ford Escape? No. Last of the 13 on five-year resale, reliability in the bottom third of the group (measured by repair bills), and a 1.5-liter fuel-injector defect recalled three times.
 - [Chevrolet Equinox](https://shopbestest.com/best-used/chevrolet-equinox): Should you buy a used Chevrolet Equinox? Probably not. Dependable and comfortable, near the bottom of the 13 with Car and Driver and on resale; most two- and three-year-olds on Orange County lots carry fleet-level miles.
-- [Nissan Rogue](https://shopbestest.com/best-used/nissan-rogue): Should you buy a used Nissan Rogue? Probably not. Roomy and quiet with the best 2024 reliability prediction in the group, but the 2022 to 2024 1.5-liter turbo has two engine recalls and the reviews and resale sit below the listed average on every measure.
+- [Nissan Rogue](https://shopbestest.com/best-used/nissan-rogue): Should you buy a used Nissan Rogue? Probably not. Roomy and quiet with the fourth-best reliability of the 13 (measured by repair bills), but the 2022 to 2024 1.5-liter turbo has two engine recalls and the reviews and resale sit below the listed average on every measure.
 - [Mitsubishi Outlander](https://shopbestest.com/best-used/mitsubishi-outlander): Should you buy a used Mitsubishi Outlander? Probably not. Much improved since the 2022 redesign on the Rogue's platform, and still among the worst of the 13 at holding its value.
-- [GMC Terrain](https://shopbestest.com/best-used/gmc-terrain): Should you buy a used GMC Terrain? Probably not. Among the most reliable compact SUVs in the group and last with Car and Driver and Edmunds; the most fleet-worn inventory in the segment on Orange County lots.
+- [GMC Terrain](https://shopbestest.com/best-used/gmc-terrain): Should you buy a used GMC Terrain? Probably not. The cleanest safety record in the group, but last with Car and Driver and Edmunds and 12th of 13 on reliability (measured by repair bills); the most fleet-worn inventory in the segment on Orange County lots.
 
 ## Research (studies, guides and data pages)
 - [Orange County EV market](https://shopbestest.com/research/orange-county-ev-market): Weekly data page: what's on OC roads, what sold new, and what used EVs cost at local dealers, by price band and model.
