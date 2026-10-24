@@ -21,6 +21,9 @@
   var STORAGE_COVERAGE_SEEN = 'bst_coverage_notice_seen';
   var IPAPI_URL = 'https://ipapi.co/json/';
   var ZIPPOPOTAMUS_URL = 'https://api.zippopotam.us/us/';
+  // Geo lookups go to the feed Worker first (GeoNames zip table + Cloudflare's request.cf);
+  // ipapi / zippopotam / bigdatacloud stay as the fallback when the Worker call fails.
+  var FEED_URL = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/';
 
   // Coverage area: within COVERAGE_RADIUS_MI of 92657 (Newport Coast). Used only to show
   // an informational "outside coverage" note — it never filters inventory.
@@ -76,10 +79,9 @@
     if (have) return Promise.resolve(have);
     if (zip === DEFAULT_ZIP) { saveZipCity(zip, DEFAULT_CITY); return Promise.resolve(DEFAULT_CITY); }
     if (cityInFlight[zip]) return cityInFlight[zip];
-    var p = fetch(ZIPPOPOTAMUS_URL + zip)
-      .then(function(r) { return r.ok ? r.json() : null; })
-      .then(function(data) {
-        var c = (data && data.places && data.places[0]) ? data.places[0]['place name'] : null;
+    var p = lookupZipPlace(zip)
+      .then(function(place) {
+        var c = place ? place.city : null;
         if (c) saveZipCity(zip, c);
         return c;
       })
@@ -148,20 +150,58 @@
     if (window.BestestDistance && typeof window.BestestDistance.setUserZip === 'function') window.BestestDistance.setUserZip(zip);
   }
 
-  function lookupZipCoords(zip) {
-    var cached = localStorage.getItem(STORAGE_ZIP_LATLNG_PREFIX + zip);
-    if (cached) { var p = cached.split(','); return Promise.resolve({ lat: parseFloat(p[0]), lng: parseFloat(p[1]) }); }
-    return fetch(ZIPPOPOTAMUS_URL + zip).then(function(r) {
-      if (!r.ok) throw new Error('Invalid zip');
+  // Feed Worker GET: resolves the JSON, or null on a 404 (a definitive "no such zip / not in
+  // the US"); rejects on network errors, 5xx and non-geo bodies so the caller falls back.
+  function feedGeo(query) {
+    return fetch(FEED_URL + query).then(function(r) {
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error('Feed geo ' + r.status);
       return r.json();
     }).then(function(data) {
-      if (!data.places || !data.places.length) throw new Error('No place data');
-      saveZipCity(zip, data.places[0]['place name']);
-      return { lat: parseFloat(data.places[0].latitude), lng: parseFloat(data.places[0].longitude) };
+      if (data && !('zip' in data)) throw new Error('Feed geo: not a geo answer');
+      return data;
     });
   }
 
+  // Zip -> { lat, lng, city } (null for an unknown zip). Worker first, zippopotam on failure.
+  function lookupZipPlace(zip) {
+    return feedGeo('?zip=' + zip).catch(function() {
+      return fetch(ZIPPOPOTAMUS_URL + zip)
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          var pl = (data && data.places && data.places[0]) || null;
+          return pl ? { lat: parseFloat(pl.latitude), lng: parseFloat(pl.longitude), city: pl['place name'] } : null;
+        });
+    });
+  }
+
+  function lookupZipCoords(zip) {
+    var cached = localStorage.getItem(STORAGE_ZIP_LATLNG_PREFIX + zip);
+    if (cached) { var p = cached.split(','); return Promise.resolve({ lat: parseFloat(p[0]), lng: parseFloat(p[1]) }); }
+    return lookupZipPlace(zip).then(function(place) {
+      if (!place) throw new Error('Invalid zip');
+      saveZipCity(zip, place.city);
+      return { lat: place.lat, lng: place.lng };
+    });
+  }
+
+  // First-visit zip from the visitor's IP: the Worker's ?geo (request.cf, US only, zip-center
+  // lat/lng and the GeoNames place name), or ipapi.co when the Worker call fails.
   function ipAutoDetect() {
+    return fetch(FEED_URL + '?geo')
+      .then(function(r) { if (!r.ok) throw new Error('Feed geo ' + r.status); return r.json(); })
+      .then(function(data) { if (!data || !('country' in data)) throw new Error('Feed geo: not a geo answer'); return data; })
+      .catch(function() { return null; })
+      .then(function(data) {
+        if (!data) return ipapiDetect();
+        if (data.country !== 'US') throw new Error('Non-US visitor');
+        if (!data.zip || !isValidZipFormat(data.zip)) throw new Error('No valid postal code');
+        saveZipCity(data.zip, data.city);
+        return { zip: data.zip, lat: data.lat, lng: data.lng, city: data.city };
+      });
+  }
+
+  function ipapiDetect() {
     return fetch(IPAPI_URL).then(function(r) { return r.json(); }).then(function(data) {
       if (data.error) throw new Error(data.reason || 'IP lookup failed');
       if (data.country_code !== 'US') throw new Error('Non-US visitor');
@@ -175,15 +215,24 @@
       if (!navigator.geolocation) { reject(new Error('Geolocation not supported')); return; }
       navigator.geolocation.getCurrentPosition(function(pos) {
         var lat = pos.coords.latitude, lng = pos.coords.longitude;
-        fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=en')
-          .then(function(r) { return r.json(); })
+        // Nearest zip from the Worker's table (404 = no US zip near the point); bigdatacloud
+        // only when the Worker call fails.
+        feedGeo('?ll=' + lat.toFixed(4) + ',' + lng.toFixed(4))
           .then(function(data) {
-            var zip = data.postcode;
-            if (!isValidZipFormat(zip)) { reject(new Error('Could not determine zip from location')); return; }
-            if (data.countryCode !== 'US') { reject(new Error('Not in US')); return; }
-            resolve({ zip: zip, lat: lat, lng: lng, city: data.city || data.locality });
-          })
-          .catch(function(err) { reject(err); });
+            if (!data || !isValidZipFormat(data.zip)) { reject(new Error('Not in US')); return; }
+            saveZipCity(data.zip, data.city);
+            resolve({ zip: data.zip, lat: lat, lng: lng, city: data.city });
+          }, function() {
+            fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=en')
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                var zip = data.postcode;
+                if (!isValidZipFormat(zip)) { reject(new Error('Could not determine zip from location')); return; }
+                if (data.countryCode !== 'US') { reject(new Error('Not in US')); return; }
+                resolve({ zip: zip, lat: lat, lng: lng, city: data.city || data.locality });
+              })
+              .catch(function(err) { reject(err); });
+          });
       }, function(err) { reject(new Error(err.message || 'Geolocation denied')); },
       { timeout: 10000, maximumAge: 600000, enableHighAccuracy: false });
     });
@@ -203,7 +252,8 @@
     if (!isValidZipFormat(zip)) return Promise.reject(new Error('Invalid zip format'));
     // NOTE: `city` (from ipapi/bigdatacloud) is intentionally ignored for the display label —
     // those return imprecise/regional names (e.g. a Costa Mesa IP mislabeled "Central Coast").
-    // zippopotam (via ensureCity/lookupZipCoords) is the authoritative zip->place name.
+    // The GeoNames place name (Worker ?zip/?geo/?ll, or zippopotam on fallback) is the
+    // authoritative zip->place name; those paths save it via saveZipCity before we get here.
     var coordsPromise;
     if (lat != null && lng != null) { saveZipAndLatLng(zip, lat, lng); coordsPromise = Promise.resolve({ lat: lat, lng: lng }); }
     else { coordsPromise = lookupZipCoords(zip).then(function(coords) { saveZipAndLatLng(zip, coords.lat, coords.lng); return coords; }); }

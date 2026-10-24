@@ -271,16 +271,33 @@
       } catch (e) { return null; }
     }
   
+    // Zip -> lat/lng from the feed Worker's GeoNames table; zippopotam.us (same data) only
+    // when the Worker call fails. A Worker 404 means an unknown zip, so no fallback.
     function distFetchLatLng(zip) {
-      return fetch('https://api.zippopotam.us/us/' + zip)
-        .then(function (r) { return r.ok ? r.json() : null; })
+      var feedUrl = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/';
+      return fetch(feedUrl + '?zip=' + zip)
+        .then(function (r) {
+          if (r.status === 404) return null;
+          if (!r.ok) throw new Error('feed ' + r.status);
+          return r.json();
+        })
         .then(function (data) {
-          if (!data || !data.places || !data.places[0]) return null;
-          var p = data.places[0];
-          var lat = parseFloat(p.latitude), lng = parseFloat(p.longitude);
-          if (isNaN(lat) || isNaN(lng)) return null;
-          try { localStorage.setItem(BST_LATLNG_PREFIX + zip, lat + ',' + lng); } catch (e) {}
-          return { lat: lat, lng: lng };
+          if (data && typeof data.lat !== 'number') throw new Error('feed: not a geo answer');
+          return data ? { lat: data.lat, lng: data.lng } : null;
+        })
+        .catch(function () {
+          return fetch('https://api.zippopotam.us/us/' + zip)
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+              if (!data || !data.places || !data.places[0]) return null;
+              var p = data.places[0];
+              return { lat: parseFloat(p.latitude), lng: parseFloat(p.longitude) };
+            });
+        })
+        .then(function (ll) {
+          if (!ll || isNaN(ll.lat) || isNaN(ll.lng)) return null;
+          try { localStorage.setItem(BST_LATLNG_PREFIX + zip, ll.lat + ',' + ll.lng); } catch (e) {}
+          return ll;
         })
         .catch(function () { return null; });
     }

@@ -8,6 +8,7 @@
   var DEFAULT_ZIP = '92868';
   var STORAGE_ZIP = 'bst_user_zip';
   var STORAGE_LATLNG_PREFIX = 'bst_zip_latlng_';
+  var FEED_URL = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/';
   var PIN_SVG = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
 
   var userLatLng = null;
@@ -49,17 +50,38 @@
     } catch (e) {}
   }
 
-  function fetchLatLng(zip) {
+  // Zip -> lat/lng from the feed Worker's GeoNames table; zippopotam.us (same data) only
+  // when the Worker call fails. A Worker 404 means an unknown zip, so no fallback.
+  function fetchLatLngFeed(zip) {
+    return fetch(FEED_URL + '?zip=' + zip)
+      .then(function (r) {
+        if (r.status === 404) return null;
+        if (!r.ok) throw new Error('feed ' + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        if (data && typeof data.lat !== 'number') throw new Error('feed: not a geo answer');
+        return data ? { lat: data.lat, lng: data.lng } : null;
+      });
+  }
+
+  function fetchLatLngZippopotam(zip) {
     return fetch('https://api.zippopotam.us/us/' + zip)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         if (!data || !data.places || !data.places[0]) return null;
         var p = data.places[0];
-        var lat = parseFloat(p.latitude);
-        var lng = parseFloat(p.longitude);
-        if (isNaN(lat) || isNaN(lng)) return null;
-        cacheLatLng(zip, lat, lng);
-        return { lat: lat, lng: lng };
+        return { lat: parseFloat(p.latitude), lng: parseFloat(p.longitude) };
+      });
+  }
+
+  function fetchLatLng(zip) {
+    return fetchLatLngFeed(zip)
+      .catch(function () { return fetchLatLngZippopotam(zip); })
+      .then(function (ll) {
+        if (!ll || isNaN(ll.lat) || isNaN(ll.lng)) return null;
+        cacheLatLng(zip, ll.lat, ll.lng);
+        return ll;
       })
       .catch(function () { return null; });
   }
