@@ -672,11 +672,13 @@
       var priceStr   = fmtPrice(d.price);
       var titleText  = [d.year, d.make, d.model, d.trim].filter(Boolean).join(' ');
       var vdpUrlSafe = escapeHtml(d.vdpUrl || '#');
-  
+      // 88x64 thumb: ask Cloudinary for 2x instead of the 640px hero (it was competing with the LCP image)
+      var thumbUrl   = (d.heroImage || '').replace('/w_640,c_fill,', '/w_176,h_128,c_fill,');
+
       var bar = document.createElement('div');
       bar.id = 'bst-slim-bar';
       bar.innerHTML = [
-        (d.heroImage ? '<img src="' + escapeHtml(d.heroImage) + '" alt="">' : ''),
+        (thumbUrl ? '<img src="' + escapeHtml(thumbUrl) + '" alt="" width="88" height="64" fetchpriority="low" decoding="async">' : ''),
         '<div class="bsb-text">',
           '<div class="bsb-title">' + escapeHtml(titleText) + '</div>',
           '<div class="bsb-meta">' + escapeHtml(d.dealerName) + ' · ' + escapeHtml(milesStr) + ' miles</div>',
