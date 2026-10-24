@@ -6,7 +6,10 @@
    - lucide pinned to an exact version
    - reads the #bst-vdp-data JSON block when present, else today's data divs
    - builds the similar-cars + brand markup when the Part A embed is gone
-   Skips itself while the old inline Part B is still on the page (no double run). */
+   Skips itself while the old inline Part B is still on the page (no double run).
+   Phase 3 (10/24), every VDP: rail est. mi/yr on the Jan 1 basis (miles_basis.py), slide 1
+   fetchpriority=high, html.bst-vdp-ready once built (vdp.css layout-shift guards).
+   Phase 3, test slugs only: the mock v13 modules from the vdp/1 block (see "Pattern B modules"). */
 (function () {
   if (window.__bstVdp) return;
   window.__bstVdp = true;
@@ -58,7 +61,9 @@
       dealerLat: dl.lat != null ? String(dl.lat) : '', dealerLng: dl.lng != null ? String(dl.lng) : '',
       dealerPhone: dl.phone || '', dealerEmail: dl.email || '', stockNo: l.stock_no || '',
       isCertified: l.certified ? 'true' : 'false', vdpUrl: l.dealer_vdp_url || '',
-      heroImage: l.hero_image_url || ''
+      heroImage: l.hero_image_url || '',
+      variantModel: l.variant_model || '', variantTrim: l.variant_trim || '',
+      milesPerYear: +l.miles_per_year || 0
     };
   }
   function getPhotos() {
@@ -165,6 +170,7 @@
       img.className = 'image-3';
       img.alt = 'Vehicle photo';
       img.loading = i === 0 ? 'eager' : 'lazy';
+      if (i === 0) img.setAttribute('fetchpriority', 'high');
       img.src = cld(url, SLIDE_TX);
       img.onerror = function () { if (img.src !== url) { img.onerror = null; img.src = url; } };
       slide.appendChild(img);
@@ -204,10 +210,14 @@
     /* ── Helpers ── */
     function fmtPrice(n) { return n ? '$' + Math.round(n).toLocaleString('en-US') : ''; }
     function fmtMiles(n) { return n ? Math.round(n).toLocaleString('en-US') : ''; }
-    function annualMilesRoundedUp(miles, year) {
+    /* Jan 1 of the model year to today, floored at a quarter year: the same basis as
+       miles_basis.py (listing paragraph, vdp_render). The block carries the number itself. */
+    function annualMilesRoundedUp(miles, year, fromBlock) {
+      if (fromBlock) return Math.round(fromBlock).toLocaleString('en-US');
       if (!miles || !year) return null;
-      var age = new Date().getFullYear() - parseInt(year);
-      if (age <= 0) return null;
+      var y = parseInt(year, 10);
+      if (!y) return null;
+      var age = Math.max((Date.now() - Date.UTC(y, 0, 1)) / (365.25 * 864e5), 0.25);
       return (Math.ceil((miles / age) / 100) * 100).toLocaleString('en-US');
     }
     function formatPhoneDisplay(phone) {
@@ -438,7 +448,7 @@
   
     var isCPO    = d.isCertified === 'true';
     var milesStr = fmtMiles(d.miles);
-    var annMiles = annualMilesRoundedUp(d.miles, d.year);
+    var annMiles = annualMilesRoundedUp(d.miles, d.year, d.milesPerYear);
     var milesLine = milesStr
       ? milesStr + ' miles' + (annMiles ? ' &nbsp;·&nbsp; est. ' + annMiles + ' mi/yr' : '')
       : '';
@@ -587,7 +597,7 @@
       var ptLabel   = powertrainLabel(d.powertrain);
       var isElectric = d.powertrain === 'BEV';
   
-      var identityRows = [['Make',d.make],['Model',d.model],['Year',d.year],['Trim',d.trim],['Condition','Used']].filter(function(r){return r[1];});
+      var identityRows = [['Make',d.make],['Model',d.variantModel || d.model],['Year',d.year],['Trim',d.trim],['Condition','Used']].filter(function(r){return r[1];});
       var engineRows   = [
         ['Engine', d.engine],
         ['Fuel type', d.fuelType],
@@ -711,6 +721,7 @@
         dealer_name:   d.dealerName,
         listing_price: d.price
       };
+      if (d.layout) vp.vdp_layout = d.layout;   /* pattern B pages, for the Phase 4 GA4 read */
   
       function fire(name, params) { if (typeof gtag === 'function') gtag('event', name, Object.assign({}, vp, params || {})); }
   
@@ -871,6 +882,233 @@
       }
     }
   
+
+    /* ── Pattern B modules (Phase 3): mock v13, built from the vdp/1 block ──
+       Spec: staged/vdp-full-mock-2026-10-23/build_mock.py. Runs only for slugs on
+       TEST_SLUGS (?bstb=0 shows the old page, ?bstb=1 forces it on any car with a block).
+       Every module is all or nothing: a missing input drops it, nothing is guessed.
+       Text comes from the server-rendered .bst-vdp-body rich text (vdp_body_html), split
+       at each h2 into the ids in content.sections, and is moved (not copied) into place. */
+    var TEST_SLUGS = ['2024-toyota-rav4-se-042833', '2023-hyundai-tucson-sel-242351'];
+
+    function patternBOn(b) {
+      if (!b || !b.listing || !b.bestest) return false;
+      var q = ''; try { q = new URLSearchParams(window.location.search).get('bstb') || ''; } catch (e) {}
+      if (q === '0') return false;
+      return q === '1' || TEST_SLUGS.indexOf(b.listing.slug) > -1;
+    }
+
+    function plural(name) { return name + 's'; }
+    function ordinal(n) {
+      n = Math.round(n);
+      var t = n % 100 >= 10 && n % 100 <= 20 ? 'th' : ({1: 'st', 2: 'nd', 3: 'rd'})[n % 10] || 'th';
+      return n + t;
+    }
+    function fmtDate(iso) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
+      if (!m) return '';
+      var mon = ['Jan.', 'Feb.', 'March', 'April', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'][+m[2] - 1];
+      return mon + ' ' + (+m[3]) + ', ' + m[1];
+    }
+    function listPhrase(a) {
+      return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+    }
+
+    function bodySections(b) {
+      var el = document.querySelector('.bst-vdp-body');
+      var out = {};
+      if (!el) return out;
+      var ids = (b.content && b.content.sections) || [], cur = null, i = -1;
+      [].slice.call(el.children).forEach(function (n) {
+        if (n.tagName === 'H2') { i++; cur = ids[i] || null; if (cur) out[cur] = []; }
+        if (cur) out[cur].push(n);
+      });
+      return out;
+    }
+
+    function section(cls, nodes) {
+      var sec = document.createElement('section');
+      sec.className = 'bstb-card ' + cls;
+      nodes.forEach(function (n) { sec.appendChild(n); });
+      return sec;
+    }
+
+    function mListing(nodes) {
+      if (!nodes || !nodes.length) return null;
+      var sec = section('bstb-listing', nodes);
+      sec.querySelector('h2').className = 'bstb-h2s';
+      [].forEach.call(sec.querySelectorAll('a[href="#check-availability"]'), function (a) { a.classList.add('bstb-open-lead'); });
+      return sec;
+    }
+
+    function mTake(nodes) {
+      if (!nodes || !nodes.length) return null;
+      var sec = section('bstb-take', nodes);
+      sec.querySelector('h2').className = 'bstb-take-h';
+      sec.insertAdjacentHTML('beforeend', '<div class="bstb-byline"><span class="bstb-ava" aria-hidden="true">JA</span><div><b>Jason Allan</b>'
+        + '<small>Bestest founder and former head of vehicle reviews and ratings at Kelley Blue Book</small></div></div>');
+      return sec;
+    }
+
+    function mFunnel(b, nodes) {
+      var f = b.bestest.funnel, l = b.listing;
+      if (!f || !f.oc_total || !nodes || !nodes.length) return null;
+      var sec = section('bstb-funnel', nodes);
+      var h2 = sec.querySelector('h2');
+      h2.className = 'bstb-h2';
+      var pct = Math.max(f.listed / f.oc_total * 100, 9);
+      var label = f.oc_total + ' used ' + l.make + ' ' + plural(l.model) + ' for sale at Orange County dealers: '
+        + f.listed + ' on Bestest, ' + f.rejected + ' rejected';
+      h2.insertAdjacentHTML('afterend', '<div class="bstb-bar" role="img" aria-label="' + escapeHtml(label) + '">'
+        + '<div class="bstb-f1" style="width:' + pct.toFixed(1) + '%">' + f.listed + '</div>'
+        + '<div class="bstb-f2">' + f.rejected + ' rejected</div></div>');
+      var how = document.createElement('div');
+      how.className = 'bstb-how';
+      nodes.slice(1).forEach(function (n) { how.appendChild(n); });
+      sec.appendChild(how);
+      var first = how.querySelector('p');
+      if (first && first.querySelector('strong') && first.textContent.trim() === first.querySelector('strong').textContent.trim()) first.className = 'bstb-how-h';
+      return sec;
+    }
+
+    function mBars(b) {
+      var l = b.listing, bb = b.bestest, seg = bb.segment, ranks = bb.ranks || [];
+      if (!seg || ranks.length < 3 || !seg.rejected || !seg.rejected.length) return null;
+      var hasVariant = l.variant_model && l.variant_model !== l.model;
+      function name(scope) { return hasVariant ? (scope === 'variant' ? l.variant_model : l.model + ' (all trims)') : l.model; }
+      var rows = ranks.map(function (r) {
+        var me = (r.of - r.rank + 1) / r.of * 100, rej = (r.of - r.rejected_avg + 1) / r.of * 100;
+        return '<div class="bstb-row" role="img" aria-label="' + escapeHtml(r.label + ': ' + ordinal(r.rank) + ' of ' + r.of + '; the rejected models average ' + ordinal(r.rejected_avg)) + '">'
+          + '<div class="bstb-lbl">' + escapeHtml(r.label) + '</div>'
+          + '<div class="bstb-hb bstb-me" style="width:' + me.toFixed(1) + '%">' + escapeHtml(name(r.scope)) + '</div>'
+          + '<div class="bstb-hb bstb-rej" style="width:' + rej.toFixed(1) + '%">Rejected models</div></div>';
+      }).join('');
+      var has = function (lbl) { return ranks.some(function (r) { return r.label === lbl; }); };
+      var every = hasVariant ? ' (every ' + l.model + ')' : '';
+      var f = bb.funnel;
+      var cap = '<p>Gray is the average rank of the ' + seg.rejected.length + ' ' + seg.plural + ' Bestest rejects: ' + escapeHtml(listPhrase(seg.rejected)) + '.</p>'
+        + (bb.reviews_year && (has('Car and Driver rating') || has('Kelley Blue Book rating') || has('Edmunds rating'))
+            ? '<p><b>Reviews:</b> Car and Driver, Kelley Blue Book and Edmunds ratings of ' + bb.reviews_year + ' models.</p>' : '')
+        + (has('Reliability') ? '<p><b>Reliability' + every + ':</b> expected repair bills at about 30,000 miles, from four insurers&rsquo; California rate filings.</p>' : '')
+        + (has('Five-year resale') ? '<p><b>Resale' + every + ':</b> value kept after five years, from CarEdge and iSeeCars.</p>' : '')
+        + (f && f.as_of ? '<p><b>Listings:</b> used ' + escapeHtml(plural(l.model)) + ' for sale at Orange County dealers on ' + fmtDate(f.as_of) + ' (Marketcheck) and on Bestest today.</p>' : '');
+      var sec = document.createElement('section');
+      sec.className = 'bstb-card bstb-why';
+      sec.innerHTML = '<h2 class="bstb-h2">The ' + escapeHtml(l.model) + ' is one of the ' + seg.listed_models + ' ' + seg.plural
+        + ' you&rsquo;ll find on Bestest. Here&rsquo;s how it compares with the ' + seg.rejected.length + ' models we reject.</h2>'
+        + '<p class="bstb-sub">Bar length is rank among the ' + seg.scored_models + ' ' + seg.plural + ' Bestest scores; a full bar is first.</p>'
+        + rows + '<div class="bstb-cap">' + cap + '</div>';
+      return sec;
+    }
+
+    function fitBarLabels(sec) {   // if any gray name won't fit inside its bar, every gray name sits just outside
+      var rej = sec.querySelectorAll('.bstb-rej');
+      var tight = [].some.call(rej, function (x) { return x.scrollWidth > x.clientWidth + 1; });
+      if (tight) [].forEach.call(rej, function (x) { x.setAttribute('data-l', x.textContent); x.textContent = ''; x.classList.add('bstb-out'); });
+    }
+
+    function slideCard(b) {
+      var f = b.bestest.funnel, l = b.listing;
+      var slides = document.querySelectorAll('.slider-3 .w-slider-mask .w-slide');
+      if (!f || !f.oc_total || slides.length < 4) return;
+      var card = document.createElement('div');
+      card.className = slides[0].className;
+      card.innerHTML = '<div class="bstb-slide"><div class="bstb-slide-logo">Best<span>est</span></div>'
+        + '<p class="bstb-slide-top">Only ' + f.listed + ' of the ' + f.oc_total + ' used ' + escapeHtml(plural(l.model)) + ' for sale in Orange County made Bestest&rsquo;s cut.</p>'
+        + '<p class="bstb-slide-big">This is one of them.</p>'
+        + '<p class="bstb-slide-sm">Bestest already did the research for you. Shop the shortlist.</p></div>';
+      slides[3].parentNode.insertBefore(card, slides[3]);
+      try { window.Webflow.require('slider').redraw(); } catch (e) {}
+    }
+
+    function railB() {
+      var rb = document.getElementById('bst-rail-bottom'), dist = document.getElementById('bst-dealer-distance');
+      var miles = rb && rb.firstElementChild;
+      if (miles && !miles.classList.contains('bst-cta-frame')) {
+        miles.classList.add('bstb-rail-miles');
+        if (dist) { dist.classList.add('bstb-rail-loc'); miles.insertAdjacentElement('afterend', dist); }
+      }
+      var tel = document.querySelector('#bst-main-cta-frame .bcf-phone-wrap');
+      if (tel && tel.querySelector('.bcf-phone')) tel.insertAdjacentHTML('afterend', '<div class="bstb-call-note">Calls go straight to the dealer.</div>');
+    }
+
+    function slimB(b, d) {
+      var t = document.querySelector('#bst-slim-bar .bsb-title'), m = document.querySelector('#bst-slim-bar .bsb-meta');
+      if (t && b.listing.short_name) t.textContent = b.listing.short_name;
+      if (m) m.textContent = [fmtPrice(d.price), d.miles ? fmtMiles(d.miles) + ' mi' : '', d.dealerCity].filter(Boolean).join(' · ');
+    }
+
+    function h1B(b) {
+      var l = b.listing, h1 = document.querySelector('h1');
+      if (!h1 || !l.variant_model || l.variant_model === l.model || h1.textContent.indexOf(l.variant_model) > -1) return;
+      h1.textContent = h1.textContent.replace(new RegExp('(^|\\s)' + l.model.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?=\\s|$)'), '$1' + l.variant_model);
+    }
+
+    function similarB(b) {
+      var l = b.listing, claim = b.bestest.claim;
+      var same = document.getElementById('bst-same-model-section');
+      var hd = document.getElementById('bst-same-model-heading');
+      if (same && hd && same.style.display !== 'none') {
+        var srp = SEGMENT_TO_SLUG[l.segment];
+        hd.innerHTML = 'More Bestest-approved ' + escapeHtml(l.make + ' ' + plural(l.model))
+          + (srp && claim && claim.kind === 'model'
+              ? ' <a class="bstb-all" href="' + escapeHtml(srp + '?model=' + encodeURIComponent(l.model)) + '">See all ' + claim.count + ' on Bestest &rsaquo;</a>' : '');
+        [].forEach.call(same.querySelectorAll('.bst-sc-checks'), function (c) {
+          c.innerHTML = '<div class="bst-sc-check">' + CHECK_SVG_SM + ' Bestest-approved</div>';
+        });
+      }
+      var segSec = document.getElementById('bst-same-segment-section');
+      if (segSec) segSec.style.display = 'none';
+      var brand = document.querySelector('.bst-brand-wrap');
+      if (brand) brand.style.display = 'none';
+    }
+
+    function closerB(b) {
+      var dl = b.dealer || {}, anchor = document.getElementById('bst-same-model-section');
+      if (!anchor) return;
+      var hasTake = ((b.content && b.content.sections) || []).indexOf('take') > -1;
+      var addr = [dl.street, dl.city, ['CA', dl.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+      var html = '<figure class="bstb-pq"><blockquote><p>If it&rsquo;s not on Bestest, just be careful.</p></blockquote>'
+        + '<figcaption>Jason Allan, Bestest founder</figcaption></figure>';
+      if (dl.name) {
+        html += '<div class="bstb-seller"><b>For sale at</b> ' + escapeHtml(dl.name) + (addr ? ', ' + escapeHtml(addr) : '') + ', a Bestest-approved dealer. '
+          + (b.bestest.approved_dealers ? 'Bestest lists cars from only ' + b.bestest.approved_dealers + ' of the more than 400 dealers selling used cars in Orange County, and ' + escapeHtml(dl.name) + ' is one of them. ' : '')
+          + 'Listing and photos come from the dealer. The picks' + (hasTake ? ', ranks and Jason&rsquo;s take are' : ' and ranks are')
+          + ' Bestest&rsquo;s own: Bestest isn&rsquo;t a dealer, isn&rsquo;t affiliated with any dealership, and no dealer or automaker pays to be listed or ranked.</div>';
+      }
+      anchor.insertAdjacentHTML('afterend', html);
+    }
+
+    function renderPatternB(b, d) {
+      document.body.classList.add('bstb');
+      var secs = bodySections(b);
+      var about = document.getElementById('bst-about-block');
+      if (about) {
+        [mListing(secs.listing), mTake(secs.take), mFunnel(b, secs.funnel)].forEach(function (m) {
+          if (m) about.parentNode.insertBefore(m, about);
+        });
+        var bars = mBars(b);
+        if (bars) { about.insertAdjacentElement('afterend', bars); fitBarLabels(bars); }
+        // the generic three-bullet card (no bespoke trim/model text) repeats the funnel, so it goes
+        if (about.querySelector('.bst-about-bullets') && secs.funnel) about.style.display = 'none';
+      }
+      var body = document.querySelector('.bst-vdp-body');
+      if (body && !body.querySelector('h2')) body.remove();
+      slideCard(b);
+      railB();
+      slimB(b, d);
+      h1B(b);
+      similarB(b);
+      closerB(b);
+      document.addEventListener('click', function (e) {
+        var t = e.target.closest && e.target.closest('.bstb-open-lead');
+        if (!t) return;
+        e.preventDefault();
+        var cta = document.getElementById('bst-main-cta');
+        if (cta) cta.click();
+      });
+    }
+
     function initLucide() {
       if (window.lucide) { lucide.createIcons(); }
       else {
@@ -887,6 +1125,8 @@
     onReady(function () {
       var d = getData();
       if (!d) return;
+      var blk = readBlock(), pb = patternBOn(blk);
+      d.layout = pb ? 'b' : '';
       ensureMarkup();
       buildRightRail(d);
       renderDistanceLine(d);
@@ -895,6 +1135,8 @@
       mountSlimBar(d);
       setupGA4(d);
       buildSimilar(d);
+      if (pb) renderPatternB(blk, d);
+      document.documentElement.classList.add('bst-vdp-ready');
       initLucide();
     });
   

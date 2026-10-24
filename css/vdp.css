@@ -218,3 +218,93 @@
 .bst-about-founder { font-family:'Lora', Georgia, serif; }
 .bst-about-bespoke-p strong,
 .bst-about-bullet-text strong { font-weight:600; }
+
+/* ── Layout-shift guards, every VDP (10/24; Lighthouse mobile CLS 0.43-1.08) ──
+   The checks + claim panel fill #bst-rail-top above the price after first paint, and
+   on short first paints the footer sits in view until vdp.js builds the page. Reserve
+   the rail slots (final heights measured at 375 px and desktop) and hold the footer
+   below the fold until html.bst-vdp-ready; the animation clears it if vdp.js never runs. */
+#bst-rail-top { min-height:185px; }
+html.bst-claim-ready #bst-rail-top { min-height:0; }
+#bst-rail-bottom:empty { min-height:178px; }
+html:not(.bst-vdp-ready) main.section-3 { margin-bottom:100vh; animation:bst-reserve-off 0s 5s forwards; }
+/* lead-form.js hides the current-page crumb (and its separator) after load; long names wrap
+   to a second line first and push main down, so hide them from the first paint */
+.bst-crumb-current, .bst-crumb-sep:has(+ .bst-crumb-current) { display:none !important; }
+@keyframes bst-reserve-off { to { margin-bottom:0; } }
+
+/* ── Pattern B modules (Phase 3, body.bstb): ported from mock v13 (build_mock.py mk-* rules) ── */
+.bst-vdp-body { display:none; }
+body.bstb .bstb-card { background:#fff; border:1px solid #e3e7e4; border-radius:14px; padding:18px 22px; margin:0 0 24px; font-family:'Montserrat',sans-serif; }
+body.bstb .bstb-card p { font:400 15px/1.65 'Montserrat',sans-serif; color:#1a1a1a; margin:0; }
+body.bstb .bstb-card a { color:#1a6f4a; text-decoration:underline; }
+body.bstb .bstb-h2s { font:800 17px/1.3 'Montserrat',sans-serif; color:#1a1a1a; margin:0 0 8px; }
+body.bstb .bstb-h2 { font:800 18px/1.3 'Montserrat',sans-serif; color:#1a1a1a; margin:0 0 12px; }
+
+body.bstb .bstb-take { background:#f0faf4; border-color:#d4eedd; padding:20px 22px; }
+body.bstb .bstb-take-h { font:800 20px/1.3 'Montserrat',sans-serif; color:#155539; margin:0 0 12px; }
+body.bstb .bstb-take blockquote { margin:0; padding:0; border:0; }
+body.bstb .bstb-take blockquote p { font:500 16px/1.65 'Lora',Georgia,serif; }
+body.bstb .bstb-take blockquote p::before { content:"\201C"; color:#31b56b; font-size:30px; line-height:0; vertical-align:-11px; margin-right:2px; }
+body.bstb .bstb-byline { display:flex; align-items:center; gap:12px; margin:14px 0 0; }
+body.bstb .bstb-ava { width:46px; height:46px; border-radius:50%; background:#1a6f4a; color:#fff; display:flex; align-items:center; justify-content:center; font:700 15px 'Montserrat',sans-serif; flex:0 0 46px; }
+body.bstb .bstb-byline b { display:block; font:800 13px 'Montserrat',sans-serif; letter-spacing:.04em; text-transform:uppercase; color:#155539; }
+body.bstb .bstb-byline small { display:block; font:500 12px/1.35 'Montserrat',sans-serif; color:#6b7280; }
+
+body.bstb .bstb-funnel { padding:16px 20px 14px; }
+body.bstb .bstb-bar { display:flex; height:28px; border-radius:8px; overflow:hidden; gap:2px; }
+body.bstb .bstb-f1, body.bstb .bstb-f2 { display:flex; align-items:center; padding:0 9px; color:#fff; font:700 12px 'Montserrat',sans-serif; white-space:nowrap; }
+body.bstb .bstb-f1 { background:#31b56b; } body.bstb .bstb-f2 { background:#9aa3a0; flex:1; }
+body.bstb .bstb-how { margin:12px 0 0; }
+body.bstb .bstb-how p, body.bstb .bstb-how li { font:500 13px/1.5 'Montserrat',sans-serif; color:#374151; }
+body.bstb .bstb-how p { margin:8px 0 4px; }
+body.bstb .bstb-how .bstb-how-h { font:800 14px/1.4 'Montserrat',sans-serif; color:#1a6f4a; margin:12px 0 2px; }
+body.bstb .bstb-how ul { margin:6px 0 8px; padding-left:18px; } body.bstb .bstb-how li { margin:3px 0; }
+body.bstb .bstb-how a { font-weight:700; text-decoration:none; }
+body.bstb .bstb-how a::after { content:" \203A"; }
+
+body.bstb .bstb-why { padding:22px 22px 18px; }
+body.bstb .bstb-sub { font:500 13px/1.45 'Montserrat',sans-serif !important; color:#4b5563 !important; margin:-6px 0 14px !important; }
+body.bstb .bstb-row { margin:0 0 12px; }
+body.bstb .bstb-lbl { font:700 13px 'Montserrat',sans-serif; color:#374151; margin:0 0 4px; }
+body.bstb .bstb-hb { height:24px; border-radius:0 7px 7px 0; display:flex; align-items:center; padding:0 10px; color:#fff; font:700 11.5px 'Montserrat',sans-serif; letter-spacing:.02em; white-space:nowrap; margin-bottom:3px; box-sizing:border-box; overflow:hidden; }
+body.bstb .bstb-me { background:#31b56b; } body.bstb .bstb-rej { background:#9aa3a0; }
+body.bstb .bstb-hb.bstb-out { position:relative; overflow:visible; }
+body.bstb .bstb-hb.bstb-out::after { content:attr(data-l); position:absolute; left:calc(100% + 8px); color:#6b7280; white-space:nowrap; }
+body.bstb .bstb-cap { margin:12px 0 0; }
+body.bstb .bstb-cap p { font:400 12px/1.5 'Montserrat',sans-serif; color:#6b7280; margin:0 0 3px; }
+body.bstb .bstb-cap b { color:#4b5563; }
+
+body.bstb .bstb-slide { width:100%; height:100%; aspect-ratio:4/3; background:#155539; color:#fff; display:flex; flex-direction:column; justify-content:center; padding:8% 13%; box-sizing:border-box; font-family:'Montserrat',sans-serif; }
+body.bstb .bstb-slide-logo { font:800 26px 'Montserrat',sans-serif; letter-spacing:-.5px; margin-bottom:6%; } body.bstb .bstb-slide-logo span { color:#31b56b; }
+body.bstb .bstb-slide-top { font:700 clamp(12px,1.7vw,16px)/1.35 'Montserrat',sans-serif; color:#cdebd9; margin:0 0 3%; }
+body.bstb .bstb-slide-big { font:800 clamp(26px,5vw,46px)/1.25 'Montserrat',sans-serif; margin:0 0 4%; }
+body.bstb .bstb-slide-sm { font:500 clamp(12px,1.6vw,16px)/1.4 'Montserrat',sans-serif; color:#cdebd9; margin:0; }
+
+body.bstb .bst-claim-lead::before { content:"Bestest says"; display:inline-block; font:800 10.5px/1 'Montserrat',sans-serif; letter-spacing:.08em; text-transform:uppercase; color:#fff; background:#1a6f4a; border-radius:4px; padding:4px 6px; margin-right:7px; vertical-align:2px; }
+body.bstb .bst-claim-panel .bst-return-row { border:0 !important; margin:0 !important; padding:1px 0 !important; font-size:13px !important; color:#333 !important; gap:7px !important; line-height:1.3 !important; background:none !important; }
+body.bstb .bst-claim-panel .bst-return-row svg { width:18px !important; height:18px !important; }
+body.bstb .bstb-rail-miles { font:600 15.5px/1.35 'Montserrat',sans-serif !important; color:#1a1a1a !important; margin-top:-14px !important; margin-bottom:2px !important; }
+body.bstb .bstb-rail-loc { font:500 13px/1.35 'Montserrat',sans-serif !important; color:#6b7280 !important; margin:0 0 10px !important; }
+body.bstb .bstb-call-note { font:500 12px/1.4 'Montserrat',sans-serif; color:#6b7280; text-align:center; margin:6px 0 0; }
+
+body.bstb:has(#bst-slim-bar.bsb-visible) .navbar-2 { visibility:hidden; }
+body.bstb #bst-slim-bar .bsb-title { white-space:normal !important; overflow:visible !important; text-overflow:clip !important; font-size:14px !important; line-height:1.25 !important; }
+body.bstb #bst-slim-bar .bsb-meta { display:block !important; font-size:12.5px !important; }
+body.bstb #bst-slim-bar .bsb-price { display:none !important; }
+@media (max-width:480px) {
+  body.bstb #bst-slim-bar .bsb-title { white-space:nowrap !important; font-size:13px !important; }
+  body.bstb #bst-slim-bar .bsb-meta { white-space:nowrap !important; font-size:11.5px !important; }
+  body.bstb #bst-slim-bar .bsb-cta { white-space:normal !important; width:96px !important; text-align:center !important; line-height:1.2 !important; padding:7px 8px !important; font-size:12.5px !important; }
+  body.bstb #bst-slim-bar .bsb-text { min-width:0 !important; flex:1 1 auto !important; }
+}
+
+body.bstb .bstb-all { display:block; font:700 14px 'Montserrat',sans-serif; color:#1a6f4a; margin-top:4px; text-decoration:none; white-space:nowrap; }
+body.bstb .bstb-pq { margin:8px auto 30px; text-align:center; max-width:560px; }
+body.bstb .bstb-pq blockquote { margin:0; padding:14px 0; border:0; background:none; }
+body.bstb .bstb-pq blockquote::before, body.bstb .bstb-pq blockquote::after { content:""; display:block; width:48px; height:2px; background:#31b56b; margin:0 auto 12px; }
+body.bstb .bstb-pq blockquote::after { margin:12px auto 0; }
+body.bstb .bstb-pq p { font:italic 500 21px/1.35 'Lora',Georgia,serif; color:#1a1a1a; margin:0; text-wrap:balance; }
+body.bstb .bstb-pq figcaption { margin-top:10px; font:600 12.5px 'Montserrat',sans-serif; color:#4b5563; }
+body.bstb .bstb-seller { font:500 12.5px/1.5 'Montserrat',sans-serif; color:#6b7280; border-top:1px solid #e3e7e4; padding-top:14px; margin:0 0 3rem; }
+body.bstb .bstb-seller b { color:#374151; }
