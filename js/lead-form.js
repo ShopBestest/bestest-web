@@ -136,7 +136,7 @@
 
   function enhanceVdp() {
     var dd = dataDiv();
-    if (!dd) return;
+    if (!dd) { document.documentElement.classList.add('bst-claim-ready'); return; }
 
     // Claim panel: superlative headline + the existing checkmarks as its proof.
     // The checkmarks are rendered by a VDP embed AFTER DOMContentLoaded (same as the
@@ -163,14 +163,15 @@
         panel.className = 'bst-claim-panel';
         var lead = document.createElement('p');
         lead.className = 'bst-claim-lead';
-        lead.innerHTML = 'This is one of the <b>best ' + segmentPhrase(dd.segment) +
-          '</b> for sale in Orange County right now.';
+        lead.innerHTML = (dd.claim && dd.claim.text) ? claimHtml(dd.claim) :
+          'This is one of the <b>best ' + segmentPhrase(dd.segment) + '</b> for sale in Orange County right now.';
         checks.parentNode.insertBefore(panel, checks);
         panel.appendChild(lead);
         panel.appendChild(checks);
         if (returnEligible(dd.price)) addReturnRow(panel, dd.price);
         addPriceNote(); // no-op if the init-time call already ran
-      } else if (++panelTries > 40) clearInterval(panelTimer);
+        document.documentElement.classList.add('bst-claim-ready'); // releases vdp.css's rail reserve
+      } else if (++panelTries > 40) { clearInterval(panelTimer); document.documentElement.classList.add('bst-claim-ready'); }
     }, 250);
 
     addPriceNote();
@@ -307,16 +308,50 @@
     return (!isNaN(x) && x > 0) ? '$' + Math.round(x).toLocaleString('en-US') : '';
   }
 
-  // Clean CMS-bound vehicle fields from the VDP data div (#bst-vin-data), when present.
+  // VDP vehicle fields: the vdp/1 data block (#bst-vdp-data, pattern B) when present,
+  // else the CMS-bound data div (#bst-vin-data). model/trim stay the base names (GA4
+  // dims, lead payload); variantModel/variantTrim ("RAV4 Hybrid") are for display.
+  var _dd;
   function dataDiv() {
+    if (_dd !== undefined) return _dd;
+    _dd = blockData() || divData();
+    return _dd;
+  }
+  function blockData() {
+    var el = document.getElementById('bst-vdp-data');
+    if (!el) return null;
+    var raw = el.textContent || '', b = null;
+    try { b = JSON.parse(raw); }
+    catch (e) {   // a bound field may arrive entity-escaped; decode once and retry
+      try { var t = document.createElement('textarea'); t.innerHTML = raw; b = JSON.parse(t.value); } catch (e2) {}
+    }
+    if (!b || b.schema !== 'vdp/1' || !b.listing) return null;
+    var l = b.listing, dl = b.dealer || {};
+    return {
+      year: String(l.year || ''), make: l.make || '', model: l.model || '', trim: l.trim || '',
+      variantModel: l.variant_model || l.model || '', variantTrim: l.variant_trim || l.trim || '',
+      segment: l.segment || '', price: l.price != null ? String(l.price) : '', dealer: dl.name || '',
+      vin: l.vin || '', dealerPhone: dl.phone || '', certified: !!l.certified,
+      claim: (b.bestest && b.bestest.claim) || null
+    };
+  }
+  function divData() {
     var el = document.getElementById('bst-vin-data');
     if (!el) return null;
     var d = el.dataset;
     return {
       year: d.year || '', make: d.make || '', model: d.model || '', trim: d.trim || '',
+      variantModel: d.model || '', variantTrim: d.trim || '',
       segment: d.segment || '', price: d.price || '', dealer: d.dealerName || '', vin: d.vin || '',
-      dealerPhone: d.dealerPhone || '', certified: d.isCertified === 'true'
+      dealerPhone: d.dealerPhone || '', certified: d.isCertified === 'true', claim: null
     };
+  }
+
+  // The block's claim sentence, with its count phrase in bold ("One of the <b>39 best
+  // used Toyota RAV4s</b> for sale in Orange County right now.").
+  function claimHtml(c) {
+    var t = String(c.text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return t.replace(/^(One of the |The )(.+?)( for sale in| that made)/, '$1<b>$2</b>$3');
   }
 
   function injectStyles() {
@@ -492,8 +527,8 @@
     build();
     var v = vehicle();
     var dd = dataDiv();
-    var shortName = (dd && [dd.year, dd.make, dd.model].filter(Boolean).join(' ')) || v.title;
-    var longName  = (dd && [dd.certified ? 'Certified' : 'Used', dd.year, dd.make, dd.model, dd.trim].filter(Boolean).join(' ')) || v.title;
+    var shortName = (dd && [dd.year, dd.make, dd.variantModel].filter(Boolean).join(' ')) || v.title;
+    var longName  = (dd && [dd.certified ? 'Certified' : 'Used', dd.year, dd.make, dd.variantModel, dd.variantTrim].filter(Boolean).join(' ')) || v.title;
     var price  = (dd && dd.price) || v.price;
     var dealer = (dd && dd.dealer) || v.dealer;
     ctx = {
