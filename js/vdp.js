@@ -9,7 +9,8 @@
    Skips itself while the old inline Part B is still on the page (no double run).
    Phase 3 (10/24), every VDP: rail est. mi/yr on the Jan 1 basis (miles_basis.py), slide 1
    fetchpriority=high, html.bst-vdp-ready once built (vdp.css layout-shift guards).
-   Phase 3, test slugs only: the mock v13 modules from the vdp/1 block (see "Pattern B modules"). */
+   Phase 3, test slugs only: the mock v13 modules from the vdp/1 block (see "Pattern B modules").
+   Phase 4 (10/24): keeps the template's server-rendered slide 1 (img[data-bst-hero]) instead of rebuilding it. */
 (function () {
   if (window.__bstVdp) return;
   window.__bstVdp = true;
@@ -162,8 +163,18 @@
     if (!sliderMask) return;
     var urls = getPhotos();
     if (!urls.length) return;
-    sliderMask.innerHTML = '';
+    // Phase 4: the template server-renders slide 1 (img[data-bst-hero], srcset from hero-srcset) so
+    // the LCP photo is in the HTML. Keep it when it shows photos[0]; build slides 2..n after it.
+    var hero = sliderMask.querySelector('img[data-bst-hero]');
+    var keepHero = hero && (hero.getAttribute('srcset') || '').indexOf(urls[0].replace(/ /g, '%20')) > -1;
+    var heroSlide = keepHero ? hero.closest('.w-slide') : null;
+    [].slice.call(sliderMask.children).forEach(function (c) { if (c !== heroSlide) sliderMask.removeChild(c); });
+    if (heroSlide) {
+      hero.onerror = function () { hero.onerror = null; hero.removeAttribute('srcset'); hero.src = urls[0]; };
+      if (hero.complete && !hero.naturalWidth) hero.onerror();
+    }
     urls.forEach(function(url, i) {
+      if (heroSlide && i === 0) return;
       var slide = document.createElement('div');
       slide.className = 'slide-2 w-slide';
       var img = document.createElement('img');
