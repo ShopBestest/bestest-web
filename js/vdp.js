@@ -171,7 +171,13 @@
     [].slice.call(sliderMask.children).forEach(function (c) { if (c !== heroSlide) sliderMask.removeChild(c); });
     if (heroSlide) {
       hero.onerror = function () { hero.onerror = null; hero.removeAttribute('srcset'); hero.src = urls[0]; };
-      if (hero.complete && !hero.naturalWidth) hero.onerror();
+      // Already settled before this ran? decode() rejects only for a broken image. naturalWidth
+      // can't tell: with a srcset it is density-scaled, so a 0x0 viewport (prerender, hidden
+      // panes) reads 0 on a good image.
+      if (hero.complete) {
+        if (hero.decode) hero.decode().catch(function () { if (hero.onerror) hero.onerror(); });
+        else if (!hero.naturalHeight) hero.onerror();
+      }
     }
     urls.forEach(function(url, i) {
       if (heroSlide && i === 0) return;
