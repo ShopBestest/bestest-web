@@ -3,7 +3,7 @@
    Original code: js/vdp.original.js. Phase 1 changes, nothing else:
    - runs on DOMContentLoaded instead of window load
    - slider photos go through Cloudinary (w_1200), first slide eager, raw URL on error
-   - lucide pinned to an exact version
+   - lucide pinned to an exact version (10/25: replaced by 5 inline SVGs, SPEC_ICONS)
    - reads the #bst-vdp-data JSON block when present, else today's data divs
    - builds the similar-cars + brand markup when the Part A embed is gone
    Skips itself while the old inline Part B is still on the page (no double run).
@@ -19,7 +19,14 @@
   });
   if (inlineStillThere && !window.BS_VDP_FORCE) return;
 
-  var LUCIDE_URL = 'https://cdn.jsdelivr.net/npm/lucide@1.61.0/dist/umd/lucide.min.js';
+  /* lucide@1.61.0 (ISC), the 5 spec-strip icons inlined so the 107 KB library isn't loaded. */
+  var SPEC_ICONS = {
+    Paintbrush: '<path d="m14.622 17.897-10.68-2.913"/><path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/><path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15"/>',
+    SwatchBook: '<path d="M11 17a4 4 0 0 1-8 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z"/><path d="M16.7 13H19a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H7"/><path d="M 7 17h.01"/><path d="m11 8 2.3-2.3a2.4 2.4 0 0 1 3.404.004L18.6 7.6a2.4 2.4 0 0 1 .026 3.434L9.9 19.8"/>',
+    Zap: '<path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"/>',
+    Fuel: '<path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5"/><path d="M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16"/><path d="M2 21h13"/><path d="M3 9h11"/>',
+    Cog: '<path d="M11 10.27 7 3.34"/><path d="m11 13.73-4 6.93"/><path d="M12 22v-2"/><path d="M12 2v2"/><path d="M14 12h8"/><path d="m17 20.66-1-1.73"/><path d="m17 3.34-1 1.73"/><path d="M2 12h2"/><path d="m20.66 17-1.73-1"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m3.34 7 1.73 1"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="8"/>'
+  };
   var CLD = 'https://res.cloudinary.com/dkhd5molz/image/fetch/';
   var SLIDE_TX = 'w_1200,c_limit,f_auto,q_auto';
 
@@ -252,7 +259,7 @@
       return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
     function li(name) {
-      return '<i data-lucide="' + name + '" style="width:22px;height:22px;stroke:#555;stroke-width:1.5;display:block;"></i>';
+      return '<svg class="lucide" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:22px;height:22px;stroke:#555;stroke-width:1.5;display:block;">' + SPEC_ICONS[name] + '</svg>';
     }
   
     /* ── Dealer distance line (VDP) ──
@@ -1145,18 +1152,6 @@
       });
     }
 
-    function initLucide() {
-      if (window.lucide) { lucide.createIcons(); }
-      else {
-        var s = document.querySelector('script[src*="lucide"]');
-        if (!s) {
-          s = document.createElement('script');
-          s.src = LUCIDE_URL;
-          document.head.appendChild(s);
-        }
-        s.addEventListener('load', function(){lucide.createIcons();});
-      }
-    }
   
     onReady(function () {
       var d = getData();
@@ -1173,7 +1168,6 @@
       buildSimilar(d);
       if (pb) renderPatternB(blk, d);
       document.documentElement.classList.add('bst-vdp-ready');
-      initLucide();
     });
   
   })();
