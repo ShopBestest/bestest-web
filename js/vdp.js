@@ -565,20 +565,25 @@
        To change a line, just edit the prose between the backticks. */
     function buildAboutBlock(d) {
       var bespoke = getBespokeParagraphs();
-      var hasAllBespoke = !!(bespoke.listing && bespoke.trim && bespoke.model);
-  
+      /* Blank sections are skipped, not filled with fallback copy: a variant car
+         (e.g. RAV4 Hybrid) can have its year paragraph written before its trim one.
+         Bullets only when there's no trim or year paragraph at all. */
+      var hasBespoke = !!(bespoke.trim || bespoke.model);
+      var modelName = d.variantModel || d.model;
+      var trimName  = d.variantTrim || d.trim;
+
       var founderHTML = `<div class="bst-about-founder">Bestest was founded by the former head of vehicle reviews and ratings at Kelley Blue Book and Autotrader, who's helped millions of shoppers choose the right car — and avoid the bad ones.</div>`;
-  
-      if (hasAllBespoke) {
-        var trimHeading  = d.trim ? `About the ${d.trim} trim` : 'About this trim';
-        var ymm = [d.year, d.make, d.model].filter(Boolean).join(' ');
+
+      if (hasBespoke) {
+        var trimHeading  = trimName ? `About the ${trimName} trim` : 'About this trim';
+        var ymm = [d.year, d.make, modelName].filter(Boolean).join(' ');
         var modelHeading = ymm ? `About the ${ymm}` : 'About this model';
-  
+
         var blocksHTML = [
           ['About this listing', bespoke.listing],
           [trimHeading,           bespoke.trim],
           [modelHeading,          bespoke.model]
-        ].map(function(b) {
+        ].filter(function(b) { return b[1]; }).map(function(b) {
           return `<div>
             <div class="bst-about-bespoke-h"><span class="bst-about-bespoke-check"></span>${escapeHtml(b[0])}</div>
             <p class="bst-about-bespoke-p">${escapeHtml(b[1])}</p>
@@ -594,7 +599,7 @@
       }
   
       var noun = vehicleNoun(d.segment);
-      var ymm  = [d.year, d.make, d.model].filter(Boolean).join(' ');
+      var ymm  = [d.year, d.make, modelName].filter(Boolean).join(' ');
   
       var bullets = [
         {
