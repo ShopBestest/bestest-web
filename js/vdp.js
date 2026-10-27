@@ -599,21 +599,32 @@
        To change a line, just edit the prose between the backticks. */
     /* The per-car "What to know" section: its own white card above the green block, styled like
        the Pattern B listing card (Montserrat; serif stays reserved for Jason's take). */
+    /* One column for everything written about this car (Jason, 10/27): the per-car section,
+       then the trim paragraph, then the year paragraph, each under its own H3. The green
+       "This car isn't just good" block appears only when none of the three exists. */
     function buildListingCard(d, bespoke) {
-      if (!bespoke.listingHtml) return '';
+      if (!bespoke.listingHtml && !bespoke.trim && !bespoke.model) return '';
+      var modelName = d.variantModel || d.model;
+      var trimName  = d.variantTrim || d.trim;
       /* The lead names the car in full ("This Bestest-approved 2024 Honda CR-V Hybrid Sport-L for sale in…");
          the data div has no variant model on legacy pages, so take the name from there first. */
       var m = /Bestest-approved\s+(.+?)\s+for sale/i.exec(bespoke.listing || '');
-      var name = m ? m[1] : [d.year, d.make, d.variantModel || d.model, d.variantTrim || d.trim].filter(Boolean).join(' ');
+      var name = m ? m[1] : [d.year, d.make, modelName, trimName].filter(Boolean).join(' ');
+      var parts = [];
+      if (bespoke.listingHtml) parts.push(`<div class="bst-about-rich">${bespoke.listingHtml}</div>`);
+      else if (bespoke.listing) parts.push(`<div class="bst-about-rich"><p>${escapeHtml(bespoke.listing)}</p></div>`);
+      if (bespoke.trim) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml(trimName || 'trim')} trim</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.trim)}</p></div>`);
+      if (bespoke.model) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml([d.year, modelName].filter(Boolean).join(' ') || 'model')}</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.model)}</p></div>`);
       return `<section class="bst-listing-card">
         <h2 class="bst-listing-h">What to know about this ${escapeHtml(name || 'car')}</h2>
-        <div class="bst-about-rich">${bespoke.listingHtml}</div>
+        ${parts.join('')}
       </section>`;
     }
 
     function buildAboutBlock(d) {
       var bespoke = getBespokeParagraphs();
-      return buildListingCard(d, bespoke) + buildGreenBlock(d, bespoke);
+      var card = buildListingCard(d, bespoke);
+      return card || buildGreenBlock(d, bespoke);
     }
 
     function buildGreenBlock(d, bespoke) {
@@ -882,7 +893,7 @@
       '.bst-about-rich p:last-child{margin-bottom:0}',
       '.bst-about-rich p:first-child strong{font-weight:600;font-size:16.5px;line-height:1.5;color:#155539}',   /* the lead */
       '.bst-about-rich strong{font-weight:600;color:#155539}',
-      '.bst-about-rich h3{font:800 15px/1.35 Montserrat,sans-serif;color:#155539;margin:20px 0 8px}',
+      '.bst-about-rich h3,.bst-listing-h3{font:800 15px/1.35 Montserrat,sans-serif;color:#155539;margin:20px 0 8px}',
       '.bst-about-rich a{color:#1a6f4a;text-decoration:underline}',
       '.bst-about-rich ul,.bst-about-rich ol{margin:0 0 12px 22px;padding:0}',
       /* serif is for Jason's take only (10/27): the green block's prose goes back to Montserrat */

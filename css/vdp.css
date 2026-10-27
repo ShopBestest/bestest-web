@@ -228,7 +228,7 @@
 .bst-about-rich p:last-child { margin-bottom:0; }
 .bst-about-rich p:first-child strong { font-weight:600; font-size:16.5px; line-height:1.5; color:#155539; }
 .bst-about-rich strong { font-weight:600; color:#155539; }
-.bst-about-rich h3 { font:800 15px/1.35 'Montserrat',sans-serif; color:#155539; margin:20px 0 8px; }
+.bst-about-rich h3, .bst-listing-h3 { font:800 15px/1.35 'Montserrat',sans-serif; color:#155539; margin:20px 0 8px; }
 .bst-about-rich a { color:#1a6f4a; text-decoration:underline; }
 .bst-about-rich ul, .bst-about-rich ol { margin:0 0 12px 22px; padding:0; }
 @media(max-width:600px){ .bst-listing-card { padding:14px 16px; } .bst-listing-h { font-size:16px; } .bst-about-rich p { font-size:14.5px; } }
