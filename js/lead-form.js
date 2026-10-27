@@ -309,9 +309,19 @@
     var el = document.getElementById('bst-vin-data');
     if (!el) return null;
     var d = el.dataset;
+    /* The data div carries the base model ("CR-V"); the H1 carries the variant
+       ("2024 Honda CR-V Hybrid Sport-L FWD"). Read the variant from the H1 when it
+       sits between the year/make and the trim, so the form says "CR-V Hybrid". */
+    var variantModel = d.model || '';
+    var h1 = document.querySelector('h1');
+    if (h1 && d.year && d.make && d.trim) {
+      var esc = function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+      var m = new RegExp('^' + esc(d.year) + '\\s+' + esc(d.make) + '\\s+(.+?)\\s+' + esc(d.trim) + '(?:\\s|$)').exec(h1.textContent.trim());
+      if (m && m[1].indexOf(d.model || '') === 0) variantModel = m[1];
+    }
     return {
       year: d.year || '', make: d.make || '', model: d.model || '', trim: d.trim || '',
-      variantModel: d.model || '', variantTrim: d.trim || '',
+      variantModel: variantModel, variantTrim: d.trim || '',
       segment: d.segment || '', price: d.price || '', dealer: d.dealerName || '', vin: d.vin || '',
       dealerPhone: d.dealerPhone || '', certified: d.isCertified === 'true', claim: null
     };
