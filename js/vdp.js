@@ -610,11 +610,17 @@
          the data div has no variant model on legacy pages, so take the name from there first. */
       var m = /Bestest-approved\s+(.+?)\s+for sale/i.exec(bespoke.listing || '');
       var name = m ? m[1] : [d.year, d.make, modelName, trimName].filter(Boolean).join(' ');
+      /* The section's questions block starts at its H3; the trim and year paragraphs go
+         between the car-specific copy and the questions (Jason, 10/27). */
+      var body = bespoke.listingHtml, questions = '';
+      var qi = body.search(/<h3>/i);
+      if (qi > -1) { questions = body.slice(qi); body = body.slice(0, qi); }
       var parts = [];
-      if (bespoke.listingHtml) parts.push(`<div class="bst-about-rich">${bespoke.listingHtml}</div>`);
-      else if (bespoke.listing) parts.push(`<div class="bst-about-rich"><p>${escapeHtml(bespoke.listing)}</p></div>`);
+      if (body) parts.push(`<div class="bst-about-rich">${body}</div>`);
+      else if (bespoke.listing && !bespoke.listingHtml) parts.push(`<div class="bst-about-rich"><p>${escapeHtml(bespoke.listing)}</p></div>`);
       if (bespoke.trim) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml(trimName || 'trim')} trim</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.trim)}</p></div>`);
       if (bespoke.model) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml([d.year, modelName].filter(Boolean).join(' ') || 'model')}</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.model)}</p></div>`);
+      if (questions) parts.push(`<div class="bst-about-rich bst-listing-qs">${questions}</div>`);
       return `<section class="bst-listing-card">
         <h2 class="bst-listing-h">What to know about this ${escapeHtml(name || 'car')}</h2>
         ${parts.join('')}
@@ -886,19 +892,20 @@
        pin change alone is enough (the template head inlines vdp.css). A link to
        #check-availability opens the lead form. */
     var RICH_CSS = [
-      /* the card: same recipe as the Pattern B listing card and the 10/23 mock */
-      '.bst-listing-card{background:#fff;border:1px solid #e3e7e4;border-radius:14px;padding:18px 22px;max-width:860px;margin:0 0 24px;font-family:Montserrat,sans-serif}',
-      '.bst-listing-h{font:800 17px/1.3 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 10px}',
-      '.bst-about-rich p{font:400 15px/1.65 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 12px}',
+      /* the column (style D, Jason 10/27): a 700px measure (~66 characters a line), no box; serif stays with Jason's take */
+      '.bst-listing-card{max-width:700px;margin:0 0 28px;font-family:Montserrat,sans-serif}',
+      '.bst-listing-h{font:800 20px/1.3 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 12px}',
+      '.bst-about-rich p{font:400 16px/1.7 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 12px}',
       '.bst-about-rich p:last-child{margin-bottom:0}',
-      '.bst-about-rich p:first-child strong{font-weight:600;font-size:16.5px;line-height:1.5;color:#155539}',   /* the lead */
+      '.bst-about-rich p:first-child strong{font-weight:600;font-size:17px;line-height:1.5;color:#155539}',   /* the lead */
       '.bst-about-rich strong{font-weight:600;color:#155539}',
-      '.bst-about-rich h3,.bst-listing-h3{font:800 15px/1.35 Montserrat,sans-serif;color:#155539;margin:20px 0 8px}',
+      '.bst-about-rich h3,.bst-listing-h3{font:800 16px/1.35 Montserrat,sans-serif;color:#155539;margin:22px 0 8px}',
       '.bst-about-rich a{color:#1a6f4a;text-decoration:underline}',
       '.bst-about-rich ul,.bst-about-rich ol{margin:0 0 12px 22px;padding:0}',
-      /* serif is for Jason's take only (10/27): the green block's prose goes back to Montserrat */
+      '.bst-listing-qs{margin-top:4px}',
+      '#bst-about-block{max-width:700px}',
       '.bst-about-bespoke-p,.bst-about-bullet-text,.bst-about-founder{font-family:Montserrat,sans-serif}',
-      '@media(max-width:600px){.bst-listing-card{padding:14px 16px}.bst-listing-h{font-size:16px}.bst-about-rich p{font-size:14.5px}}'
+      '@media(max-width:600px){.bst-listing-h{font-size:18px}.bst-about-rich p{font-size:15px}.bst-about-rich p:first-child strong{font-size:16px}}'
     ].join('');
 
     function richListingStyles() {
