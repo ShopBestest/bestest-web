@@ -597,12 +597,31 @@
     /* ── About Bestest block ──
        Copy lives in template literals (backticks) so it's easy to edit.
        To change a line, just edit the prose between the backticks. */
+    /* The per-car "What to know" section: its own white card above the green block, styled like
+       the Pattern B listing card (Montserrat; serif stays reserved for Jason's take). */
+    function buildListingCard(d, bespoke) {
+      if (!bespoke.listingHtml) return '';
+      /* The lead names the car in full ("This Bestest-approved 2024 Honda CR-V Hybrid Sport-L for sale in…");
+         the data div has no variant model on legacy pages, so take the name from there first. */
+      var m = /Bestest-approved\s+(.+?)\s+for sale/i.exec(bespoke.listing || '');
+      var name = m ? m[1] : [d.year, d.make, d.variantModel || d.model, d.variantTrim || d.trim].filter(Boolean).join(' ');
+      return `<section class="bst-listing-card">
+        <h2 class="bst-listing-h">What to know about this ${escapeHtml(name || 'car')}</h2>
+        <div class="bst-about-rich">${bespoke.listingHtml}</div>
+      </section>`;
+    }
+
     function buildAboutBlock(d) {
       var bespoke = getBespokeParagraphs();
+      return buildListingCard(d, bespoke) + buildGreenBlock(d, bespoke);
+    }
+
+    function buildGreenBlock(d, bespoke) {
       /* Blank sections are skipped, not filled with fallback copy: a variant car
          (e.g. RAV4 Hybrid) can have its year paragraph written before its trim one.
-         Bullets only when there's no trim or year paragraph and no listing section. */
-      var hasBespoke = !!(bespoke.trim || bespoke.model || bespoke.listingHtml);
+         Bullets only when there's no trim or year paragraph at all; the listing
+         section has its own card above. */
+      var hasBespoke = !!(bespoke.trim || bespoke.model);
       var modelName = d.variantModel || d.model;
       var trimName  = d.variantTrim || d.trim;
 
@@ -614,16 +633,13 @@
         var modelHeading = ymm ? `About the ${ymm}` : 'About this model';
 
         var blocksHTML = [
-          ['About this listing', bespoke.listing, bespoke.listingHtml],
+          ['About this listing', bespoke.listingHtml ? '' : bespoke.listing],
           [trimHeading,           bespoke.trim],
           [modelHeading,          bespoke.model]
         ].filter(function(b) { return b[1]; }).map(function(b) {
-          var body = b[2]
-            ? `<div class="bst-about-bespoke-p bst-about-rich">${b[2]}</div>`
-            : `<p class="bst-about-bespoke-p">${escapeHtml(b[1])}</p>`;
           return `<div>
             <div class="bst-about-bespoke-h"><span class="bst-about-bespoke-check"></span>${escapeHtml(b[0])}</div>
-            ${body}
+            <p class="bst-about-bespoke-p">${escapeHtml(b[1])}</p>
           </div>`;
         }).join('');
   
@@ -858,15 +874,27 @@
     /* Styles for the rich listing section. Also in css/vdp.css; carried here so a vdp.js
        pin change alone is enough (the template head inlines vdp.css). A link to
        #check-availability opens the lead form. */
+    var RICH_CSS = [
+      /* the card: same recipe as the Pattern B listing card and the 10/23 mock */
+      '.bst-listing-card{background:#fff;border:1px solid #e3e7e4;border-radius:14px;padding:18px 22px;max-width:860px;margin:0 0 24px;font-family:Montserrat,sans-serif}',
+      '.bst-listing-h{font:800 17px/1.3 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 10px}',
+      '.bst-about-rich p{font:400 15px/1.65 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 12px}',
+      '.bst-about-rich p:last-child{margin-bottom:0}',
+      '.bst-about-rich p:first-child strong{font-weight:600;font-size:16.5px;line-height:1.5;color:#155539}',   /* the lead */
+      '.bst-about-rich strong{font-weight:600;color:#155539}',
+      '.bst-about-rich h3{font:800 15px/1.35 Montserrat,sans-serif;color:#155539;margin:20px 0 8px}',
+      '.bst-about-rich a{color:#1a6f4a;text-decoration:underline}',
+      '.bst-about-rich ul,.bst-about-rich ol{margin:0 0 12px 22px;padding:0}',
+      /* serif is for Jason's take only (10/27): the green block's prose goes back to Montserrat */
+      '.bst-about-bespoke-p,.bst-about-bullet-text,.bst-about-founder{font-family:Montserrat,sans-serif}',
+      '@media(max-width:600px){.bst-listing-card{padding:14px 16px}.bst-listing-h{font-size:16px}.bst-about-rich p{font-size:14.5px}}'
+    ].join('');
+
     function richListingStyles() {
       if (document.getElementById('bst-about-rich-css')) return;
       var st = document.createElement('style');
       st.id = 'bst-about-rich-css';
-      st.textContent = '.bst-about-rich p{margin:0 0 12px}.bst-about-rich p:last-child{margin-bottom:0}'
-        + '.bst-about-rich h3{font-family:Montserrat,sans-serif;font-size:15px;font-weight:800;color:#155539;line-height:1.35;margin:18px 0 8px}'
-        + '.bst-about-rich strong{font-weight:600;color:#155539}'
-        + '.bst-about-rich a{color:#1a6f4a}'
-        + '.bst-about-rich ul,.bst-about-rich ol{margin:0 0 12px 22px;padding:0}';
+      st.textContent = RICH_CSS;
       document.head.appendChild(st);
       document.addEventListener('click', function(e) {
         var a = e.target.closest && e.target.closest('.bst-about-rich a[href="#check-availability"]');
