@@ -442,15 +442,49 @@
       };
     }
   
-    function getBespokeParagraphs() {
-      function read(sel) {
-        var el = document.querySelector('.bst-hidden-data ' + sel);
-        return el ? (el.textContent || '').trim() : '';
+    /* The listing field is Airtable rich text; Whalesync delivers it to the page as Webflow
+       rich text (p, h3, strong, a). Keep only those tags, drop every attribute but a safe href. */
+    var RICH_TAGS = { P: 1, H3: 1, STRONG: 1, B: 1, EM: 1, I: 1, A: 1, BR: 1, UL: 1, OL: 1, LI: 1 };
+    function sanitizeRich(html) {
+      var box = document.createElement('div');
+      box.innerHTML = html || '';
+      function walk(node) {
+        var out = '';
+        [].slice.call(node.childNodes).forEach(function(n) {
+          if (n.nodeType === 3) { out += escapeHtml(n.nodeValue); return; }
+          if (n.nodeType !== 1) return;
+          var tag = n.tagName;
+          if (!RICH_TAGS[tag]) { out += walk(n); return; }           // unwrap (Webflow's div.w-richtext etc.)
+          if (tag === 'BR') { out += '<br>'; return; }
+          var t = tag.toLowerCase(), attrs = '';
+          if (tag === 'A') {
+            var href = n.getAttribute('href') || '';
+            if (/^(https?:\/\/|\/|#)/i.test(href)) attrs = ' href="' + escapeHtml(href) + '"';
+          }
+          out += '<' + t + attrs + '>' + walk(n) + '</' + t + '>';
+        });
+        return out;
       }
+      return walk(box).trim();
+    }
+
+    function getBespokeParagraphs() {
+      function el(sel) { return document.querySelector('.bst-hidden-data ' + sel); }
+      function read(sel) {
+        var e = el(sel);
+        return e ? (e.textContent || '').trim() : '';
+      }
+      var listingEl = el('.bst-listing-paragraph');
+      var listingHtml = listingEl ? sanitizeRich(listingEl.innerHTML) : '';
+      /* The 10/27 per-car section opens with a bold lead; the legacy one-liner never does.
+         Only the section triggers the card on its own (Jason, 10/27: option B), so cars that
+         still carry the one-liner keep the generic bullets until their segment rolls out. */
+      var listingIsSection = /^<p><strong>/i.test(listingHtml);
       return {
-        listing: read('.bst-listing-paragraph'),
-        trim:    read('.bst-trim-paragraph'),
-        model:   read('.bst-model-paragraph')
+        listing:     read('.bst-listing-paragraph'),
+        listingHtml: listingIsSection ? listingHtml : '',
+        trim:        read('.bst-trim-paragraph'),
+        model:       read('.bst-model-paragraph')
       };
     }
   
@@ -567,8 +601,8 @@
       var bespoke = getBespokeParagraphs();
       /* Blank sections are skipped, not filled with fallback copy: a variant car
          (e.g. RAV4 Hybrid) can have its year paragraph written before its trim one.
-         Bullets only when there's no trim or year paragraph at all. */
-      var hasBespoke = !!(bespoke.trim || bespoke.model);
+         Bullets only when there's no trim or year paragraph and no listing section. */
+      var hasBespoke = !!(bespoke.trim || bespoke.model || bespoke.listingHtml);
       var modelName = d.variantModel || d.model;
       var trimName  = d.variantTrim || d.trim;
 
@@ -580,13 +614,16 @@
         var modelHeading = ymm ? `About the ${ymm}` : 'About this model';
 
         var blocksHTML = [
-          ['About this listing', bespoke.listing],
+          ['About this listing', bespoke.listing, bespoke.listingHtml],
           [trimHeading,           bespoke.trim],
           [modelHeading,          bespoke.model]
         ].filter(function(b) { return b[1]; }).map(function(b) {
+          var body = b[2]
+            ? `<div class="bst-about-bespoke-p bst-about-rich">${b[2]}</div>`
+            : `<p class="bst-about-bespoke-p">${escapeHtml(b[1])}</p>`;
           return `<div>
             <div class="bst-about-bespoke-h"><span class="bst-about-bespoke-check"></span>${escapeHtml(b[0])}</div>
-            <p class="bst-about-bespoke-p">${escapeHtml(b[1])}</p>
+            ${body}
           </div>`;
         }).join('');
   
@@ -818,6 +855,28 @@
     /* ── Linkify external dealer URLs in bespoke paragraphs ──
        Auto-styles + tags any anchor inside the green box that points off-site,
        so they pick up Carfax-link styling and GA4 tracking automatically. */
+    /* Styles for the rich listing section. Also in css/vdp.css; carried here so a vdp.js
+       pin change alone is enough (the template head inlines vdp.css). A link to
+       #check-availability opens the lead form. */
+    function richListingStyles() {
+      if (document.getElementById('bst-about-rich-css')) return;
+      var st = document.createElement('style');
+      st.id = 'bst-about-rich-css';
+      st.textContent = '.bst-about-rich p{margin:0 0 12px}.bst-about-rich p:last-child{margin-bottom:0}'
+        + '.bst-about-rich h3{font-family:Montserrat,sans-serif;font-size:15px;font-weight:800;color:#155539;line-height:1.35;margin:18px 0 8px}'
+        + '.bst-about-rich strong{font-weight:600;color:#155539}'
+        + '.bst-about-rich a{color:#1a6f4a}'
+        + '.bst-about-rich ul,.bst-about-rich ol{margin:0 0 12px 22px;padding:0}';
+      document.head.appendChild(st);
+      document.addEventListener('click', function(e) {
+        var a = e.target.closest && e.target.closest('.bst-about-rich a[href="#check-availability"]');
+        if (!a) return;
+        e.preventDefault();
+        var cta = document.getElementById('bst-main-cta');
+        if (cta) cta.click();
+      });
+    }
+
     function styleBespokeLinks(d) {
       var box = document.getElementById('bst-about-block');
       if (!box) return;
@@ -1168,6 +1227,7 @@
       renderDistanceLine(d);
       buildBelowFold(d);
       styleBespokeLinks(d);
+      richListingStyles();
       mountSlimBar(d);
       setupGA4(d);
       buildSimilar(d);

@@ -219,6 +219,15 @@
 .bst-about-bespoke-p strong,
 .bst-about-bullet-text strong { font-weight:600; }
 
+/* Rich listing section (10/27): the per-car "What to know" field rendered as p / h3 / strong / a.
+   vdp.js injects the same rules, so the pin change works before this file is re-inlined. */
+.bst-about-rich p { margin:0 0 12px; }
+.bst-about-rich p:last-child { margin-bottom:0; }
+.bst-about-rich h3 { font-family:'Montserrat',sans-serif; font-size:15px; font-weight:800; color:#155539; line-height:1.35; margin:18px 0 8px; }
+.bst-about-rich strong { font-weight:600; color:#155539; }
+.bst-about-rich a { color:#1a6f4a; }
+.bst-about-rich ul, .bst-about-rich ol { margin:0 0 12px 22px; padding:0; }
+
 /* ── Layout-shift guards, every VDP (10/24; Lighthouse mobile CLS 0.43-1.08) ──
    The checks + claim panel fill #bst-rail-top above the price after first paint, and
    on short first paints the footer sits in view until vdp.js builds the page. Reserve
