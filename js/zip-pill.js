@@ -19,6 +19,12 @@
   var STORAGE_ZIP_LATLNG_PREFIX = 'bst_zip_latlng_';
   var STORAGE_ZIP_CITY_PREFIX = 'bst_zip_city_v2_';
   var STORAGE_COVERAGE_SEEN = 'bst_coverage_notice_seen';
+  // GA4 audience band, written whenever the visitor's location resolves and read by the
+  // site-head gtag config on every later page load (user property `audience`). Bands are
+  // distance from Newport Coast: local <=50 mi, socal <=150 mi, us, or non_us (Worker ?geo
+  // said the country is not US). Defines "locals vs the rest" from what the site itself
+  // knows about the visitor instead of GA4's own IP city, which disagrees with Cloudflare's.
+  var STORAGE_AUDIENCE = 'bst_audience';
   var IPAPI_URL = 'https://ipapi.co/json/';
   var ZIPPOPOTAMUS_URL = 'https://api.zippopotam.us/us/';
   // Geo lookups go to the feed Worker first (GeoNames zip table + Cloudflare's request.cf);
@@ -146,7 +152,24 @@
   function isValidZipFormat(z) { return /^\d{5}$/.test(z); }
   function saveZipAndLatLng(zip, lat, lng) {
     localStorage.setItem(STORAGE_ZIP, zip);
-    if (lat != null && lng != null) localStorage.setItem(STORAGE_ZIP_LATLNG_PREFIX + zip, lat + ',' + lng);
+    if (lat != null && lng != null) {
+      localStorage.setItem(STORAGE_ZIP_LATLNG_PREFIX + zip, lat + ',' + lng);
+      setAudience(audienceBand(lat, lng));
+    }
+  }
+  function audienceBand(lat, lng) {
+    var mi = haversineMiles(lat, lng, COVERAGE_CENTER_LAT, COVERAGE_CENTER_LNG);
+    if (isNaN(mi)) return null;
+    return mi <= COVERAGE_RADIUS_MI ? 'local' : (mi <= 150 ? 'socal' : 'us');
+  }
+  function setAudience(band) {
+    if (!band) return;
+    try {
+      if (localStorage.getItem(STORAGE_AUDIENCE) === band) return;
+      localStorage.setItem(STORAGE_AUDIENCE, band);
+      // The head already applied the stored value at config time; only a change needs a live set.
+      if (typeof window.gtag === 'function') window.gtag('set', 'user_properties', { audience: band });
+    } catch (e) {}
   }
   function notifyDistanceModule(zip) {
     if (window.BestestDistance && typeof window.BestestDistance.setUserZip === 'function') window.BestestDistance.setUserZip(zip);
@@ -487,8 +510,10 @@
       ipAutoDetect()
         .then(function(loc) { return applyZip(loc.zip, loc.lat, loc.lng, loc.city); })
         .then(function() { maybeShowCoverageOverlay(); })
-        .catch(function() {});
+        .catch(function(err) { if (err && err.message === 'Non-US visitor') setAudience('non_us'); });
     } else {
+      // Visitors who stored a zip before the audience band existed: derive it from the cached coords.
+      try { if (!localStorage.getItem(STORAGE_AUDIENCE)) { var ll0 = getCurrentLatLng(); if (ll0) setAudience(audienceBand(ll0.lat, ll0.lng)); } } catch (e) {}
       maybeShowCoverageOverlay();
     }
     wireAllPills();
