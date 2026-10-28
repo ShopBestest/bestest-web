@@ -26,8 +26,10 @@
   var FEED_URL = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/';
 
   // Coverage area: within COVERAGE_RADIUS_MI of 92657 (Newport Coast). Used only to show
-  // an informational "outside coverage" note — it never filters inventory.
-  var COVERAGE_CENTER_LAT = 33.5943, COVERAGE_CENTER_LNG = -117.8334, COVERAGE_RADIUS_MI = 30;
+  // an informational "outside coverage" note — it never filters inventory. 50 mi (was 30)
+  // because carrier IPs for OC phones geolocate to the gateway city, often Los Angeles at
+  // ~38 mi, which tripped the overlay for in-area visitors on cellular (10/28).
+  var COVERAGE_CENTER_LAT = 33.5943, COVERAGE_CENTER_LNG = -117.8334, COVERAGE_RADIUS_MI = 50;
 
   var PIN_SVG = '<svg class="bst-zip-pin" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
   var DETECT_PIN_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
@@ -462,6 +464,15 @@
     var ov = buildCoverageOverlay();
     ov.style.display = 'flex';
     document.addEventListener('keydown', ov._bstOnKey);
+    // GA4: how often the overlay fires and where those visitors resolve to, so false
+    // positives (in-area phones on carrier IPs) can be measured.
+    try {
+      if (typeof window.gtag === 'function') window.gtag('event', 'coverage_overlay_shown', {
+        zip: getCurrentZip(),
+        city: getCurrentCity() || '',
+        distance_mi: Math.round(haversineMiles(ll.lat, ll.lng, COVERAGE_CENTER_LAT, COVERAGE_CENTER_LNG))
+      });
+    } catch (e) {}
   }
 
   function init() {
