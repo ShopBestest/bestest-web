@@ -260,15 +260,23 @@ body.bstb .bstb-card a { color:#1a6f4a; text-decoration:underline; }
 body.bstb .bstb-h2s { font:800 17px/1.3 'Montserrat',sans-serif; color:#1a1a1a; margin:0 0 8px; }
 body.bstb .bstb-h2 { font:800 18px/1.3 'Montserrat',sans-serif; color:#1a1a1a; margin:0 0 12px; }
 
-body.bstb .bstb-take { background:#f0faf4; border-color:#d4eedd; padding:20px 22px; }
-body.bstb .bstb-take-h { font:800 20px/1.3 'Montserrat',sans-serif; color:#155539; margin:0 0 12px; }
-body.bstb .bstb-take blockquote { margin:0; padding:0; border:0; }
-body.bstb .bstb-take blockquote p { font:500 16px/1.65 'Lora',Georgia,serif; }
-body.bstb .bstb-take blockquote p::before { content:"\201C"; color:#31b56b; font-size:30px; line-height:0; vertical-align:-11px; margin-right:2px; }
-body.bstb .bstb-byline { display:flex; align-items:center; gap:12px; margin:14px 0 0; }
-body.bstb .bstb-ava { width:46px; height:46px; border-radius:50%; background:#1a6f4a; color:#fff; display:flex; align-items:center; justify-content:center; font:700 15px 'Montserrat',sans-serif; flex:0 0 46px; }
-body.bstb .bstb-byline b { display:block; font:800 13px 'Montserrat',sans-serif; letter-spacing:.04em; text-transform:uppercase; color:#155539; }
-body.bstb .bstb-byline small { display:block; font:500 12px/1.35 'Montserrat',sans-serif; color:#6b7280; }
+/* Jason says (the take box, 10/28): matches the founder sign-off. Also carried inline in vdp.js
+   (TAKE_CSS) because the VDPs Template head inlines an old copy of this file; keep both in step. */
+body.bstb .bstb-take { background:#e8f4ea; border:0; border-radius:18px; padding:24px 26px 22px; position:relative; overflow:hidden; }
+body.bstb .bstb-take-h { font:800 20px/1.3 'Montserrat',sans-serif; color:#155539; margin:0 0 12px; position:relative; }
+body.bstb .bstb-take-mark { position:absolute; top:14px; right:22px; font:800 110px/.8 'Montserrat',sans-serif; color:#31b56b; opacity:.3; height:50px; overflow:hidden; pointer-events:none; user-select:none; }
+body.bstb .bstb-take blockquote { margin:0; padding:0; border:0; background:none; position:relative; text-align:left; }   /* the template centers blockquotes */
+body.bstb .bstb-take blockquote p { font:500 16px/1.65 'Montserrat',sans-serif; color:#1a3d1f; margin:0 0 12px; text-align:left; }
+body.bstb .bstb-take blockquote p:last-child { margin-bottom:0; }
+body.bstb .bstb-byline { display:flex; align-items:center; gap:12px; margin:16px 0 0; position:relative; }
+body.bstb .bstb-byline img { width:44px; height:44px; border-radius:50%; object-fit:cover; flex:0 0 44px; display:block; }
+body.bstb .bstb-byline b { display:block; font:700 14px 'Montserrat',sans-serif; color:#1a3d1f; }
+body.bstb .bstb-byline small { display:block; font:500 12.5px/1.4 'Montserrat',sans-serif; color:#3d5e41; }
+@media (max-width:600px) {
+  body.bstb .bstb-take { padding:20px 18px 18px; }
+  body.bstb .bstb-take blockquote p { font-size:15px; }
+  body.bstb .bstb-take-mark { font-size:100px; right:10px; height:46px; }
+}
 
 body.bstb .bstb-funnel { padding:16px 20px 14px; }
 body.bstb .bstb-bar { display:flex; height:28px; border-radius:8px; overflow:hidden; gap:2px; }
