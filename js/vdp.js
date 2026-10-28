@@ -906,6 +906,7 @@
       '#bst-about-block{max-width:700px}',
       /* Pattern B cards sit at the column's width (10/27 style D) */
       'body.bstb .bstb-card{max-width:700px;box-sizing:border-box}',
+      'body.bstb .bst-listing-card .bstb-card{margin:22px 0 26px}',
       '.bst-about-bespoke-p,.bst-about-bullet-text,.bst-about-founder{font-family:Montserrat,sans-serif}',
       '@media(max-width:600px){.bst-listing-h{font-size:18px}.bst-about-rich p{font-size:15px}.bst-about-rich p:first-child strong{font-size:16px}}'
     ].join('');
@@ -1240,13 +1241,15 @@
       var col = document.querySelector('.bst-listing-card');   // the "What to know" column (listing field, trim, year, questions)
       var about = document.getElementById('bst-about-block');
       if (col) {
-        // 10/27: the column replaces the block's own listing section; take, funnel and bars follow it
-        var after = col;
-        [mTake(secs.take), mFunnel(b, secs.funnel), mBars(b)].forEach(function (m) {
-          if (!m) return;
-          after.insertAdjacentElement('afterend', m); after = m;
-          if (m.classList.contains('bstb-why')) fitBarLabels(m);
-        });
+        /* 10/27 order (Jason): the car's own copy, take, funnel, then the trim and year paragraphs,
+           then the rank bars, then the questions. Take and funnel go in before the first H3 (trim or
+           year) or the questions; the bars go in before the questions; anything with no anchor goes last. */
+        var firstH3 = col.querySelector('.bst-listing-h3'), qs = col.querySelector('.bst-listing-qs');
+        function putBefore(m, anchor) { if (!m) return; if (anchor) anchor.insertAdjacentElement('beforebegin', m); else col.appendChild(m); }
+        putBefore(mTake(secs.take), firstH3 || qs);
+        putBefore(mFunnel(b, secs.funnel), firstH3 || qs);
+        var bars = mBars(b);
+        if (bars) { putBefore(bars, qs); fitBarLabels(bars); }
       } else if (about) {
         [mListing(secs.listing), mTake(secs.take), mFunnel(b, secs.funnel)].forEach(function (m) {
           if (m) about.parentNode.insertBefore(m, about);
