@@ -1228,15 +1228,31 @@
       if (!anchor) return;
       var hasTake = ((b.content && b.content.sections) || []).indexOf('take') > -1;
       var addr = [dl.street, dl.city, ['CA', dl.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
-      var html = '<figure class="bstb-pq"><blockquote><p>If it&rsquo;s not on Bestest, just be careful.</p></blockquote>'
-        + '<figcaption>Jason Allan, Bestest founder</figcaption></figure>';
+      /* 10/28 (Jason): founder sign-off redesigned (green block, big green quote glyph, headshot) and moved
+         BELOW the dealer disclosure so it is the last human word before the footer. Self-contained CSS
+         (class bstb-fq) so the template's old .bstb-pq rules can be removed later without a sync. */
+      var quote = '<style id="bstb-fq-css">'
+        + '.bstb-fq{max-width:960px;margin:8px auto 24px;background:#e8f4ea;border-radius:18px;padding:28px 32px 36px;text-align:center;overflow:hidden;font-family:\'Montserrat\',sans-serif}'
+        + '.bstb-fq blockquote{margin:0;padding:0;border:0;background:none}'
+        + '.bstb-fq-mark{font-size:120px;line-height:.8;font-weight:800;color:#31b56b;opacity:.35;height:56px;margin-bottom:2px}'
+        + '.bstb-fq p{font-size:26px;font-weight:800;line-height:1.3;color:#1a3d1f;margin:0 auto 20px;max-width:680px;letter-spacing:-.015em;text-wrap:balance}'
+        + '.bstb-fq figcaption{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#3d5e41;margin:0}'
+        + '.bstb-fq figcaption img{width:36px;height:36px;border-radius:50%;object-fit:cover;display:block}'
+        + '.bstb-fq figcaption b{color:#1a3d1f;font-weight:700}'
+        + '@media(max-width:767px){.bstb-fq{padding:22px 20px 28px}.bstb-fq p{font-size:22px}.bstb-fq-mark{font-size:100px;height:48px}}'
+        + '</style>'
+        + '<figure class="bstb-fq"><div class="bstb-fq-mark" aria-hidden="true">&ldquo;</div>'
+        + '<blockquote><p>If it&rsquo;s not on Bestest, just do your homework.</p></blockquote>'
+        + '<figcaption><img src="https://cdn.prod.website-files.com/69b85a00ef6f024daf996304/6a7e0645fce29258ea8ace96_ja-profile-blue-larger-p-500.jpeg" alt="Jason Allan" width="36" height="36" loading="lazy">'
+        + '<span><b>Jason Allan</b>, Bestest founder</span></figcaption></figure>';
+      var html = '';
       if (dl.name) {
         html += '<div class="bstb-seller"><b>For sale at</b> ' + escapeHtml(dl.name) + (addr ? ', ' + escapeHtml(addr) : '') + ', a Bestest-approved dealer. '
           + (b.bestest.approved_dealers ? 'Bestest lists cars from only ' + b.bestest.approved_dealers + ' of the more than 400 dealers selling used cars in Orange County, and ' + escapeHtml(dl.name) + ' is one of them. ' : '')
           + 'Listing and photos come from the dealer. The picks' + (hasTake ? ', ranks and Jason&rsquo;s take are' : ' and ranks are')
           + ' Bestest&rsquo;s own: Bestest isn&rsquo;t a dealer, isn&rsquo;t affiliated with any dealership, and no dealer or automaker pays to be listed or ranked.</div>';
       }
-      anchor.insertAdjacentHTML('afterend', html);
+      anchor.insertAdjacentHTML('afterend', html + quote);
     }
 
     function renderPatternB(b, d) {
