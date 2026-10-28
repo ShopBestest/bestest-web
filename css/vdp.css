@@ -212,12 +212,31 @@
   /* Dealer box → all Montserrat */
 .bst-cta-frame, .bst-cta-frame * { font-family:'Montserrat', sans-serif; }
 
-/* Editorial prose → Lora (headings stay Montserrat). Emphasis at 600, not 700. */
+/* Prose is Montserrat; serif (Lora) is reserved for Jason's take (10/27). Emphasis at 600, not 700. */
 .bst-about-bespoke-p,
 .bst-about-bullet-text,
-.bst-about-founder { font-family:'Lora', Georgia, serif; }
+.bst-about-founder { font-family:'Montserrat', sans-serif; }
 .bst-about-bespoke-p strong,
 .bst-about-bullet-text strong { font-weight:600; }
+
+/* "What to know" column (10/27, style D): the per-car section, the trim and year paragraphs and the
+   questions in one 700px Montserrat column, no box. vdp.js injects the same rules (RICH_CSS), so the
+   pin change works before this file is re-inlined. */
+.bst-listing-card { max-width:700px; margin:0 0 28px; font-family:'Montserrat',sans-serif; }
+.bst-listing-h { font:800 20px/1.3 'Montserrat',sans-serif; color:#1a1a1a; margin:0 0 12px; }
+.bst-about-rich p { font:400 16px/1.7 'Montserrat',sans-serif; color:#1a1a1a; margin:0 0 12px; }
+.bst-about-rich p:last-child { margin-bottom:0; }
+.bst-about-rich p:first-child strong { font-weight:600; font-size:17px; line-height:1.5; color:#155539; }
+.bst-about-rich strong { font-weight:600; color:#155539; }
+.bst-about-rich h3, .bst-listing-h3 { font:800 16px/1.35 'Montserrat',sans-serif; color:#155539; margin:22px 0 8px; }
+.bst-about-rich a { color:#1a6f4a; text-decoration:underline; }
+.bst-about-rich ul, .bst-about-rich ol { margin:0 0 12px 22px; padding:0; }
+.bst-listing-qs { margin-top:4px; }
+#bst-about-block { max-width:700px; }
+/* Pattern B cards sit at the column's width (10/27 style D); vdp.js injects the same. */
+body.bstb .bstb-card { max-width:700px; box-sizing:border-box; }
+body.bstb .bst-listing-card .bstb-card { margin:22px 0 26px; }   /* funnel + bars sit inside the column */
+@media(max-width:600px){ .bst-listing-h { font-size:18px; } .bst-about-rich p { font-size:15px; } .bst-about-rich p:first-child strong { font-size:16px; } }
 
 /* ── Layout-shift guards, every VDP (10/24; Lighthouse mobile CLS 0.43-1.08) ──
    The checks + claim panel fill #bst-rail-top above the price after first paint, and

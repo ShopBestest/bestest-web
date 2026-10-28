@@ -442,15 +442,49 @@
       };
     }
   
-    function getBespokeParagraphs() {
-      function read(sel) {
-        var el = document.querySelector('.bst-hidden-data ' + sel);
-        return el ? (el.textContent || '').trim() : '';
+    /* The listing field is Airtable rich text; Whalesync delivers it to the page as Webflow
+       rich text (p, h3, strong, a). Keep only those tags, drop every attribute but a safe href. */
+    var RICH_TAGS = { P: 1, H3: 1, STRONG: 1, B: 1, EM: 1, I: 1, A: 1, BR: 1, UL: 1, OL: 1, LI: 1 };
+    function sanitizeRich(html) {
+      var box = document.createElement('div');
+      box.innerHTML = html || '';
+      function walk(node) {
+        var out = '';
+        [].slice.call(node.childNodes).forEach(function(n) {
+          if (n.nodeType === 3) { out += escapeHtml(n.nodeValue); return; }
+          if (n.nodeType !== 1) return;
+          var tag = n.tagName;
+          if (!RICH_TAGS[tag]) { out += walk(n); return; }           // unwrap (Webflow's div.w-richtext etc.)
+          if (tag === 'BR') { out += '<br>'; return; }
+          var t = tag.toLowerCase(), attrs = '';
+          if (tag === 'A') {
+            var href = n.getAttribute('href') || '';
+            if (/^(https?:\/\/|\/|#)/i.test(href)) attrs = ' href="' + escapeHtml(href) + '"';
+          }
+          out += '<' + t + attrs + '>' + walk(n) + '</' + t + '>';
+        });
+        return out;
       }
+      return walk(box).trim();
+    }
+
+    function getBespokeParagraphs() {
+      function el(sel) { return document.querySelector('.bst-hidden-data ' + sel); }
+      function read(sel) {
+        var e = el(sel);
+        return e ? (e.textContent || '').trim() : '';
+      }
+      var listingEl = el('.bst-listing-paragraph');
+      var listingHtml = listingEl ? sanitizeRich(listingEl.innerHTML) : '';
+      /* The 10/27 per-car section opens with a bold lead; the legacy one-liner never does.
+         Only the section triggers the card on its own (Jason, 10/27: option B), so cars that
+         still carry the one-liner keep the generic bullets until their segment rolls out. */
+      var listingIsSection = /^<p><strong>/i.test(listingHtml);
       return {
-        listing: read('.bst-listing-paragraph'),
-        trim:    read('.bst-trim-paragraph'),
-        model:   read('.bst-model-paragraph')
+        listing:     read('.bst-listing-paragraph'),
+        listingHtml: listingIsSection ? listingHtml : '',
+        trim:        read('.bst-trim-paragraph'),
+        model:       read('.bst-model-paragraph')
       };
     }
   
@@ -563,11 +597,47 @@
     /* ── About Bestest block ──
        Copy lives in template literals (backticks) so it's easy to edit.
        To change a line, just edit the prose between the backticks. */
+    /* The per-car "What to know" section: its own white card above the green block, styled like
+       the Pattern B listing card (Montserrat; serif stays reserved for Jason's take). */
+    /* One column for everything written about this car (Jason, 10/27): the per-car section,
+       then the trim paragraph, then the year paragraph, each under its own H3. The green
+       "This car isn't just good" block appears only when none of the three exists. */
+    function buildListingCard(d, bespoke) {
+      if (!bespoke.listingHtml && !bespoke.trim && !bespoke.model) return '';
+      var modelName = d.variantModel || d.model;
+      var trimName  = d.variantTrim || d.trim;
+      /* The lead names the car in full ("This Bestest-approved 2024 Honda CR-V Hybrid Sport-L for sale in…");
+         the data div has no variant model on legacy pages, so take the name from there first. */
+      var m = /Bestest-approved\s+(.+?)\s+for sale/i.exec(bespoke.listing || '');
+      var name = m ? m[1] : [d.year, d.make, modelName, trimName].filter(Boolean).join(' ');
+      /* The section's questions block starts at its H3; the trim and year paragraphs go
+         between the car-specific copy and the questions (Jason, 10/27). */
+      var body = bespoke.listingHtml, questions = '';
+      var qi = body.search(/<h3>/i);
+      if (qi > -1) { questions = body.slice(qi); body = body.slice(0, qi); }
+      var parts = [];
+      if (body) parts.push(`<div class="bst-about-rich">${body}</div>`);
+      else if (bespoke.listing && !bespoke.listingHtml) parts.push(`<div class="bst-about-rich"><p>${escapeHtml(bespoke.listing)}</p></div>`);
+      if (bespoke.trim) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml(trimName || 'trim')} trim</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.trim)}</p></div>`);
+      if (bespoke.model) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml([d.year, modelName].filter(Boolean).join(' ') || 'model')}</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.model)}</p></div>`);
+      if (questions) parts.push(`<div class="bst-about-rich bst-listing-qs">${questions}</div>`);
+      return `<section class="bst-listing-card">
+        <h2 class="bst-listing-h">What to know about this ${escapeHtml(name || 'car')}</h2>
+        ${parts.join('')}
+      </section>`;
+    }
+
     function buildAboutBlock(d) {
       var bespoke = getBespokeParagraphs();
+      var card = buildListingCard(d, bespoke);
+      return card || buildGreenBlock(d, bespoke);
+    }
+
+    function buildGreenBlock(d, bespoke) {
       /* Blank sections are skipped, not filled with fallback copy: a variant car
          (e.g. RAV4 Hybrid) can have its year paragraph written before its trim one.
-         Bullets only when there's no trim or year paragraph at all. */
+         Bullets only when there's no trim or year paragraph at all; the listing
+         section has its own card above. */
       var hasBespoke = !!(bespoke.trim || bespoke.model);
       var modelName = d.variantModel || d.model;
       var trimName  = d.variantTrim || d.trim;
@@ -580,7 +650,7 @@
         var modelHeading = ymm ? `About the ${ymm}` : 'About this model';
 
         var blocksHTML = [
-          ['About this listing', bespoke.listing],
+          ['About this listing', bespoke.listingHtml ? '' : bespoke.listing],
           [trimHeading,           bespoke.trim],
           [modelHeading,          bespoke.model]
         ].filter(function(b) { return b[1]; }).map(function(b) {
@@ -818,6 +888,44 @@
     /* ── Linkify external dealer URLs in bespoke paragraphs ──
        Auto-styles + tags any anchor inside the green box that points off-site,
        so they pick up Carfax-link styling and GA4 tracking automatically. */
+    /* Styles for the rich listing section. Also in css/vdp.css; carried here so a vdp.js
+       pin change alone is enough (the template head inlines vdp.css). A link to
+       #check-availability opens the lead form. */
+    var RICH_CSS = [
+      /* the column (style D, Jason 10/27): a 700px measure (~66 characters a line), no box; serif stays with Jason's take */
+      '.bst-listing-card{max-width:700px;margin:0 0 28px;font-family:Montserrat,sans-serif}',
+      '.bst-listing-h{font:800 20px/1.3 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 12px}',
+      '.bst-about-rich p{font:400 16px/1.7 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 12px}',
+      '.bst-about-rich p:last-child{margin-bottom:0}',
+      '.bst-about-rich p:first-child strong{font-weight:600;font-size:17px;line-height:1.5;color:#155539}',   /* the lead */
+      '.bst-about-rich strong{font-weight:600;color:#155539}',
+      '.bst-about-rich h3,.bst-listing-h3{font:800 16px/1.35 Montserrat,sans-serif;color:#155539;margin:22px 0 8px}',
+      '.bst-about-rich a{color:#1a6f4a;text-decoration:underline}',
+      '.bst-about-rich ul,.bst-about-rich ol{margin:0 0 12px 22px;padding:0}',
+      '.bst-listing-qs{margin-top:4px}',
+      '#bst-about-block{max-width:700px}',
+      /* Pattern B cards sit at the column's width (10/27 style D) */
+      'body.bstb .bstb-card{max-width:700px;box-sizing:border-box}',
+      'body.bstb .bst-listing-card .bstb-card{margin:22px 0 26px}',
+      '.bst-about-bespoke-p,.bst-about-bullet-text,.bst-about-founder{font-family:Montserrat,sans-serif}',
+      '@media(max-width:600px){.bst-listing-h{font-size:18px}.bst-about-rich p{font-size:15px}.bst-about-rich p:first-child strong{font-size:16px}}'
+    ].join('');
+
+    function richListingStyles() {
+      if (document.getElementById('bst-about-rich-css')) return;
+      var st = document.createElement('style');
+      st.id = 'bst-about-rich-css';
+      st.textContent = RICH_CSS;
+      document.head.appendChild(st);
+      document.addEventListener('click', function(e) {
+        var a = e.target.closest && e.target.closest('.bst-about-rich a[href="#check-availability"]');
+        if (!a) return;
+        e.preventDefault();
+        var cta = document.getElementById('bst-main-cta');
+        if (cta) cta.click();
+      });
+    }
+
     function styleBespokeLinks(d) {
       var box = document.getElementById('bst-about-block');
       if (!box) return;
@@ -943,7 +1051,7 @@
       if (!b || !b.listing || !b.bestest) return false;
       var q = ''; try { q = new URLSearchParams(window.location.search).get('bstb') || ''; } catch (e) {}
       if (q === '0') return false;
-      return q === '1' || TEST_SLUGS.indexOf(b.listing.slug) > -1;
+      return true;   // 10/27: on for every car with a block (was: TEST_SLUGS or ?bstb=1)
     }
 
     function plural(name) { return name + 's'; }
@@ -1130,8 +1238,19 @@
     function renderPatternB(b, d) {
       document.body.classList.add('bstb');
       var secs = bodySections(b);
+      var col = document.querySelector('.bst-listing-card');   // the "What to know" column (listing field, trim, year, questions)
       var about = document.getElementById('bst-about-block');
-      if (about) {
+      if (col) {
+        /* 10/27 order (Jason): the car's own copy, take, funnel, then the trim and year paragraphs,
+           then the rank bars, then the questions. Take and funnel go in before the first H3 (trim or
+           year) or the questions; the bars go in before the questions; anything with no anchor goes last. */
+        var firstH3 = col.querySelector('.bst-listing-h3'), qs = col.querySelector('.bst-listing-qs');
+        function putBefore(m, anchor) { if (!m) return; if (anchor) anchor.insertAdjacentElement('beforebegin', m); else col.appendChild(m); }
+        putBefore(mTake(secs.take), firstH3 || qs);
+        putBefore(mFunnel(b, secs.funnel), firstH3 || qs);
+        var bars = mBars(b);
+        if (bars) { putBefore(bars, qs); fitBarLabels(bars); }
+      } else if (about) {
         [mListing(secs.listing), mTake(secs.take), mFunnel(b, secs.funnel)].forEach(function (m) {
           if (m) about.parentNode.insertBefore(m, about);
         });
@@ -1168,6 +1287,7 @@
       renderDistanceLine(d);
       buildBelowFold(d);
       styleBespokeLinks(d);
+      richListingStyles();
       mountSlimBar(d);
       setupGA4(d);
       buildSimilar(d);
