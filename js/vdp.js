@@ -904,6 +904,20 @@
       '.bst-about-rich ul,.bst-about-rich ol{margin:0 0 12px 22px;padding:0}',
       '.bst-listing-qs{margin-top:4px}',
       '#bst-about-block{max-width:700px}',
+      /* rank bars rider: the Pattern B bars card at the column's width */
+      '.bst-bars-rider{background:#fff;border:1px solid #e3e7e4;border-radius:14px;padding:22px 22px 18px;max-width:700px;margin:0 0 28px;font-family:Montserrat,sans-serif;box-sizing:border-box}',
+      '.bst-bars-rider .bstb-h2{font:800 18px/1.3 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 12px}',
+      '.bst-bars-rider .bstb-sub{font:500 13px/1.45 Montserrat,sans-serif;color:#4b5563;margin:-6px 0 14px}',
+      '.bst-bars-rider .bstb-row{margin:0 0 12px}',
+      '.bst-bars-rider .bstb-lbl{font:700 13px Montserrat,sans-serif;color:#374151;margin:0 0 4px}',
+      '.bst-bars-rider .bstb-hb{height:24px;border-radius:0 7px 7px 0;display:flex;align-items:center;padding:0 10px;color:#fff;font:700 11.5px Montserrat,sans-serif;letter-spacing:.02em;white-space:nowrap;margin-bottom:3px;box-sizing:border-box;overflow:hidden}',
+      '.bst-bars-rider .bstb-me{background:#31b56b}.bst-bars-rider .bstb-rej{background:#9aa3a0}',
+      '.bst-bars-rider .bstb-hb.bstb-out{position:relative;overflow:visible}',
+      '.bst-bars-rider .bstb-hb.bstb-out::after{content:attr(data-l);position:absolute;left:calc(100% + 8px);color:#6b7280;white-space:nowrap}',
+      '.bst-bars-rider .bstb-cap{margin:12px 0 0}',
+      '.bst-bars-rider .bstb-cap p{font:400 12px/1.5 Montserrat,sans-serif;color:#6b7280;margin:0 0 3px}',
+      '.bst-bars-rider .bstb-cap b{color:#4b5563}',
+      '@media(max-width:600px){.bst-bars-rider{padding:16px 14px 12px}}',
       '.bst-about-bespoke-p,.bst-about-bullet-text,.bst-about-founder{font-family:Montserrat,sans-serif}',
       '@media(max-width:600px){.bst-listing-h{font-size:18px}.bst-about-rich p{font-size:15px}.bst-about-rich p:first-child strong{font-size:16px}}'
     ].join('');
@@ -1154,6 +1168,19 @@
       return sec;
     }
 
+    /* The rank bars (vdp_json bestest.ranks, vdp_render.py) on the legacy page, under the
+       "What to know" column (Jason, 10/27: bars for every compact SUV without waiting for Pattern B). */
+    function barsRider(b) {
+      if (!b || !b.bestest) return;
+      var bars = mBars(b);
+      if (!bars) return;
+      bars.classList.add('bst-bars-rider');
+      var anchor = document.querySelector('.bst-listing-card') || document.getElementById('bst-about-block');
+      if (!anchor) return;
+      anchor.insertAdjacentElement('afterend', bars);
+      fitBarLabels(bars);
+    }
+
     function fitBarLabels(sec) {   // if any gray name won't fit inside its bar, every gray name sits just outside
       var rej = sec.querySelectorAll('.bstb-rej');
       var tight = [].some.call(rej, function (x) { return x.scrollWidth > x.clientWidth + 1; });
@@ -1278,6 +1305,7 @@
       setupGA4(d);
       buildSimilar(d);
       if (pb) renderPatternB(blk, d);
+      else barsRider(blk);
       document.documentElement.classList.add('bst-vdp-ready');
     });
   
