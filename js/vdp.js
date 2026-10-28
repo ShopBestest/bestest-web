@@ -1106,7 +1106,7 @@
        the VDPs Template head inlines an old copy of vdp.css: a vdp.js pin bump alone ships it, and the
        rules below override the template's .bstb-take/.bstb-byline copies (same specificity, later).
        The pipeline (vdp_render.body_html) writes the section as <h2>Jason says</h2> + a blockquote with
-       the nameplate paragraph and, when the car's powertrain has one, a second paragraph (the note). */
+       the nameplate paragraph (the powertrain note runs on inside it). */
     var FOUNDER_PHOTO = 'https://cdn.prod.website-files.com/69b85a00ef6f024daf996304/6a7e0645fce29258ea8ace96_ja-profile-blue-larger-p-500.jpeg';
     var TAKE_CSS = [
       'body.bstb .bstb-take{background:#e8f4ea;border:0;border-radius:18px;padding:24px 26px 22px;position:relative;overflow:hidden;font-family:\'Montserrat\',sans-serif}',
@@ -1116,12 +1116,11 @@
       'body.bstb .bstb-take blockquote p{font:500 16px/1.65 \'Montserrat\',sans-serif;color:#1a3d1f;margin:0 0 12px;text-align:left}',
       'body.bstb .bstb-take blockquote p::before{content:none}',
       'body.bstb .bstb-take blockquote p:last-child{margin-bottom:0}',
-      'body.bstb .bstb-take blockquote p+p{margin-top:14px;padding-top:12px;border-top:1px solid #cfe6d5;font-size:15px;line-height:1.6;color:#2f5634}',
       'body.bstb .bstb-byline{display:flex;align-items:center;gap:12px;margin:16px 0 0;position:relative}',
       'body.bstb .bstb-byline img{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:0 0 44px;display:block}',
       'body.bstb .bstb-byline b{display:block;font:700 14px \'Montserrat\',sans-serif;letter-spacing:0;text-transform:none;color:#1a3d1f}',
       'body.bstb .bstb-byline small{display:block;font:500 12.5px/1.4 \'Montserrat\',sans-serif;color:#3d5e41}',
-      '@media(max-width:600px){body.bstb .bstb-take{padding:20px 18px 18px}body.bstb .bstb-take blockquote p{font-size:15px}body.bstb .bstb-take blockquote p+p{font-size:14px}body.bstb .bstb-take-mark{font-size:100px;right:10px;height:46px}}'
+      '@media(max-width:600px){body.bstb .bstb-take{padding:20px 18px 18px}body.bstb .bstb-take blockquote p{font-size:15px}body.bstb .bstb-take-mark{font-size:100px;right:10px;height:46px}}'
     ].join('');
 
     function mTake(nodes) {
