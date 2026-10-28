@@ -461,7 +461,11 @@
             var href = n.getAttribute('href') || '';
             if (/^(https?:\/\/|\/|#)/i.test(href)) attrs = ' href="' + escapeHtml(href) + '"';
           }
-          out += '<' + t + attrs + '>' + walk(n) + '</' + t + '>';
+          var inner = walk(n);
+          /* Whalesync writes every blank markdown line as <p class="whalesync-empty-line">&#8203;</p>;
+             rendered, each one is a full empty line plus the paragraph margin. Drop empty blocks. */
+          if ((tag === 'P' || tag === 'LI' || tag === 'H3') && !inner.replace(/&nbsp;|[\s\u200b\u200c\u200d\u2060\ufeff]/g, '')) return;
+          out += '<' + t + attrs + '>' + inner + '</' + t + '>';
         });
         return out;
       }
