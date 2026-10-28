@@ -28,7 +28,7 @@
     Cog: '<path d="M11 10.27 7 3.34"/><path d="m11 13.73-4 6.93"/><path d="M12 22v-2"/><path d="M12 2v2"/><path d="M14 12h8"/><path d="m17 20.66-1-1.73"/><path d="m17 3.34-1 1.73"/><path d="M2 12h2"/><path d="m20.66 17-1.73-1"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m3.34 7 1.73 1"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="8"/>'
   };
   var CLD = 'https://res.cloudinary.com/dkhd5molz/image/fetch/';
-  var SLIDE_TX = 'w_1200,c_limit,f_auto,q_auto';
+  var SLIDE_TX = 'w_1200,c_limit,f_webp,q_auto';
 
   function onReady(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
