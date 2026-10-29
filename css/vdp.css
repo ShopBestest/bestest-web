@@ -231,12 +231,13 @@
 .bst-about-rich h3, .bst-listing-h3 { font:800 16px/1.35 'Montserrat',sans-serif; color:#155539; margin:22px 0 8px; }
 .bst-about-rich a { color:#1a6f4a; text-decoration:underline; }
 .bst-about-rich ul, .bst-about-rich ol { margin:0 0 12px 22px; padding:0; }
+.bst-about-rich li { font:400 16px/1.7 'Montserrat',sans-serif; color:#1a1a1a; margin:0 0 4px; }
 .bst-listing-qs { margin-top:4px; }
 #bst-about-block { max-width:700px; }
 /* Pattern B cards sit at the column's width (10/27 style D); vdp.js injects the same. */
 body.bstb .bstb-card { max-width:700px; box-sizing:border-box; }
 body.bstb .bst-listing-card .bstb-card { margin:22px 0 26px; }   /* funnel + bars sit inside the column */
-@media(max-width:600px){ .bst-listing-h { font-size:18px; } .bst-about-rich p { font-size:15px; } .bst-about-rich p:first-child strong { font-size:16px; } }
+@media(max-width:600px){ .bst-listing-h { font-size:18px; } .bst-about-rich p, .bst-about-rich li { font-size:15px; } .bst-about-rich p:first-child strong { font-size:16px; } }
 
 /* ── Layout-shift guards, every VDP (10/24; Lighthouse mobile CLS 0.43-1.08) ──
    The checks + claim panel fill #bst-rail-top above the price after first paint, and

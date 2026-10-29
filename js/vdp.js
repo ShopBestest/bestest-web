@@ -483,11 +483,17 @@
       /* The 10/27 per-car section opens with a bold lead; the legacy one-liner never does.
          Only the section triggers the card on its own (Jason, 10/27: option B), so cars that
          still carry the one-liner keep the generic bullets until their segment rolls out. */
+      /* The trim field is Webflow rich text. A trim written as rung sentence + bullets + carry-forward
+         arrives as p / ul / li; keep that shape. Without a list it renders as the one plain paragraph. */
+      var trimEl = el('.bst-trim-paragraph');
+      var trimRich = trimEl ? sanitizeRich(trimEl.innerHTML) : '';
+      var trimHtml = /<(ul|ol)>/i.test(trimRich) ? trimRich : '';
       var listingIsSection = /^<p><strong>/i.test(listingHtml);
       return {
         listing:     read('.bst-listing-paragraph'),
         listingHtml: listingIsSection ? listingHtml : '',
         trim:        read('.bst-trim-paragraph'),
+        trimHtml:    trimHtml,
         model:       read('.bst-model-paragraph')
       };
     }
@@ -622,7 +628,7 @@
       var parts = [];
       if (body) parts.push(`<div class="bst-about-rich">${body}</div>`);
       else if (bespoke.listing && !bespoke.listingHtml) parts.push(`<div class="bst-about-rich"><p>${escapeHtml(bespoke.listing)}</p></div>`);
-      if (bespoke.trim) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml(trimName || 'trim')} trim</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.trim)}</p></div>`);
+      if (bespoke.trim) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml(trimName || 'trim')} trim</h3><div class="bst-about-rich">${bespoke.trimHtml || '<p>' + escapeHtml(bespoke.trim) + '</p>'}</div>`);
       if (bespoke.model) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml([d.year, modelName].filter(Boolean).join(' ') || 'model')}</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.model)}</p></div>`);
       if (questions) parts.push(`<div class="bst-about-rich bst-listing-qs">${questions}</div>`);
       return `<section class="bst-listing-card">
