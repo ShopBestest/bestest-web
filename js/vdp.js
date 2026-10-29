@@ -56,11 +56,34 @@
     if (_blk && _blk.schema !== 'vdp/1') _blk = null;
     return _blk;
   }
+  /* Trim names as the page shows them (Jason, 10/29, the CX-50 "TURBO" page). An all-caps trim from the
+     feed gets initial caps; tokens of three letters or fewer stay caps (SE, SEL, XLE, LX, EX-L, GT, XRT);
+     inside a hyphenated word only one- or two-letter parts stay caps (EX-L, X-Line, Off-Road). Mixed-case
+     names pass through. Same rule as trim_names.py in the pipeline. */
+  function displayTrim(t) {
+    t = String(t || '').replace(/\s+/g, ' ').trim();
+    if (!t || t !== t.toUpperCase() || !/[A-Za-z]/.test(t)) return t;
+    var small = { IN: 'in', OF: 'of', AND: 'and', THE: 'the' };
+    function cap(tok, max) {
+      var letters = tok.replace(/[^A-Za-z]/g, '');
+      if (!letters) return tok;
+      if (small[tok]) return small[tok];
+      if (letters.length <= max) return tok;
+      return tok.charAt(0) + tok.slice(1).toLowerCase();
+    }
+    var out = t.split(' ').map(function (w) {
+      var parts = w.split('-');
+      return parts.length === 1 ? cap(w, 3) : parts.map(function (p) { return cap(p, 2); }).join('-');
+    }).join(' ');
+    /* maker-styled caps the rule would break (trim_names.KEEP_CAPS) */
+    ['F SPORT', '4MATIC'].forEach(function (k) { out = out.replace(new RegExp(k, 'i'), k); });
+    return out;
+  }
   function blockToData(b) {
     var l = b.listing || {}, dl = b.dealer || {};
     return {
       vin: l.vin || '', model: l.model || '', make: l.make || '', year: String(l.year || ''),
-      trim: l.trim || '', price: +l.price || 0, miles: +l.miles || 0,
+      trim: displayTrim(l.trim || ''), trimRaw: l.trim || '', price: +l.price || 0, miles: +l.miles || 0,
       segment: l.segment || '', bodyType: l.body_type || '', drivetrain: l.drivetrain || '',
       powertrain: l.powertrain || '', engine: l.engine || '', fuelType: l.fuel_type || '',
       cityMpg: String(l.city_mpg || ''), hwyMpg: String(l.hwy_mpg || ''), seating: String(l.seating || ''),
@@ -70,7 +93,7 @@
       dealerPhone: dl.phone || '', dealerEmail: dl.email || '', stockNo: l.stock_no || '',
       isCertified: l.certified ? 'true' : 'false', vdpUrl: l.dealer_vdp_url || '',
       heroImage: l.hero_image_url || '',
-      variantModel: l.variant_model || '', variantTrim: l.variant_trim || '',
+      variantModel: l.variant_model || '', variantTrim: displayTrim(l.variant_trim || ''),
       milesPerYear: +l.miles_per_year || 0
     };
   }
@@ -414,7 +437,7 @@
         model:        el.dataset.model || '',
         make:         el.dataset.make || '',
         year:         el.dataset.year || '',
-        trim:         el.dataset.trim || '',
+        trim:         displayTrim(el.dataset.trim || ''), trimRaw: el.dataset.trim || '',
         price:        parseFloat(el.dataset.price) || 0,
         miles:        parseFloat(el.dataset.miles) || 0,
         segment:      el.dataset.segment || '',
@@ -628,8 +651,12 @@
       var parts = [];
       if (body) parts.push(`<div class="bst-about-rich">${body}</div>`);
       else if (bespoke.listing && !bespoke.listingHtml) parts.push(`<div class="bst-about-rich"><p>${escapeHtml(bespoke.listing)}</p></div>`);
-      if (bespoke.trim) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml(trimName || 'trim')} trim</h3><div class="bst-about-rich">${bespoke.trimHtml || '<p>' + escapeHtml(bespoke.trim) + '</p>'}</div>`);
-      if (bespoke.model) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml([d.year, modelName].filter(Boolean).join(' ') || 'model')}</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.model)}</p></div>`);
+      /* GEO headings (Jason, 10/29): the full year, make, model and trim in each H3, so a lifted heading
+         stands on its own ("What the 2024 Mazda CX-50 Turbo trim includes", "The 2024 Mazda CX-50 model year"). */
+      var fullTrim  = [d.year, d.make, modelName, trimName].filter(Boolean).join(' ');
+      var fullModel = [d.year, d.make, modelName].filter(Boolean).join(' ');
+      if (bespoke.trim) parts.push(`<h3 class="bst-listing-h3">What the ${escapeHtml(fullTrim || 'trim')} trim includes</h3><div class="bst-about-rich">${bespoke.trimHtml || '<p>' + escapeHtml(bespoke.trim) + '</p>'}</div>`);
+      if (bespoke.model) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml(fullModel || 'model')} model year</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.model)}</p></div>`);
       if (questions) parts.push(`<div class="bst-about-rich bst-listing-qs">${questions}</div>`);
       return `<section class="bst-listing-card">
         <h2 class="bst-listing-h">What to know about this ${escapeHtml(name || 'car')}</h2>
@@ -1152,17 +1179,20 @@
       var has = function (lbl) { return ranks.some(function (r) { return r.label === lbl; }); };
       var every = hasVariant ? ' (every ' + l.model + ')' : '';
       var f = bb.funnel;
-      var cap = '<p>Gray is the average rank of the ' + seg.rejected.length + ' ' + seg.plural + ' Bestest rejects: ' + escapeHtml(listPhrase(seg.rejected)) + '.</p>'
+      /* 10/29 (Jason): the "Bar length is rank…" subhead is gone; the rank basis rides in the gray-bar caption.
+         Reliability caption names the source plainly: insurers' California rate filings for mechanical breakdown
+         insurance, the insured form of a vehicle service contract; no "at about 30,000 miles". */
+      var cap = '<p>Longer bars rank higher among the ' + seg.scored_models + ' ' + seg.plural + ' Bestest scores. Gray is the average rank of the '
+        + seg.rejected.length + ' ' + seg.plural + ' Bestest rejects: ' + escapeHtml(listPhrase(seg.rejected)) + '.</p>'
         + (bb.reviews_year && (has('Car and Driver rating') || has('Kelley Blue Book rating') || has('Edmunds rating'))
             ? '<p><b>Reviews:</b> Car and Driver, Kelley Blue Book and Edmunds ratings of ' + bb.reviews_year + ' models.</p>' : '')
-        + (has('Reliability') ? '<p><b>Reliability' + every + ':</b> expected repair bills at about 30,000 miles, from four insurers&rsquo; California rate filings.</p>' : '')
+        + (has('Reliability') ? '<p><b>Reliability' + every + ':</b> expected repair bills, from the rates four insurers file with the California Department of Insurance for mechanical breakdown insurance, the insured form of a vehicle service contract. Lower expected bills rank higher.</p>' : '')
         + (has('Five-year resale') ? '<p><b>Resale' + every + ':</b> value kept after five years, from CarEdge and iSeeCars.</p>' : '')
         + (f && f.as_of ? '<p><b>Listings:</b> used ' + escapeHtml(plural(l.model)) + ' for sale at Orange County dealers on ' + fmtDate(f.as_of) + ' (Marketcheck) and on Bestest today.</p>' : '');
       var sec = document.createElement('section');
       sec.className = 'bstb-card bstb-why';
       sec.innerHTML = '<h2 class="bstb-h2">The ' + escapeHtml(l.model) + ' is one of the ' + seg.listed_models + ' ' + seg.plural
         + ' you&rsquo;ll find on Bestest. Here&rsquo;s how it compares with the ' + seg.rejected.length + ' models we reject.</h2>'
-        + '<p class="bstb-sub">Bar length is rank among the ' + seg.scored_models + ' ' + seg.plural + ' Bestest scores; a full bar is first.</p>'
         + rows + '<div class="bstb-cap">' + cap + '</div>';
       return sec;
     }
