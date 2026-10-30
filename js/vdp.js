@@ -654,7 +654,14 @@
       /* GEO headings (Jason, 10/29): the full year, make, model and trim in each H3, so a lifted heading
          stands on its own ("What the 2024 Mazda CX-50 Turbo trim includes", "The 2024 Mazda CX-50 model year"). */
       var fullTrim  = [d.year, d.make, modelName, trimName].filter(Boolean).join(' ');
-      var fullModel = [d.year, d.make, modelName].filter(Boolean).join(' ');
+      /* 10/30 rule 9: a variant car whose year paragraph is the nameplate's (the Sportage Hybrid has no year row of its
+         own, so its page carries the gas 2023 Sportage paragraph) heads it with the nameplate, so the heading never
+         promises a "Sportage Hybrid model year" the paragraph doesn't describe. The paragraph names its own model in
+         its first sentence; if the variant name isn't in it, the paragraph is the nameplate's. */
+      var yearModel = modelName;
+      if (d.variantModel && d.model && d.variantModel !== d.model && bespoke.model
+          && bespoke.model.indexOf(d.variantModel) === -1) yearModel = d.model;
+      var fullModel = [d.year, d.make, yearModel].filter(Boolean).join(' ');
       if (bespoke.trim) parts.push(`<h3 class="bst-listing-h3">What the ${escapeHtml(fullTrim || 'trim')} trim includes</h3><div class="bst-about-rich">${bespoke.trimHtml || '<p>' + escapeHtml(bespoke.trim) + '</p>'}</div>`);
       if (bespoke.model) parts.push(`<h3 class="bst-listing-h3">The ${escapeHtml(fullModel || 'model')} model year</h3><div class="bst-about-rich"><p>${escapeHtml(bespoke.model)}</p></div>`);
       if (questions) parts.push(`<div class="bst-about-rich bst-listing-qs">${questions}</div>`);
@@ -1210,7 +1217,8 @@
       var card = document.createElement('div');
       card.className = slides[0].className;
       card.innerHTML = '<div class="bstb-slide"><div class="bstb-slide-logo">Best<span>est</span></div>'
-        + '<p class="bstb-slide-top">Only ' + f.listed + ' of the ' + f.oc_total + ' used ' + escapeHtml(plural(l.model)) + ' for sale in Orange County made Bestest&rsquo;s cut.</p>'
+        + (f.headline ? '<p class="bstb-slide-top">' + escapeHtml(f.headline) + '</p>'   /* 10/30 rule 10: dated, from vdp_render */
+          : '<p class="bstb-slide-top">Only ' + f.listed + ' of the ' + f.oc_total + ' used ' + escapeHtml(plural(l.model)) + ' for sale in Orange County made Bestest&rsquo;s cut.</p>')
         + '<p class="bstb-slide-big">This is one of them.</p>'
         + '<p class="bstb-slide-sm">Bestest already did the research for you. Shop the shortlist.</p></div>';
       slides[3].parentNode.insertBefore(card, slides[3]);
