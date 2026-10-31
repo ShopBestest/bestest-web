@@ -186,6 +186,10 @@
         else if (!hero.naturalHeight) hero.onerror();
       }
     }
+    // Cloudinary credits (10/31): every <img src> here mints and stores a w_1200 copy, and crawlers
+    // that render the page load all ~25 slides of every car (7K transformations/day against a
+    // ~500/day budget). Slides 2..n therefore get a src only once someone uses the slider.
+    var slideImgs = [];
     urls.forEach(function(url, i) {
       if (heroSlide && i === 0) return;
       var slide = document.createElement('div');
@@ -195,11 +199,39 @@
       img.alt = 'Vehicle photo';
       img.loading = i === 0 ? 'eager' : 'lazy';
       if (i === 0) img.setAttribute('fetchpriority', 'high');
-      img.src = cld(url, SLIDE_TX);
       img.onerror = function () { if (img.src !== url) { img.onerror = null; img.src = url; } };
+      if (i === 0) img.src = cld(url, SLIDE_TX);
+      else { img.setAttribute('data-bst-src', url); slideImgs.push(img); }
       slide.appendChild(img);
       sliderMask.appendChild(slide);
     });
+    var LOOKAHEAD = 2;
+    function loadSlides(from) {
+      for (var k = from; k < from + LOOKAHEAD + 1 && k < slideImgs.length; k++) {
+        var im = slideImgs[k], u = im.getAttribute('data-bst-src');
+        if (u) { im.removeAttribute('data-bst-src'); im.src = cld(u, SLIDE_TX); }
+      }
+    }
+    if (slideImgs.length) {
+      var sliderEl = sliderMask.closest('.w-slider') || sliderMask.parentNode;
+      var allSlides = function () { return [].slice.call(sliderMask.children); };
+      // Webflow sets aria-hidden=true on every slide but the shown one (which has no attribute); load it plus the next few.
+      var syncToVisible = function () {
+        var sl = allSlides(), at = -1;
+        for (var k = 0; k < sl.length; k++) if (sl[k].getAttribute('aria-hidden') !== 'true') { at = k; break; }
+        // slideImgs[j] sits in slide j+1 (slide 0 is the eager hero)
+        if (at >= 0) loadSlides(Math.max(0, at - 1));
+      };
+      var started = false;
+      var start = function () {
+        if (started) return;
+        started = true;
+        loadSlides(0);
+        ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(function (ev) { sliderEl.removeEventListener(ev, start, true); });
+        new MutationObserver(syncToVisible).observe(sliderMask, { attributes: true, attributeFilter: ['aria-hidden'], subtree: true });
+      };
+      ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(function (ev) { sliderEl.addEventListener(ev, start, true); });
+    }
     window.Webflow && window.Webflow.require && window.Webflow.require('slider') && window.Webflow.require('slider').redraw();
   });
 
