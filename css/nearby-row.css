@@ -1,0 +1,31 @@
+/* Bestest VDP "Also at / also nearby" row (js/nearby-row.js). Self-contained: bst-nr-* classes only, the same look as
+   the similar-cars rail in vdp.css (.bst-sc) without depending on it. Load in the VDP template alongside vdp.css. */
+
+.bst-nr { max-width: 1400px; margin: 0 auto; padding: 0 24px 40px; font-family: 'Montserrat', sans-serif; color: #0e1523; }
+.bst-nr-text { font-size: 15px; line-height: 1.55; margin: 0 0 12px; color: #0e1523; }
+.bst-nr-text:empty, .bst-nr-empty { display: none; }
+.bst-nr-link { color: #1a6f4a; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.bst-nr-link:hover { text-decoration: underline; }
+
+.bst-nr-cards { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 12px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.bst-nr-cards::-webkit-scrollbar { display: none; }
+
+.bst-nr-card {
+  flex: 0 0 220px; background: #fff; border-radius: 12px; overflow: hidden; border: 0.5px solid rgba(0,0,0,0.08);
+  text-decoration: none; color: inherit; display: flex; flex-direction: column;
+}
+.bst-nr-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.bst-nr-img { width: 100%; height: 140px; object-fit: cover; display: block; background: #eee; flex-shrink: 0; }
+.bst-nr-body { padding: 12px 13px; display: flex; flex-direction: column; flex: 1; }
+.bst-nr-check { font-size: 11px; font-weight: 600; color: #1a3d1f; display: flex; align-items: center; gap: 3px; line-height: 1.3; margin-bottom: 8px; }
+.bst-nr-check svg { width: 11px; height: 11px; fill: #31B56B; flex-shrink: 0; }
+.bst-nr-name { font-size: 13px; font-weight: 700; color: #111; line-height: 1.3; min-height: 34px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bst-nr-dealer { font-size: 12px; color: #6b7280; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bst-nr-meta { font-size: 12px; color: #6b7280; margin-bottom: 8px; }
+.bst-nr-price { font-size: 16px; font-weight: 800; color: #111; margin-top: auto; padding-top: 8px; }
+
+@media (max-width: 600px) {
+  .bst-nr { padding: 0 16px 32px; }
+  .bst-nr-text { font-size: 14px; }
+  .bst-nr-card { flex-basis: 200px; }
+}
