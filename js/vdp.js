@@ -77,8 +77,9 @@
   function getPhotos() {
     var b = readBlock();
     if (b && b.listing && b.listing.photos && b.listing.photos.length) return b.listing.photos.slice();
+    // Webflow binds the pipe-delimited URLs to data-images (attribute, not page text); textContent = old template.
     var el = document.querySelector('.photo-links');
-    var s = el ? el.textContent.trim() : '';
+    var s = el ? (el.getAttribute('data-images') || el.textContent).trim() : '';
     return s ? s.split('|').map(function(u) { return u.trim(); }).filter(Boolean) : [];
   }
 
