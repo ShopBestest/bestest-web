@@ -1,0 +1,23 @@
+# Cloudflare Worker: Bestest remote MCP server
+# Deploy: npx wrangler deploy   (see README.md)
+name = "bestest-mcp"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[vars]
+# Public, read-only inventory feed (same feed js/srp-engine.js consumes).
+FEED_URL = "https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/"
+# Seconds the feed is held in the Worker's memory + edge cache before refetching.
+FEED_CACHE_SECONDS = "300"
+SITE_URL = "https://shopbestest.com"
+# Served at /.well-known/openai-apps-challenge for the OpenAI directory domain check.
+# Leave blank until OpenAI gives you a token, then set it with:
+#   npx wrangler secret put OPENAI_APPS_CHALLENGE   (or put the value here, it is not secret)
+OPENAI_APPS_CHALLENGE = ""
+
+# Optional custom domain, e.g. mcp.shopbestest.com (uncomment after adding the zone to Cloudflare):
+# routes = [{ pattern = "mcp.shopbestest.com", custom_domain = true }]
