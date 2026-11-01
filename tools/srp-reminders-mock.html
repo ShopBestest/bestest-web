@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SRP reminders mock · compact SUVs</title>
+<!--
+  Standalone mock of a segment SRP (/used-cars/best-used-compact-suvs) for js/srp-reminders.js.
+  Open this file directly in a browser (file:// is fine, no server needed):
+    - desktop width: model chips in the editorial copy, no pill
+    - phone width (or devtools device mode): scroll past the grid and the "↑ 38 compact SUVs" pill appears
+    - apply a Price / Mileage / Year filter in the bar: chips and pill recount, chip links carry the filter
+  It runs the real js/srp-engine.js and js/bsx-band.js from this repo against the synthetic feed in
+  tools/srp-reminders-fixture.js (served to the engine as a data: URL). Add ?live=1 to use the real feed instead.
+  The markup below the grid is a trimmed copy of the Compact SUV "Editorial Section" CMS embed, including the
+  older inline "live count wiring" script it ships with, so the two can be seen coexisting.
+-->
+<link rel="stylesheet" href="../css/srp-engine.css">
+<link rel="stylesheet" href="../css/bsx-band.css">
+<link rel="stylesheet" href="../css/srp-reminders.css">
+<style>
+  /* Minimal stand-ins for the Webflow base styles the real page gets from its site CSS. */
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; background: #fff; }
+  .w-nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 24px; background: #fff; border-bottom: 1px solid #ececec; font-weight: 700; }
+  .w-nav small { font-weight: 400; color: #6b7280; }
+  .content-wrapper { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+  .srp-head-section { padding: 28px 0 8px; }
+  .srp-title { font-size: 30px; line-height: 1.2; margin: 0 0 10px; }
+  .srp-intro { font-size: 15px; line-height: 1.6; color: #374151; margin: 0 0 8px; }
+  .w-dyn-items { display: grid; gap: 20px; }
+  .w-dyn-empty { display: none; }
+  .car-card { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fff; }
+  .car-card .hero_image_url, .car-card .text-block-15, .car-card .text-block-16, .car-card .text-block-17, .car-card .text-block-18, .car-card .text-block-19 { display: none; }
+  .car-listing-name-wrapper { padding: 12px 14px 14px; }
+  .car-card .heading { font-size: 16px; margin: 0 0 4px; }
+  .div-block-10 { display: flex; gap: 6px; font-size: 13px; color: #6b7280; }
+  .car-card .price { font-size: 18px; font-weight: 700; margin: 8px 0 10px; }
+  .div-block-11 { display: flex; flex-direction: column; gap: 8px; }
+  .primary-button { display: inline-block; padding: 10px 14px; border-radius: 8px; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; text-align: center; }
+  .text-block-7 { font-size: 11px; color: #6b7280; }
+  .mock-note { margin: 12px auto 0; max-width: 1280px; padding: 10px 24px; font-size: 12px; color: #6b7280; }
+  .mock-note code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; }
+  .mock-footer { margin-top: 64px; padding: 32px 24px 48px; background: #f6f7f6; color: #6b7280; font-size: 13px; text-align: center; }
+  .bst-ed-link { color: #31B56C; }
+
+  /* Below: the styles that ship inside the CMS "Editorial Section" embed, trimmed to what the copy below uses. */
+  .bst-ed{font-family:"Lora",Georgia,"Times New Roman",serif;color:#0E1523;max-width:880px;margin:0 auto;padding:60px 1rem 0;}
+  .bst-ed *{box-sizing:border-box;}
+  .bst-ed-title{font-family:"Montserrat",sans-serif;font-weight:700;font-size:30px;line-height:1.2;margin:0 0 .5rem;color:#0E1523;scroll-margin-top:120px;}
+  .bst-ed-byline{font-size:14px;line-height:1.6;font-style:italic;color:#6f7480;margin:0 0 2.2rem;}
+  .bst-ed-h2{font-family:"Montserrat",sans-serif;font-weight:700;font-size:26px;line-height:1.25;margin:0 0 .8rem;color:#0E1523;scroll-margin-top:120px;}
+  .bst-ed-intro{font-size:16px;line-height:1.7;margin:0 0 2.6rem;}
+  .bst-ed-p{font-size:16px;line-height:1.7;margin:0 0 1.2rem;}
+  .bst-ed-grp{font-family:"Montserrat",sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#1A6F4A;margin:2.4rem 0 .4rem;}
+  .bst-ed-row{display:flex;gap:22px;padding:1.5rem 0;border-top:1px solid #e7e8ea;}
+  .bst-ed-imgwrap{width:240px;flex-shrink:0;}
+  .bst-ed-imgwrap img{width:100%;height:auto;border-radius:10px;display:block;}
+  .bst-ed-imgwrap .mock-img{width:100%;aspect-ratio:4/3;border-radius:10px;background:#e4ece7;display:flex;align-items:center;justify-content:center;color:#1a6f4a;font-family:"Montserrat",sans-serif;font-size:13px;font-weight:600;}
+  .bst-ed-body{flex:1;min-width:0;}
+  .bst-ed-name{font-family:"Montserrat",sans-serif;font-weight:700;font-size:21px;margin:0;color:#0E1523;}
+  .bst-ed-para{font-size:16px;line-height:1.7;margin:9px 0 0;}
+  .bst-ed-else{font-size:16px;line-height:1.7;margin:10px 0 0;}
+  .bst-ed-else em{font-style:italic;}
+  .bst-ed-link{display:inline-flex;align-items:center;gap:5px;margin-top:14px;color:#31B56C;font-family:"Montserrat",sans-serif;font-weight:600;font-size:13.5px;text-decoration:none;}
+  .bst-ed-link:hover{text-decoration:underline;}
+  .bst-ed-link[hidden]{display:none;}
+  .bst-ed-a{color:#1A6F4A;font-weight:600;text-decoration:none;border-bottom:1px solid #c9dfd2;}
+  .bst-ed-method{font-size:16px;line-height:1.7;margin:0;color:#0E1523;}
+  @media(max-width:600px){
+    .bst-ed-row{flex-direction:column;gap:13px;}
+    .bst-ed-imgwrap{width:100%;}
+    .bst-ed-title{font-size:25px;}
+    .bst-ed-h2{font-size:23px;}
+  }
+</style>
+<script>
+  // What the Webflow Market Segments template sets in its page head.
+  window.BS_SEGMENT = 'Compact SUV';
+</script>
+<script src="srp-reminders-fixture.js"></script>
+<script>
+  // Point srp-engine at the fixture (as a data: URL so the file works over file://), unless ?live=1.
+  (function () {
+    var live = /[?&]live=1(&|$)/.test(location.search);
+    try { sessionStorage.removeItem('bestest_feed_cache_v3'); } catch (e) {}   // the engine caches the feed for an hour
+    if (!live && window.BS_MOCK_FEED) window.BS_FEED_URL = 'data:application/json,' + encodeURIComponent(JSON.stringify(window.BS_MOCK_FEED));
+    document.documentElement.setAttribute('data-feed', live ? 'live' : 'fixture');
+  })();
+</script>
+</head>
+<body>
+
+<div class="w-nav">Bestest <small>mock · srp-reminders</small></div>
+
+<div class="mock-note">
+  Mock of <code>/used-cars/best-used-compact-suvs</code>. Feed: <strong id="mock-feed-label">fixture</strong>.
+  Resize to a phone width and scroll past the grid for the pill. Apply a Price or Mileage filter to watch the chips below recount.
+</div>
+
+<main>
+  <section class="srp-head-section">
+    <div class="content-wrapper">
+      <h1 class="srp-title">Used Compact SUVs For Sale in Orange County</h1>
+      <p class="srp-intro">The seven best compact SUVs to buy used in 2026 are the Toyota RAV4, Honda CR-V, Subaru Forester, Mazda CX-5, Mazda CX-50, Hyundai Tucson and Kia Sportage. They're the only compact SUVs you'll find for sale on Bestest, vetted across nine respected industry sources including Consumer Reports, Kelley Blue Book, and IIHS. <a href="#about-these-seven">About each model →</a></p>
+    </div>
+  </section>
+
+  <section class="section-4">
+    <div class="content-wrapper">
+      <div class="w-dyn-list">
+        <div role="list" class="collection-list-2 w-dyn-items"></div>
+        <div class="w-dyn-empty"><div>No items found.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Trimmed copy of the CMS "Editorial Section" embed (lede + 7 model cards + method paragraph) ===== -->
+  <section class="bst-ed" id="about-these-seven" aria-label="The seven best used compact SUVs">
+
+    <h2 class="bst-ed-title">The Seven Best Used Compact SUVs on Sale in 2026</h2>
+    <p class="bst-ed-byline">By Jason Allan · Founder: Bestest · Former: Head of vehicle reviews and ratings at Kelley Blue Book · Updated October 2026</p>
+
+    <p class="bst-ed-intro">Only 7 of the 13 compact SUVs Bestest scores qualify as good enough for Bestest shoppers. We've driven and evaluated each and every one of these SUVs, and we've been tracking their reliability, safety and resale value for a couple decades in some cases. With the most important research and vetting already done, you're free to choose the one that's as roomy or comfy or sporty or rugged as you want.</p>
+
+    <p class="bst-ed-grp">The Gold Standards</p>
+
+    <article class="bst-ed-row">
+      <div class="bst-ed-imgwrap"><div class="mock-img">Toyota RAV4</div></div>
+      <div class="bst-ed-body">
+        <h3 class="bst-ed-name">Toyota RAV4</h3>
+        <p class="bst-ed-para">The highly regarded and wildly popular RAV4 pairs the second-best reliability of the 13, measured by repair bills, with the strongest resale value in its class, two of so many reasons it's one of the easiest-to-recommend used cars on the market.</p>
+        <p class="bst-ed-else"><em>What else to know.</em> Refreshed in 2022, completely redesigned in 2026. The 2019–2025 generation isn't quite as refined as the other compact SUV benchmark, the Honda CR-V.</p>
+        <a class="bst-ed-link" data-model="RAV4" href="/used-cars/best-used-compact-suvs?model=RAV4"><span class="bst-ed-ct"></span>Bestest listings →</a>
+      </div>
+    </article>
+
+    <article class="bst-ed-row">
+      <div class="bst-ed-imgwrap"><div class="mock-img">Honda CR-V</div></div>
+      <div class="bst-ed-body">
+        <h3 class="bst-ed-name">Honda CR-V</h3>
+        <p class="bst-ed-para">The CR-V is the RAV4's closest rival in every way that matters. It's roomy, efficient, well-built and satisfying to drive, with the best reliability of the 13 compact SUVs Bestest scores, measured by repair bills, and resale about as strong as anything on the road.</p>
+        <p class="bst-ed-else"><em>What else to know.</em> Completely redesigned in 2023, refreshed in 2026. Used examples hold their value very well, so be prepared to pay more than you would for a comparable Tucson or Sportage.</p>
+        <a class="bst-ed-link" data-model="CR-V" href="/used-cars/best-used-compact-suvs?model=CR-V"><span class="bst-ed-ct"></span>Bestest listings →</a>
+      </div>
+    </article>
+
+    <p class="bst-ed-grp">Personality Plus</p>
+
+    <article class="bst-ed-row">
+      <div class="bst-ed-imgwrap"><div class="mock-img">Mazda CX-5</div></div>
+      <div class="bst-ed-body">
+        <h3 class="bst-ed-name">Mazda CX-5</h3>
+        <p class="bst-ed-para">The CX-5 has long been the most stylish, most fun-to-drive compact SUV money can buy, and its interior punches well above its price.</p>
+        <p class="bst-ed-else"><em>What else to know.</em> Refreshed in 2022, completely redesigned in 2026. The CX-5's back seat and cargo hold are tighter than most compact SUVs.</p>
+        <a class="bst-ed-link" data-model="CX-5" href="/used-cars/best-used-compact-suvs?model=CX-5"><span class="bst-ed-ct"></span>Bestest listings →</a>
+      </div>
+    </article>
+
+    <article class="bst-ed-row">
+      <div class="bst-ed-imgwrap"><div class="mock-img">Mazda CX-50</div></div>
+      <div class="bst-ed-body">
+        <h3 class="bst-ed-name">Mazda CX-50</h3>
+        <p class="bst-ed-para">The CX-5's newer, larger, more outdoorsy sibling, and the newest nameplate on this roster. It keeps Mazda's hallmark driving feel and upscale interior, but adds a more rugged stance and a bit of genuine trail capability.</p>
+        <p class="bst-ed-else"><em>What else to know.</em> New for 2023. Technology lovers should know Mazda's tech suite tends to lag a bit behind in capability. <strong>(Fixture has no CX-50 for sale, so no chip should render here.)</strong></p>
+        <a class="bst-ed-link" data-model="CX-50" href="/used-cars/best-used-compact-suvs?model=CX-50"><span class="bst-ed-ct"></span>Bestest listings →</a>
+      </div>
+    </article>
+
+    <article class="bst-ed-row">
+      <div class="bst-ed-imgwrap"><div class="mock-img">Subaru Forester</div></div>
+      <div class="bst-ed-body">
+        <h3 class="bst-ed-name">Subaru Forester</h3>
+        <p class="bst-ed-para">With a more robust all-wheel drive system and greater ground clearance than competitors, the Forester's reputation as the outdoorsy one of the group is well-earned.</p>
+        <p class="bst-ed-else"><em>What else to know.</em> Refreshed in 2022, completely redesigned in 2025. The Forester's infotainment system lags the competition in most regards.</p>
+        <a class="bst-ed-link" data-model="Forester" href="/used-cars/best-used-compact-suvs?model=Forester"><span class="bst-ed-ct"></span>Bestest listings →</a>
+      </div>
+    </article>
+
+    <p class="bst-ed-grp">Bang for the Buck</p>
+
+    <article class="bst-ed-row">
+      <div class="bst-ed-imgwrap"><div class="mock-img">Hyundai Tucson</div></div>
+      <div class="bst-ed-body">
+        <h3 class="bst-ed-name">Hyundai Tucson</h3>
+        <p class="bst-ed-para">The Tucson combines distinctive styling, a longer list of standard features than most rivals at the same price, and a longer-than-most warranty.</p>
+        <p class="bst-ed-else"><em>What else to know.</em> Completely redesigned in 2022, refreshed in 2025. Stay away from the 2022 gas model, whose engine had a pattern of fuel-injector failures in the first year of the redesign.</p>
+        <a class="bst-ed-link" data-model="Tucson" href="/used-cars/best-used-compact-suvs?model=Tucson"><span class="bst-ed-ct"></span>Bestest listings →</a>
+      </div>
+    </article>
+
+    <article class="bst-ed-row">
+      <div class="bst-ed-imgwrap"><div class="mock-img">Kia Sportage</div></div>
+      <div class="bst-ed-body">
+        <h3 class="bst-ed-name">Kia Sportage</h3>
+        <p class="bst-ed-para">Mechanical kin to the Tucson, and built on the same appeal: lots of equipment per dollar, a long warranty, bold design and great tech.</p>
+        <p class="bst-ed-else"><em>What else to know.</em> Completely redesigned in 2023, refreshed in 2026. On a three- or four-year-old car the 5-year/60,000-mile bumper-to-bumper coverage is still running.</p>
+        <a class="bst-ed-link" data-model="Sportage" href="/used-cars/best-used-compact-suvs?model=Sportage"><span class="bst-ed-ct"></span>Bestest listings →</a>
+      </div>
+    </article>
+
+  </section>
+
+  <section class="bst-ed" id="why-these-seven" aria-label="How Bestest scores compact SUVs">
+    <h2 class="bst-ed-h2">Why only these seven?</h2>
+    <p class="bst-ed-method">We score every compact SUV on expert ratings, our own experience, reliability and resale value, incorporating trusted data from Kelley Blue Book, Edmunds, Car and Driver, Motor Trend, CarEdge and iSeeCars. Reliability is measured by repair bills: what insurers expect to pay to fix a used car bought with about 30,000 miles. Most used-car shoppers are (or should be) looking first and foremost for a reliable car that holds its value, so our proprietary algorithm weighs those measures higher than any others.</p>
+    <p class="bst-ed-p" style="margin-top:1.2rem">(The scoring chart, the six-models-we-don't-list section and the FAQ are omitted from this mock. On the live page they add roughly two more screens of copy below this point, which is exactly where the pill earns its keep.)</p>
+  </section>
+
+  <!-- The CMS embed ships this older count script; kept here on purpose so the mock proves srp-reminders coexists with it. -->
+  <script>
+  /* Live count wiring. */
+  (function(){
+    var FLOOR = 1;
+    var TRIES = 40;
+    function readCounts(){
+      var map = {};
+      document.querySelectorAll('.bsx-chip[data-model]').forEach(function(c){
+        var ct = c.querySelector('.bsx-ct');
+        var n = ct ? parseInt(ct.textContent.replace(/\D/g,''),10) : NaN;
+        if(!isNaN(n)) map[c.getAttribute('data-model')] = n;
+      });
+      return map;
+    }
+    function apply(){
+      var map = readCounts();
+      if(Object.keys(map).length === 0) return false;
+      document.querySelectorAll('.bst-ed-link[data-model]').forEach(function(link){
+        var n = map[link.getAttribute('data-model')];
+        var ct = link.querySelector('.bst-ed-ct');
+        if(typeof n === 'number' && n >= FLOOR){
+          if(ct) ct.textContent = n + ' ';
+          link.hidden = false;
+        } else {
+          link.hidden = true;
+        }
+      });
+      return true;
+    }
+    var n = 0;
+    var timer = setInterval(function(){
+      if(apply() || ++n >= TRIES) clearInterval(timer);
+    }, 250);
+  })();
+  </script>
+</main>
+
+<footer class="mock-footer">Bestest · mock page · nothing here is live inventory</footer>
+
+<script>document.getElementById('mock-feed-label').textContent = document.documentElement.getAttribute('data-feed');</script>
+<!-- Same load order as the Webflow template custom code: engine, band, then reminders. -->
+<script src="../js/srp-engine.js" defer></script>
+<script src="../js/bsx-band.js" defer></script>
+<script src="../js/srp-reminders.js" defer></script>
+</body>
+</html>
