@@ -1,0 +1,18 @@
+<!-- VDP "Also at / also nearby" row: built as NATIVE elements on the VDPs Template (11/2), not an HTML Embed.
+     Webflow's API stores embed code without real CMS bindings, so the row is three native elements, placed directly
+     before the hidden similar-car lists (.bst-same-model-list); js/nearby-row.js moves it above .bst-similar-wrap.
+
+     Rendered shape (what the CMS bindings produce):
+-->
+<div class="bst-nr" data-bst-nearby data-dealer="{dealer-name}" data-city="{dealer-city}" data-segment="{market-segment}" data-slug="{slug}">
+  <p class="bst-nr-text">{nearby-row-text}</p>
+  <a class="bst-nr-link" href="{nearby-row-url}">See them all</a>
+</div>
+<!-- Webflow side:
+     - Div Block, class bst-nr (Webflow style: max-width 1400px; display none). Custom attributes: data-bst-nearby (static),
+       data-dealer / data-city / data-segment / data-slug bound to dealer-name / dealer-city / market-segment / slug.
+     - Paragraph, class bst-nr-text, text bound to nearby-row-text (PlainText).
+     - Text Link, class bst-nr-link, "See them all", URL bound to nearby-row-url (Link field; Webflow only binds link
+       URLs to Link fields).
+     - No conditional visibility (the API cannot bind it outside a CMS list): the row stays hidden until css/nearby-row.css
+       shows .bst-nr when its text is not w-dyn-bind-empty. -->

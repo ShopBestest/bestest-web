@@ -1,0 +1,13 @@
+<!-- VDP seller -> auto center schema: NOT a template embed (rev 11/2).
+
+     The VDPs collection is at Webflow's 60-custom-field cap, so it carries only nearby-row-text and nearby-row-url, with
+     no auto-center-slug / auto-center-name to bind a server-rendered containedInPlace to. js/nearby-row.js adds it at
+     runtime instead: it finds the center from the dealer name in data/auto-centers.json and patches
+
+       "containedInPlace": { "@type": "Place", "@id": "https://shopbestest.com/auto-centers/{slug}#place",
+                             "name": "{center name}", "url": "https://shopbestest.com/auto-centers/{slug}" }
+
+     into the existing Car JSON-LD's offers.seller (Google renders JS, so it sees it; non-rendering AI fetchers do not).
+     The @id matches the Place node on the hub page (auto_center_pages.py), so the two pages share one entity.
+     If a VDP field slot frees up later, add auto-center-slug + auto-center-name and put the block above, bound to them,
+     into the native Car JSON-LD embed's seller. -->
