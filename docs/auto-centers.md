@@ -72,7 +72,7 @@ table of the same name (`AUTO_CENTERS_WF_CID` + `AUTO_CENTERS_AT_TABLE`). Fields
 | `json-ld` | Plain text | page settings head custom code: `{{json-ld}}` (it is already a full `<script type="application/ld+json">` block, under 9,500 chars) |
 | `dealer-count`, `car-count` | Number | optional stat line |
 | `date-modified` | Date | "Updated" line / sitemap |
-| `lat`, `lng` | Number | optional map |
+| `lat`, `lng` | Number | not pushed (created integer-format in Webflow; coordinates stay in Airtable) |
 
 Breadcrumb suggestion: Home > Auto centers > {h1}. Add `/auto-centers/` to the sitemap and to `llms.txt` once live
 (a one-line list of the 18 hubs; not in this PR, since the pages do not exist yet).
