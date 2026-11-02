@@ -1,0 +1,65 @@
+/* srp-reminders.css — styles for js/srp-reminders.js (model chips + mobile pill). */
+
+/* ── Model chips (a.bst-ed-link in the editorial section, upgraded at runtime) ─────────── */
+a.bsr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 7px 13px;
+  border: 1px solid #c9dfd2;
+  border-radius: 999px;
+  background: #f0f7f2;
+  color: #1a6f4a;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease;
+}
+a.bsr-chip:hover { background: #e3f1e8; border-color: #1a6f4a; text-decoration: none; }
+a.bsr-chip:focus-visible { outline: 2px solid #1a6f4a; outline-offset: 2px; }
+a.bsr-chip .bsr-chip-arrow { font-weight: 400; }
+/* 0 for sale: nothing. The class wins over the hidden attribute the older inline count
+   script in the CMS embed toggles, in both directions. */
+a.bsr-chip.bsr-chip-empty { display: none !important; }
+a.bsr-chip[hidden]:not(.bsr-chip-empty) { display: inline-flex; }
+
+/* ── Mobile pill ("↑ 143 compact SUVs") ────────────────────────────────────────────────── */
+.bsr-pill {
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  z-index: 9996;                      /* under the filter dropdowns (9999) and the sticky band (9997) */
+  display: none;                      /* desktop: never */
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: #1a6f4a;
+  color: #fff;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .22);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition: opacity .2s ease, transform .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 767px) {
+  .bsr-pill { display: inline-flex; }
+}
+.bsr-pill.bsr-on { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+.bsr-pill:active { background: #155b3d; }
+.bsr-pill .bsr-pill-arrow { font-size: 15px; }
+@media (prefers-reduced-motion: reduce) {
+  .bsr-pill { transition: none; }
+}
