@@ -1,14 +1,18 @@
-<!-- VDP "Also at / also nearby" row: paste into an HTML Embed on the VDPs Template, directly ABOVE the similar-cars
-     rails (.bst-similar-wrap). Set the embed's conditional visibility to "nearby-row-text is set".
-     The {{wf ...}} tokens are Webflow's stored form of CMS field bindings (same form as dist/vdp-head.html); in the
-     Designer you can also insert each one with "+ Add Field" inside the embed. Fields: the two new ones
-     (nearby-row-text, nearby-row-url; the VDPs collection is at Webflow's 60-field cap, so there is no center field and
-     js/nearby-row.js finds the center from dealer-name) plus four that already exist on VDPs
-     (dealer-name, dealer-city, market-segment, slug). Server-rendered text + link work with no JS; js/nearby-row.js adds the cards. -->
-<div class="bst-nr" data-bst-nearby
-     data-dealer="{{wf {&quot;path&quot;:&quot;dealer-name&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}"
-     data-city="{{wf {&quot;path&quot;:&quot;dealer-city&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}"
-     data-segment="{{wf {&quot;path&quot;:&quot;market-segment&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}"
-     data-slug="{{wf {&quot;path&quot;:&quot;slug&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}">
-  <p class="bst-nr-text">{{wf {&quot;path&quot;:&quot;nearby-row-text&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }} <a class="bst-nr-link" href="{{wf {&quot;path&quot;:&quot;nearby-row-url&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}">See them all</a></p>
+<!-- VDP "Also at / also nearby" row: built as NATIVE elements on the VDPs Template (11/2), not an HTML Embed.
+     Webflow's API stores embed code without real CMS bindings, so the row is three native elements, placed directly
+     before the hidden similar-car lists (.bst-same-model-list); js/nearby-row.js moves it above .bst-similar-wrap.
+
+     Rendered shape (what the CMS bindings produce):
+-->
+<div class="bst-nr" data-bst-nearby data-dealer="{dealer-name}" data-city="{dealer-city}" data-segment="{market-segment}" data-slug="{slug}">
+  <p class="bst-nr-text">{nearby-row-text}</p>
+  <a class="bst-nr-link" href="{nearby-row-url}">See them all</a>
 </div>
+<!-- Webflow side:
+     - Div Block, class bst-nr (Webflow style: max-width 1400px; display none). Custom attributes: data-bst-nearby (static),
+       data-dealer / data-city / data-segment / data-slug bound to dealer-name / dealer-city / market-segment / slug.
+     - Paragraph, class bst-nr-text, text bound to nearby-row-text (PlainText).
+     - Text Link, class bst-nr-link, "See them all", URL bound to nearby-row-url (Link field; Webflow only binds link
+       URLs to Link fields).
+     - No conditional visibility (the API cannot bind it outside a CMS list): the row stays hidden until css/nearby-row.css
+       shows .bst-nr when its text is not w-dyn-bind-empty. -->

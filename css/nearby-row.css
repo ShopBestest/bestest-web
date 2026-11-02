@@ -2,6 +2,12 @@
    the similar-cars rail in vdp.css (.bst-sc) without depending on it. Load in the VDP template alongside vdp.css. */
 
 .bst-nr { max-width: 1400px; margin: 0 auto; padding: 0 24px 40px; font-family: 'Montserrat', sans-serif; color: #0e1523; }
+/* The Webflow class bst-nr is display:none (Webflow cannot bind visibility outside a CMS list), so the row shows only
+   when its sentence is set; Webflow marks an empty bound text w-dyn-bind-empty. */
+.bst-nr:has(.bst-nr-text:not(.w-dyn-bind-empty):not(:empty)) { display: block; }
+.bst-nr .bst-nr-text { display: inline; }
+.bst-nr .bst-nr-link { margin-left: 4px; }
+.bst-nr .bst-nr-cards { margin-top: 12px; }
 .bst-nr-text { font-size: 15px; line-height: 1.55; margin: 0 0 12px; color: #0e1523; }
 .bst-nr-text:empty, .bst-nr-empty { display: none; }
 .bst-nr-link { color: #1a6f4a; font-weight: 600; text-decoration: none; white-space: nowrap; }

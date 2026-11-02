@@ -152,6 +152,9 @@
   onReady(function () {
     var el = document.querySelector('[data-bst-nearby]');
     if (!el) return;
+    // The template places the row before the hidden lists; vdp.js builds the similar-cars rails later, so sit directly above them
+    function place() { var sim = document.querySelector('.bst-similar-wrap'); if (sim && el.nextElementSibling !== sim) sim.parentNode.insertBefore(el, sim); }
+    place(); window.addEventListener('load', place);
     var textEl = el.querySelector('.bst-nr-text') || el;
     if (!(textEl.textContent || '').trim()) { el.classList.add('bst-nr-empty'); return; }
     var ctx = {
@@ -199,7 +202,8 @@
         row.className = 'bst-nr-cards';
         row.setAttribute('data-bst-tier', String(chosen.tier));
         row.innerHTML = cards.map(function (c) { return cardHTML(c, chosen.tier, center); }).join('');
-        textEl.insertAdjacentElement('afterend', row);
+        var after = textEl.nextElementSibling && textEl.nextElementSibling.classList.contains('bst-nr-link') ? textEl.nextElementSibling : textEl;
+        after.insertAdjacentElement('afterend', row);
         el.classList.add('bst-nr-ready');
         row.addEventListener('click', function (e) {
           var a = e.target.closest && e.target.closest('.bst-nr-card');
