@@ -2,12 +2,13 @@
      rails (.bst-similar-wrap). Set the embed's conditional visibility to "nearby-row-text is set".
      The {{wf ...}} tokens are Webflow's stored form of CMS field bindings (same form as dist/vdp-head.html); in the
      Designer you can also insert each one with "+ Add Field" inside the embed. Fields: the four Jason creates
-     (nearby-row-text, nearby-row-url, auto-center-slug, auto-center-name) plus three that already exist on VDPs
-     (dealer-name, market-segment, slug). Server-rendered text + link work with no JS; js/nearby-row.js adds the cards. -->
+     (nearby-row-text, nearby-row-url, auto-center-slug, auto-center-name) plus four that already exist on VDPs
+     (dealer-name, dealer-city, market-segment, slug). Server-rendered text + link work with no JS; js/nearby-row.js adds the cards. -->
 <div class="bst-nr" data-bst-nearby
      data-center-slug="{{wf {&quot;path&quot;:&quot;auto-center-slug&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}"
      data-center-name="{{wf {&quot;path&quot;:&quot;auto-center-name&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}"
      data-dealer="{{wf {&quot;path&quot;:&quot;dealer-name&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}"
+     data-city="{{wf {&quot;path&quot;:&quot;dealer-city&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}"
      data-segment="{{wf {&quot;path&quot;:&quot;market-segment&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}"
      data-slug="{{wf {&quot;path&quot;:&quot;slug&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}">
   <p class="bst-nr-text">{{wf {&quot;path&quot;:&quot;nearby-row-text&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }} <a class="bst-nr-link" href="{{wf {&quot;path&quot;:&quot;nearby-row-url&quot;,&quot;type&quot;:&quot;PlainText&quot;\} }}">See them all</a></p>

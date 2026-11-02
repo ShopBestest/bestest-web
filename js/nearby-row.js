@@ -2,13 +2,14 @@
 
    Contract (the VDP template renders this from CMS fields; see embeds/vdp-nearby-row.html):
      <div data-bst-nearby data-center-slug="tustin-auto-center" data-center-name="Tustin Auto Center"
-          data-dealer="Tustin Toyota" data-segment="Compact SUV" data-slug="2023-toyota-rav4-xle-123456"
+          data-dealer="Tustin Toyota" data-city="Tustin" data-segment="Compact SUV" data-slug="2023-toyota-rav4-xle-123456"
           data-cars="slug-a,slug-b">                       <- optional: an explicit list wins over the derivation below
        <p class="bst-nr-text">Also at the Tustin Auto Center: ... <a class="bst-nr-link" href="/auto-centers/tustin-auto-center">See them all</a></p>
      </div>
    With no JS the sentence and link still show. This script adds 5-8 small car cards under the sentence from the
-   public inventory feed, using the same tiers as auto_centers.py (pipeline): same segment at the center -> any car
-   at the center -> same segment within 3/6/10 miles of the dealer. It needs at least 5 cards or it adds nothing.
+   public inventory feed, using the same tiers as auto_centers.py (pipeline): 1 same segment at the center -> 2 any car
+   at the center -> 3 same segment in the dealer's city -> 4 any car in the city -> 5 same segment within 3/6/10 miles
+   of the dealer. It needs at least 5 cards or it adds nothing.
    It also adds containedInPlace (the auto center as a schema.org Place) to the page's Car offers.seller, if the page
    already carries Car JSON-LD and the car sits at a center. Nothing else on the page is touched.
 
@@ -79,6 +80,15 @@
         return { tier: 2, cars: sameSeg.sort(byDefault).concat(rest) };
       }
     }
+    if (ctx.city) {
+      var inCity = others.filter(function (c) { return c.dc === ctx.city; });
+      var cityScore = seg ? inCity.filter(function (c) { return c.sg === seg; }) : [];
+      if (cityScore.length >= MIN_CARDS) return { tier: 3, cars: cityScore.sort(byDefault) };
+      if (inCity.length >= MIN_CARDS) {
+        var cityRest = inCity.filter(function (c) { return c.sg !== seg; }).sort(byDefault);
+        return { tier: 4, cars: cityScore.sort(byDefault).concat(cityRest) };
+      }
+    }
     var origin = (me && coords(me)) || dealerCoords(ctx.dealer, feed) || (center && num(center.lat) != null ? { lat: num(center.lat), lng: num(center.lng) } : null);
     if (!origin || !seg) return null;
     for (var i = 0; i < RADII.length; i++) {
@@ -87,7 +97,7 @@
       if (near.length >= MIN_CARDS) {
         near.forEach(function (c) { var p = coords(c); c._d = miles(origin.lat, origin.lng, p.lat, p.lng); });
         near.sort(function (a, b) { return a._d - b._d; });
-        return { tier: 3, cars: near };
+        return { tier: 5, cars: near };
       }
     }
     return null;
@@ -106,7 +116,7 @@
       + '<div class="bst-nr-body">'
       + '<div class="bst-nr-check">' + CHECK + ' Bestest-approved</div>'
       + '<div class="bst-nr-name">' + esc(title) + '</div>'
-      + '<div class="bst-nr-dealer">' + esc(c.dn || '') + (tier === 3 && c._d != null && c._d >= 0.1 ? ' · ' + (c._d < 1.5 ? '1 mi' : Math.round(c._d) + ' mi') : '') + '</div>'
+      + '<div class="bst-nr-dealer">' + esc(c.dn || '') + (tier === 5 && c._d != null && c._d >= 0.1 ? ' · ' + (c._d < 1.5 ? '1 mi' : Math.round(c._d) + ' mi') : '') + '</div>'
       + '<div class="bst-nr-meta">' + esc(fmtMiles(c.mi)) + '</div>'
       + '<div class="bst-nr-price">' + esc(fmtPrice(c.p)) + '</div>'
       + '</div></a>';
@@ -145,6 +155,7 @@
     var ctx = {
       centerSlug: el.getAttribute('data-center-slug') || '',
       dealer: el.getAttribute('data-dealer') || '',
+      city: el.getAttribute('data-city') || '',
       segment: el.getAttribute('data-segment') || '',
       slug: el.getAttribute('data-slug') || (window.location.pathname.split('/').filter(Boolean).pop() || ''),
       cars: (el.getAttribute('data-cars') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean)
@@ -162,7 +173,7 @@
         }
         var me = null;
         for (var j = 0; j < feed.length; j++) if (feed[j].slug === ctx.slug) { me = feed[j]; break; }
-        if (me) { ctx.segment = ctx.segment || me.sg || ''; ctx.dealer = ctx.dealer || me.dn || ''; }
+        if (me) { ctx.segment = ctx.segment || me.sg || ''; ctx.dealer = ctx.dealer || me.dn || ''; ctx.city = ctx.city || me.dc || ''; }
         addContainedInPlace(center);
 
         var chosen;

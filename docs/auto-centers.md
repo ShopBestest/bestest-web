@@ -19,7 +19,7 @@ The template renders (from CMS fields, no JS):
 
 ```html
 <div class="bst-nr" data-bst-nearby data-center-slug="tustin-auto-center" data-center-name="Tustin Auto Center"
-     data-dealer="Tustin Toyota" data-segment="Compact SUV" data-slug="2023-toyota-rav4-xle-123456">
+     data-dealer="Tustin Toyota" data-city="Tustin" data-segment="Compact SUV" data-slug="2023-toyota-rav4-xle-123456">
   <p class="bst-nr-text">Also at the Tustin Auto Center: 10 more Bestest-approved compact SUVs at Tustin Toyota, Tustin Kia
   and 2 other dealers. All at the same auto center as this RAV4, so you can see and drive them back to back.
   <a class="bst-nr-link" href="/auto-centers/tustin-auto-center">See them all</a></p>
@@ -27,7 +27,8 @@ The template renders (from CMS fields, no JS):
 ```
 
 `nearby-row.js` then fetches the feed and `data/auto-centers.json`, re-derives the same tier the pipeline used
-(same segment at the center, any car at the center, same segment within 3/6/10 miles), and inserts
+(1 same segment at the center, 2 any car at the center, 3 same segment in the dealer's city, 4 any car in the city,
+5 same segment within 3/6/10 miles), and inserts
 `<div class="bst-nr-cards">` with up to 8 `<a class="bst-nr-card">` cards. Under 5 candidates: no cards, the sentence
 stays. An optional `data-cars="slug,slug,..."` attribute wins over the derivation (not written today; the four CMS
 fields are the whole contract).
@@ -81,4 +82,4 @@ Breadcrumb suggestion: Home > Auto centers > {h1}. Add `/auto-centers/` to the s
 node --check js/nearby-row.js
 ```
 
-A Playwright smoke test (fixture VDP with the embed + a fake feed) ran during the build; see the PR description.
+A Playwright smoke test (fixture VDP with the embed + the real feed snapshot) ran during the build; see the PR description.
