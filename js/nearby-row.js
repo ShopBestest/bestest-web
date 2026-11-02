@@ -81,10 +81,11 @@
       }
     }
     if (ctx.city) {
+      // city tiers need a second dealer in the pool (a dealer alone in its city falls through to the radius search)
       var inCity = others.filter(function (c) { return c.dc === ctx.city; });
       var cityScore = seg ? inCity.filter(function (c) { return c.sg === seg; }) : [];
-      if (cityScore.length >= MIN_CARDS) return { tier: 3, cars: cityScore.sort(byDefault) };
-      if (inCity.length >= MIN_CARDS) {
+      if (cityScore.length >= MIN_CARDS && dealersIn(cityScore) >= 2) return { tier: 3, cars: cityScore.sort(byDefault) };
+      if (inCity.length >= MIN_CARDS && dealersIn(inCity) >= 2) {
         var cityRest = inCity.filter(function (c) { return c.sg !== seg; }).sort(byDefault);
         return { tier: 4, cars: cityScore.sort(byDefault).concat(cityRest) };
       }
@@ -102,6 +103,7 @@
     }
     return null;
   }
+  function dealersIn(list) { var seen = {}, n = 0; list.forEach(function (c) { if (c.dn && !seen[c.dn]) { seen[c.dn] = true; n++; } }); return n; }
   function dealerCoords(dn, feed) {
     for (var i = 0; i < feed.length; i++) if (feed[i].dn === dn && coords(feed[i])) return coords(feed[i]);
     return null;

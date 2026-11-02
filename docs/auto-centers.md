@@ -28,7 +28,7 @@ The template renders (from CMS fields, no JS):
 
 `nearby-row.js` then fetches the feed and `data/auto-centers.json`, re-derives the same tier the pipeline used
 (1 same segment at the center, 2 any car at the center, 3 same segment in the dealer's city, 4 any car in the city,
-5 same segment within 3/6/10 miles), and inserts
+both needing a second dealer in the pool, 5 same segment within 3/6/10 miles), and inserts
 `<div class="bst-nr-cards">` with up to 8 `<a class="bst-nr-card">` cards. Under 5 candidates: no cards, the sentence
 stays. An optional `data-cars="slug,slug,..."` attribute wins over the derivation (not written today; the four CMS
 fields are the whole contract).
