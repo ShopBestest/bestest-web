@@ -1,9 +1,9 @@
 /* Bestest VDP "Also at / also nearby" row (2026-11-01). Progressive enhancement over a server-rendered element.
 
    Contract (the VDP template renders this from CMS fields; see embeds/vdp-nearby-row.html):
-     <div data-bst-nearby data-center-slug="tustin-auto-center" data-center-name="Tustin Auto Center"
-          data-dealer="Tustin Toyota" data-city="Tustin" data-segment="Compact SUV" data-slug="2023-toyota-rav4-xle-123456"
+     <div data-bst-nearby data-dealer="Tustin Toyota" data-city="Tustin" data-segment="Compact SUV" data-slug="2023-toyota-rav4-xle-123456"
           data-cars="slug-a,slug-b">                       <- optional: an explicit list wins over the derivation below
+     The center comes from the dealer name via data/auto-centers.json (an optional data-center-slug still wins).
        <p class="bst-nr-text">Also at the Tustin Auto Center: ... <a class="bst-nr-link" href="/auto-centers/tustin-auto-center">See them all</a></p>
      </div>
    With no JS the sentence and link still show. This script adds 5-8 small car cards under the sentence from the
@@ -176,6 +176,13 @@
         var me = null;
         for (var j = 0; j < feed.length; j++) if (feed[j].slug === ctx.slug) { me = feed[j]; break; }
         if (me) { ctx.segment = ctx.segment || me.sg || ''; ctx.dealer = ctx.dealer || me.dn || ''; ctx.city = ctx.city || me.dc || ''; }
+        if (!center && !ctx.centerSlug && ctx.dealer) {
+          // VDPs carry no center field (Webflow field cap, 11/2): find the center by dealer name in the data file
+          var dl = ctx.dealer.toLowerCase();
+          for (var k = 0; k < centers.length && !center; k++) {
+            if ((centers[k].dealers || []).some(function (d) { return d.toLowerCase() === dl; })) center = centers[k];
+          }
+        }
         addContainedInPlace(center);
 
         var chosen;
