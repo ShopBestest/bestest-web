@@ -293,6 +293,13 @@
     var band = document.getElementById('bsx-band');
     var sticky = document.getElementById('bsx-sticky');
     if (!band || !sticky) return;
+    // A hidden band (model pages hide it via .bs-nocars) reports bottom 0, which read as
+    // "scrolled past" and swapped the site header for the sticky bar at the top of the page.
+    if (!band.getClientRects().length) {
+      sticky.classList.remove('bsx-svisible');
+      document.body.classList.remove('bsx-sticky-on');
+      return;
+    }
     var rect = band.getBoundingClientRect();
     var fadeStart = 80;
     var fadeEnd = 0;
