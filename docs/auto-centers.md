@@ -68,7 +68,7 @@ table of the same name (`AUTO_CENTERS_WF_CID` + `AUTO_CENTERS_AT_TABLE`). Fields
 | `page-title`, `meta-description` | Plain text | page settings title / description |
 | `intro` | Plain text | optional lead paragraph (also the first `<p>` of body-html) |
 | `body-html` | Rich text | the main column (h2, p, ul, li, a, strong only) |
-| `jsonld` | Plain text | page settings head custom code: `{{jsonld}}` (it is already a full `<script type="application/ld+json">` block, under 9,500 chars) |
+| `json-ld` | Plain text | page settings head custom code: `{{json-ld}}` (it is already a full `<script type="application/ld+json">` block, under 9,500 chars) |
 | `dealer-count`, `car-count` | Number | optional stat line |
 | `date-modified` | Date | "Updated" line / sitemap |
 | `lat`, `lng` | Number | optional map |
