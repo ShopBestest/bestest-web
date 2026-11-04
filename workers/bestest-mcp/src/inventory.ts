@@ -80,13 +80,16 @@ export interface SearchResult {
   sort: SortKey;
 }
 
-// Powertrain vocab seen in the feed (mirrors HYBRID_PT and the powertrain filter in js/srp-engine.js).
+// Powertrain vocab (mirrors HYBRID_PT and the powertrain filter in js/srp-engine.js). Live feed
+// 2026-11-04: Combustion, MHEV, Hybrid, PHEV, EV, and one null. MHEV (mild hybrid) counts as gas,
+// as on the site; HEV/BEV/Plug-in Hybrid spellings are kept for older records.
 const HYBRID_PT = new Set(['hev', 'hybrid']);
 const PHEV_PT = new Set(['phev', 'plug-in hybrid', 'plug in hybrid', 'plugin hybrid']);
 const ELECTRIC_PT = new Set(['bev', 'ev', 'electric']);
 
-// Segment pages on shopbestest.com (SEGMENT_TO_SLUG in js/srp-engine.js). 'Hybrids' and
-// 'Electric Vehicles' are virtual segments the site resolves by powertrain.
+// Segment pages on shopbestest.com (SEGMENT_TO_SLUG in js/srp-engine.js). In the live feed
+// 'Electric Vehicles' is a real `sg` value (every EV carries it); 'Hybrids' is virtual: a RAV4
+// Hybrid stays a Compact SUV and the site resolves the Hybrids page by powertrain.
 export const SEGMENT_PATHS: Record<string, string> = {
   'Compact Car': '/used-cars/best-used-compact-cars',
   'Midsize/Full-size Car': '/used-cars/best-used-midsize-cars',
@@ -108,9 +111,12 @@ export const SEGMENT_PATHS: Record<string, string> = {
   'Luxury Full-Size SUV': '/used-cars/best-used-luxury-full-size-suvs'
 };
 
-export const VIRTUAL_SEGMENTS: Record<string, PowertrainFilter> = {
-  Hybrids: 'hybrid',
-  'Electric Vehicles': 'electric'
+// Powertrains each virtual segment matches. Hybrids includes plug-ins, as HYBRID_PT does in
+// js/srp-engine.js. Electric Vehicles stays here as a fallback for records whose `sg` is a body
+// segment; listSegments() never lists a virtual segment the feed already carries as `sg`.
+export const VIRTUAL_SEGMENTS: Record<string, PowertrainFilter[]> = {
+  Hybrids: ['hybrid', 'plug-in hybrid'],
+  'Electric Vehicles': ['electric']
 };
 
 export const DEFAULT_LIMIT = 10;
@@ -186,6 +192,14 @@ export function matchesPowertrain(car: Car, want: PowertrainFilter): boolean {
   return powertrainClass(car.powertrain) === want;
 }
 
+/** Shopper-facing powertrain label: the feed's raw codes (Combustion, MHEV, EV) are internal. */
+export function powertrainLabel(pt: string): string {
+  const k = String(pt || '').trim().toLowerCase();
+  if (k === 'mhev') return 'Gas (mild hybrid)';
+  const cls = powertrainClass(pt);
+  return cls === 'gas' ? 'Gas' : cls === 'hybrid' ? 'Hybrid' : cls === 'plug-in hybrid' ? 'Plug-in hybrid' : 'Electric';
+}
+
 /**
  * Resolve a user-supplied segment string to a canonical segment name.
  * Exact (folded) match first, then unique substring match. Returns null when nothing
@@ -231,9 +245,9 @@ export function resolveSegment(input: string, known: string[]): string | null {
 export class AmbiguousError extends Error {}
 
 function matchesSegment(car: Car, segment: string): boolean {
+  if (fold(car.segment) === fold(segment)) return true;
   const virtual = VIRTUAL_SEGMENTS[segment];
-  if (virtual) return matchesPowertrain(car, virtual);
-  return fold(car.segment) === fold(segment);
+  return !!virtual && virtual.some((pt) => matchesPowertrain(car, pt));
 }
 
 function matchesMake(car: Car, make: string): boolean {
@@ -253,8 +267,23 @@ function matchesModel(car: Car, model: string): boolean {
   if (!q) return true;
   const m = fold(car.model);
   if (m === q || m.startsWith(q)) return true;
-  // Allow "RAV4 Hybrid" / "RAV4 Prime" style queries against trim as well.
-  return fold(`${car.model}${car.trim}`).startsWith(q);
+  // Allow "Accord Hybrid" / "RAV4 Prime" style queries against trim as well.
+  if (fold(`${car.model}${car.trim}`).startsWith(q)) return true;
+  // The live feed keeps "Hybrid" out of most model and trim names (CR-V, trim "Sport", pt "Hybrid"),
+  // so "CR-V Hybrid" / "RAV4 Plug-in Hybrid" / "Ioniq Electric" resolve via the powertrain.
+  const suffixes: [string, PowertrainFilter[]][] = [
+    ['pluginhybrid', ['plug-in hybrid']],
+    ['phev', ['plug-in hybrid']],
+    ['hybrid', ['hybrid', 'plug-in hybrid']],
+    ['electric', ['electric']]
+  ];
+  for (const [suf, pts] of suffixes) {
+    if (q.length > suf.length && q.endsWith(suf)) {
+      const base = q.slice(0, -suf.length);
+      if ((m === base || m.startsWith(base)) && pts.some((pt) => matchesPowertrain(car, pt))) return true;
+    }
+  }
+  return false;
 }
 
 export function distanceFrom(origin: LatLng, car: Car): number | null {
@@ -318,7 +347,12 @@ export function searchCars(cars: Car[], p: SearchParams): SearchResult {
 
 /** Find one car by slug or id (slug first, exact, case-insensitive). */
 export function findCar(cars: Car[], key: string): Car | null {
-  const k = String(key || '').trim().toLowerCase();
+  // Pasted URLs may carry a query string, fragment or trailing slash.
+  const k = String(key || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[?#].*$/, '')
+    .replace(/\/+$/, '');
   if (!k) return null;
   return (
     cars.find((c) => c.slug.toLowerCase() === k) ??
@@ -357,7 +391,7 @@ function summarize(segment: string, members: Car[], virtual: boolean): SegmentSu
   };
 }
 
-/** Real segments (by feed `sg`) plus the two virtual powertrain segments, with counts and price ranges. */
+/** Real segments (by feed `sg`) plus any virtual powertrain segment the feed lacks, with counts and price ranges. */
 export function listSegments(cars: Car[]): SegmentSummary[] {
   const groups = new Map<string, Car[]>();
   for (const c of cars) {
@@ -370,7 +404,8 @@ export function listSegments(cars: Car[]): SegmentSummary[] {
     .map(([seg, members]) => summarize(seg, members, false))
     .sort((a, b) => b.count - a.count || a.segment.localeCompare(b.segment));
   const virtual = Object.entries(VIRTUAL_SEGMENTS)
-    .map(([seg, pt]) => summarize(seg, cars.filter((c) => matchesPowertrain(c, pt)), true))
+    .filter(([seg]) => !groups.has(seg)) // already a real feed segment (live: Electric Vehicles)
+    .map(([seg, pts]) => summarize(seg, cars.filter((c) => matchesSegment(c, seg)), true))
     .filter((s) => s.count > 0);
   return [...real, ...virtual];
 }

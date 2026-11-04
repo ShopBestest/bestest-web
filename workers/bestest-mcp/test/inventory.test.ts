@@ -96,8 +96,8 @@ describe('filterCars', () => {
     const r = filterCars(cars, { segment: 'Compact SUV' });
     expect(r.map((c) => c.id).sort()).toEqual(['1001', '1002', '1003', '1006', '1010']);
   });
-  it('virtual segments filter by powertrain', () => {
-    expect(filterCars(cars, { segment: 'Hybrids' }).map((c) => c.id)).toEqual(['1002']);
+  it('virtual segments filter by powertrain (Hybrids includes plug-ins, as on the site)', () => {
+    expect(filterCars(cars, { segment: 'Hybrids' }).map((c) => c.id).sort()).toEqual(['1002', '1006']);
     expect(filterCars(cars, { segment: 'Electric Vehicles' }).map((c) => c.id).sort()).toEqual(['1004', '1010']);
   });
   it('filters by make and model with forgiving matching', () => {
@@ -220,7 +220,7 @@ describe('listSegments', () => {
     const ev = segs.find((s) => s.segment === 'Electric Vehicles')!;
     expect(ev.count).toBe(2);
     expect(ev.virtual).toBe(true);
-    expect(segs.find((s) => s.segment === 'Hybrids')!.count).toBe(1);
+    expect(segs.find((s) => s.segment === 'Hybrids')!.count).toBe(2);
     // sorted by count desc
     expect(segs[0].segment).toBe('Compact SUV');
   });
