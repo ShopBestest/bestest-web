@@ -155,7 +155,7 @@
 
   var CSS =
     '.b4{font-family:Montserrat,-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;max-width:980px;margin:0 auto;padding:28px 0 64px;text-align:left}' +
-    '.b4 a{text-decoration:none}' +
+    '.b4 a{text-decoration:none}.b4 p,.b4 h1,.b4 h2,.b4 a,.b4 span,.b4 b{font-family:Montserrat,-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:normal}' + // site p = Lora
     '.b4-sold{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a877e;background:#f3f1ea;border-radius:6px;padding:4px 9px;margin:0 0 12px}' +
     '.b4 h1.b4-h1{font-family:Montserrat,sans-serif;font-size:32px;line-height:1.2;font-weight:700;margin:0 0 14px;max-width:860px;color:#1a1a1a}' +
     '.b4-lead{font-size:20px;font-weight:600;margin:0 0 14px;color:#333}' +
