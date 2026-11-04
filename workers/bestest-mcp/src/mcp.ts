@@ -32,7 +32,7 @@ export interface ServerOptions {
 
 /** One line that goes on every response. */
 export function screenNote(siteUrl: string): string {
-  return `Every car listed passed Bestest's screen: approved model, year and trim, under 50K miles, sold by a make-matched franchise dealer. ${siteUrl}`;
+  return `Every car listed passed Bestest's screen: approved model, year and trim, under 50K miles, sold by a factory-authorized dealer. ${siteUrl}`;
 }
 
 export function vdpUrl(siteUrl: string, car: Pick<Car, 'slug'>): string {
@@ -197,8 +197,8 @@ export function createMcpServer(opts: ServerOptions): McpServer {
       jsonSchemaValidator: new CfWorkerJsonSchemaValidator(),
       instructions:
         'Bestest is a curated used-car marketplace for Orange County, California. Every car in its inventory ' +
-        'has already passed a screen: an approved model, year and trim, under 50,000 miles, sold by a franchise ' +
-        'dealer of the same make. Use search_cars to find screened cars by segment, make, model, powertrain, ' +
+        'has already passed a screen: an approved model, year and trim, under 50,000 miles, sold by a ' +
+        'factory-authorized dealer. Use search_cars to find screened cars by segment, make, model, powertrain, ' +
         'price, mileage, year and distance from a zip code; get_car for one listing; list_segments for an ' +
         'overview of what qualifies right now.'
     }
@@ -220,7 +220,7 @@ export function createMcpServer(opts: ServerOptions): McpServer {
       title: 'Search screened used cars',
       description:
         'Search Bestest\'s screened used-car inventory in Orange County, CA. Every result is a car that already ' +
-        'passed Bestest\'s screen (approved model, year and trim; under 50K miles; make-matched franchise dealer). ' +
+        'passed Bestest\'s screen (approved model, year and trim; under 50K miles; factory-authorized dealer). ' +
         'Filter by segment, make, model, powertrain, max price, max miles, min year, and distance from a zip code. ' +
         'Returns title, price, miles, dealer and city, distance (when a zip is given), listing URL and photo URL. ' +
         `Segments: ${SEGMENT_NAMES}.`,

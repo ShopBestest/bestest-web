@@ -183,6 +183,8 @@ describe('live feed: tools and wording guardrails', () => {
       expect(t).toMatch(/screen/i);
       expect(t).not.toMatch(BANNED);
       expect(t).not.toMatch(/Combustion|MHEV/);
+      // 545 of 1,234 live cars sit at a dealer of another make; the locked claim is factory-authorized.
+      expect(t).not.toMatch(/make-matched|same make/i);
       expect(JSON.stringify(r.structuredContent)).not.toMatch(BANNED);
     }
     expect(text(results[1])).toMatch(/screened cars? qualif/);

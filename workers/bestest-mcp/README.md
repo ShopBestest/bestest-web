@@ -1,6 +1,6 @@
 # bestest-mcp
 
-A public, read-only remote MCP server for Bestest's screened used-car inventory in Orange County, CA. It lets ChatGPT (Apps SDK / plugin directory) and Claude (connectors directory) search the same feed shopbestest.com renders, so every result an assistant shows has already passed Bestest's screen: approved model, year and trim, under 50K miles, make-matched franchise dealer.
+A public, read-only remote MCP server for Bestest's screened used-car inventory in Orange County, CA. It lets ChatGPT (Apps SDK / plugin directory) and Claude (connectors directory) search the same feed shopbestest.com renders, so every result an assistant shows has already passed Bestest's screen: approved model, year and trim, under 50K miles, factory-authorized dealer.
 
 - Runtime: Cloudflare Worker, Streamable HTTP transport (MCP spec 2025-11-25 via `@modelcontextprotocol/sdk`), stateless, no auth.
 - Data: `https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/` (same feed `js/srp-engine.js` consumes), cached for 5 minutes in Worker memory and at the edge.
@@ -26,7 +26,7 @@ All three are annotated `readOnlyHint: true`, `destructiveHint: false`, `idempot
 | `get_car` | `slug` or `id` (a pasted listing URL also works), optional `zip` | One car with the same fields. |
 | `list_segments` | none | Every segment with count, price range, median and the segment page URL. Includes the site's two virtual segments, Hybrids and Electric Vehicles. |
 
-Every response ends with the line: *Every car listed passed Bestest's screen: approved model, year and trim, under 50K miles, sold by a make-matched franchise dealer. https://shopbestest.com*. Responses also carry `structuredContent` (JSON) alongside the text, which ChatGPT and Claude both read.
+Every response ends with the line: *Every car listed passed Bestest's screen: approved model, year and trim, under 50K miles, sold by a factory-authorized dealer. https://shopbestest.com*. Responses also carry `structuredContent` (JSON) alongside the text, which ChatGPT and Claude both read.
 
 Wording rules baked into descriptions and responses: "screened", "approved", "qualify". Never "only N" or "more coming". Empty results say "No screened cars currently qualify for …" and suggest widening the filters.
 
@@ -174,7 +174,7 @@ Prohibited-content check: a used-car search with external checkout at the dealer
 
 **Description (both directories)**
 
-Bestest is a curated used-car marketplace for Orange County, California. Every car on Bestest has already passed our screen: it is an approved model, year and trim, it has under 50,000 miles, and it is sold by a franchise dealer of the same make. This connector searches that screened inventory. Ask for a segment (compact SUV, minivan, luxury midsize SUV), a make and model, a powertrain (hybrid, plug-in hybrid, electric), a price or mileage cap, a minimum model year, and a zip code with a radius, and get back the cars that qualify with price, miles, dealer, distance, a photo and a link to the listing on shopbestest.com. No account is needed and nothing is stored.
+Bestest is a curated used-car marketplace for Orange County, California. Every car on Bestest has already passed our screen: it is an approved model, year and trim, it has under 50,000 miles, and it is sold by a factory-authorized dealer. This connector searches that screened inventory. Ask for a segment (compact SUV, minivan, luxury midsize SUV), a make and model, a powertrain (hybrid, plug-in hybrid, electric), a price or mileage cap, a minimum model year, and a zip code with a radius, and get back the cars that qualify with price, miles, dealer, distance, a photo and a link to the listing on shopbestest.com. No account is needed and nothing is stored.
 
 **Starter prompts (≤ 128 chars)**
 
