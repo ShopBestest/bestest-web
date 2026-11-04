@@ -4,7 +4,7 @@ A public, read-only remote MCP server for Bestest's screened used-car inventory 
 
 - Runtime: Cloudflare Worker, Streamable HTTP transport (MCP spec 2025-11-25 via `@modelcontextprotocol/sdk`), stateless, no auth.
 - Data: `https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/` (same feed `js/srp-engine.js` consumes), cached for 5 minutes in Worker memory and at the edge.
-- Zip → lat/lng: a bundled centroid table (`data/zips.json`, 536 Southern California ZCTAs). No external geocoding calls.
+- Zip → lat/lng: a bundled centroid table (`data/zips.json`, 689 Southern California ZCTAs from the 2020 Census gazetteer). No external geocoding calls.
 - Images: the feed's `img` value is passed through verbatim. The server never builds Cloudinary transformation URLs.
 
 ## Endpoints
@@ -206,7 +206,7 @@ Bestest is a curated used-car marketplace for Orange County, California. Every c
 
 ## Zip table
 
-`data/zips.json` maps 5-digit zips to `[lat, lng]`. It was hand-built for this PR (Orange County completely, plus LA, Inland Empire, North San Diego and the Ventura edge) with centroids accurate to roughly a mile. Before launch, regenerate it from the Census ZCTA gazetteer so every zip in the bounding box is present and exact:
+`data/zips.json` maps 5-digit zips to `[lat, lng]`: 689 ZCTAs, every 2020 Census ZCTA whose internal point falls in the Southern California box in `scripts/build-zips.mjs` (32.5–35.2° N, 119.6–115.0° W: all of Orange County, LA, the Inland Empire, San Diego and most of Ventura). Generated 2026-11-04 from `2020_Gaz_zcta_national.txt` (`INTPTLAT` / `INTPTLONG`, rounded to 4 dp). Spot-checked against the gazetteer: 92868, 92618, 92629, 92660 match exactly. To regenerate:
 
 ```bash
 # download https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2020_Gazetteer/2020_Gaz_zcta_national.zip and extract it
