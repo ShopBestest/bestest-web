@@ -72,13 +72,31 @@ export function carToPublic(siteUrl: string, c: CarWithDistance | Car) {
   };
 }
 
+/**
+ * Title plus trim without repeating words: feed titles can already end with the start of
+ * the trim ("2023 Toyota RAV4 Hybrid" + "Hybrid XLE" -> "2023 Toyota RAV4 Hybrid XLE").
+ */
+export function displayName(title: string, trim: string): string {
+  const t = title.trim();
+  const tr = trim.trim();
+  if (!tr) return t;
+  const tw = t.split(/\s+/);
+  const rw = tr.split(/\s+/);
+  const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+  for (let k = Math.min(tw.length, rw.length); k > 0; k--) {
+    const tail = tw.slice(tw.length - k);
+    if (tail.every((w, i) => same(w, rw[i]))) return [...tw, ...rw.slice(k)].join(' ');
+  }
+  return `${t} ${tr}`;
+}
+
 export function carLine(siteUrl: string, c: CarWithDistance | Car): string {
   const p = carToPublic(siteUrl, c);
   const bits = [money(p.price), milesFmt(p.miles)];
   if (p.powertrain) bits.push(p.powertrain);
   const where = [p.dealer, p.dealer_city].filter(Boolean).join(', ');
   const d = distFmt(p.distance_miles);
-  return `- ${p.title}${p.trim ? ' ' + p.trim : ''} — ${bits.join(' · ')} — ${where}${d ? ` (${d})` : ''}\n  ${p.url}`;
+  return `- ${displayName(p.title, p.trim)} — ${bits.join(' · ')} — ${where}${d ? ` (${d})` : ''}\n  ${p.url}`;
 }
 
 interface ToolText {
@@ -122,7 +140,7 @@ export function formatSearch(siteUrl: string, result: SearchResult, filters: str
   const last = result.offset + result.cars.length;
   const head =
     result.total === result.cars.length && result.offset === 0
-      ? `${result.total} screened car${result.total === 1 ? '' : 's'} qualify for: ${filters} (sorted by ${result.sort}).`
+      ? `${result.total} screened car${result.total === 1 ? ' qualifies' : 's qualify'} for: ${filters} (sorted by ${result.sort}).`
       : `${result.total} screened cars qualify for: ${filters}. Showing ${first}–${last}, sorted by ${result.sort}.`;
   return [head, ...result.cars.map((c) => carLine(siteUrl, c)), note].join('\n');
 }
@@ -130,7 +148,7 @@ export function formatSearch(siteUrl: string, result: SearchResult, filters: str
 export function formatCar(siteUrl: string, c: Car): string {
   const p = carToPublic(siteUrl, c);
   const rows = [
-    `${p.title}${p.trim ? ' ' + p.trim : ''}`,
+    displayName(p.title, p.trim),
     `Price: ${money(p.price)}`,
     `Miles: ${milesFmt(p.miles)}`,
     p.powertrain ? `Powertrain: ${p.powertrain}` : null,
