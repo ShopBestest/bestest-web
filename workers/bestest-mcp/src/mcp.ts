@@ -11,6 +11,8 @@ import {
   MAX_LIMIT,
   SEGMENT_PATHS,
   findCar,
+  powertrainClass,
+  powertrainLabel,
   listSegments,
   resolveSegment,
   searchCars,
@@ -59,7 +61,8 @@ export function carToPublic(siteUrl: string, c: CarWithDistance | Car) {
     trim: c.trim,
     price: c.price,
     miles: c.miles,
-    powertrain: c.powertrain,
+    powertrain: c.powertrain ? powertrainLabel(c.powertrain) : 'Gas',
+    powertrain_type: powertrainClass(c.powertrain),
     segment: c.segment,
     body: c.body,
     dealer: c.dealer,
@@ -83,6 +86,12 @@ export function displayName(title: string, trim: string): string {
   const tw = t.split(/\s+/);
   const rw = tr.split(/\s+/);
   const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+  // Live feed titles are "{year} {make} {model} {trim}" and a few reorder the trim words
+  // ("2023 Kia Sportage Hybrid LX" / "LX Hybrid", "... Santa Fe Hybrid Limited" / "Limited HEV").
+  // If every trim word (ignoring powertrain codes) is already in the title, the title is enough.
+  const titleWords = new Set(tw.map((w) => w.toLowerCase()));
+  const codes = new Set(['hev', 'phev', 'bev', 'mhev', 'ev']);
+  if (rw.every((w) => titleWords.has(w.toLowerCase()) || codes.has(w.toLowerCase()))) return t;
   for (let k = Math.min(tw.length, rw.length); k > 0; k--) {
     const tail = tw.slice(tw.length - k);
     if (tail.every((w, i) => same(w, rw[i]))) return [...tw, ...rw.slice(k)].join(' ');
