@@ -456,6 +456,7 @@
     } else if (SCOPE_MODEL) {
       window.Bestest.onReady(function() { setActiveSegment(resolveModelSegment()); renderChips(); });
     }
+    document.addEventListener('bestest:render', function() { if (ACTIVE && window.Bestest.isReady()) renderChips(); });   // Clear all, ✕ chips, back/forward
     window.addEventListener('scroll', checkSticky, { passive: true });
     checkSticky();
   }
