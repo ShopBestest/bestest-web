@@ -1,7 +1,11 @@
-(function(){if(document.getElementById('bsx-band-styles'))return;var s=document.createElement('style');s.id='bsx-band-styles';s.textContent=".bsx-band, .bsx-band *,\n.bsx-sticky, .bsx-sticky *,\n.bsx-picker, .bsx-picker *,\n.bsx-allcars {\n  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;\n}\n\nbody.bsx-active .w-nav { transition: opacity .25s ease; }\nbody.bsx-active.bsx-sticky-on .w-nav { opacity: 0; pointer-events: none; }\n\n.bsx-band {\n  background: #f0f7f2;\n  padding: 14px 0 12px;\n  margin: 0 0 8px;\n  width: 100%;\n  align-self: stretch;\n  flex-shrink: 0;\n  border-radius: 10px;\n}\n.bsx-band-inner { max-width: none; margin: 0; padding: 0 24px; }\n.bsx-title { font-size: 16px; color: #1a1a1a; line-height: 1.4; margin: 0 0 8px; font-weight: 400; }\nbody.bsx-broad .bsx-title { margin: 0; }\n.bsx-prefix { font-weight: 700; color: #1a1a1a; }\n.bsx-seglink { color: #1a1a1a; font-weight: 700; cursor: pointer; display: inline-flex; align-items: baseline; gap: 5px; }\n.bsx-seglink-text { border-bottom: 1.5px solid #1a6f4a; padding-bottom: 1px; transition: border-color .15s; }\n.bsx-seglink:hover .bsx-seglink-text { border-bottom-color: #1a1a1a; }\n.bsx-seglink-chev { width: 16px; height: 16px; color: #1a6f4a; transform: translateY(3px); flex-shrink: 0; }\n\n.bsx-chips {\n  display: flex;\n  gap: 7px;\n  overflow-x: auto;\n  padding-bottom: 2px;\n  padding-right: 24px;\n  scrollbar-width: none;\n  -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);\n  mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);\n}\n.bsx-chips::-webkit-scrollbar { display: none; }\n.bsx-chip {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 5px 11px;\n  border-radius: 14px;\n  font-size: 12px;\n  font-weight: 600;\n  cursor: pointer;\n  user-select: none;\n  transition: all .15s;\n  white-space: nowrap;\n  background: #fff;\n  border: 1px solid #e5e0d0;\n  line-height: 1.3;\n}\n/* Checkmark is always visible \u2014 signals \"Bestest recommended\", not filter state.\n   Keeps chip widths stable when toggling filter. */\n.bsx-chip .bsx-check { font-size: 11px; color: #1a6f4a; display: inline-block; }\n.bsx-chip .bsx-ct    { font-size: 11px; font-weight: 500; }\n/* Active (included in current filter, or no filter applied yet) */\n.bsx-chip.bsx-on  { color: #1a1a1a; border-color: #1a6f4a; }\n.bsx-chip.bsx-on .bsx-ct { color: #6b7280; }\n/* Inactive (deselected by user) */\n.bsx-chip.bsx-off { color: #aaa; border-color: #e5e0d0; }\n.bsx-chip.bsx-off .bsx-ct { color: #aaa; }\n.bsx-chip.bsx-off .bsx-check { opacity: 0.55; }\n.bsx-chip:hover         { opacity: .9; }\n.bsx-chip.bsx-off:hover { opacity: 1; }\n\n.bsx-pills-row { display: flex; align-items: center; gap: 12px; }\n.bsx-pills-row .bs-pills { flex: 1; min-width: 0; }\n.bsx-allcars { font-size: 12px; color: #6b7280; text-decoration: none; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-weight: 500; }\n.bsx-allcars:hover { color: #1a1a1a; }\n.bsx-allcars-mob { display: none; }\n\n.bsx-picker {\n  position: fixed;\n  background: #fff;\n  border: 1px solid #e0e0e0;\n  border-radius: 12px;\n  box-shadow: 0 8px 24px rgba(0,0,0,.10);\n  padding: 6px 0;\n  width: 380px;\n  max-height: 70vh;\n  overflow-y: auto;\n  z-index: 9998;\n  display: none;\n}\n.bsx-picker.bsx-open { display: block; }\n.bsx-pgrouplabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #6b7280; background: #f3f3f0; padding: 7px 14px; margin: 0; }\n.bsx-pitem { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; padding: 11px 14px; cursor: pointer; text-decoration: none; color: inherit; border-bottom: 0.5px solid #f2f0e8; }\n.bsx-pitem:hover { background: #faf8f1; }\n.bsx-pitem.bsx-pactive { background: #e8f3ec; }\n.bsx-pitem.bsx-pactive .bsx-pname { color: #1a6f4a; }\n.bsx-ptext { min-width: 0; }\n.bsx-pname { font-size: 15px; font-weight: 700; color: #1a1a1a; margin: 0 0 2px; line-height: 1.25; }\n.bsx-peg { font-size: 12px; color: #6b7280; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n.bsx-parrow { color: #c0c0c0; font-size: 14px; flex-shrink: 0; }\n.bsx-pitem:hover .bsx-parrow { color: #1a1a1a; }\n.bsx-pallcars { padding: 10px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #6b7280; font-weight: 500; border-top: 0.5px solid #e0e0e0; margin-top: 4px; text-decoration: none; }\n.bsx-pallcars:hover { background: #f5f5f5; color: #1a1a1a; }\n.bsx-pallcars.bsx-pactive { background: #f3f3f0; color: #1a1a1a; font-weight: 600; }\n\n.bsx-sticky {\n  position: fixed;\n  top: 0; left: 0; right: 0;\n  background: rgba(255,255,255,.96);\n  backdrop-filter: blur(8px);\n  -webkit-backdrop-filter: blur(8px);\n  border-bottom: 0.5px solid #e0e0e0;\n  padding: 14px 32px;\n  z-index: 9997;\n  opacity: 0;\n  pointer-events: none;\n  transition: opacity .25s ease;\n}\n.bsx-sticky.bsx-svisible { opacity: 1; pointer-events: auto; }\n.bsx-sticky-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }\n.bsx-sticky-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 20px; font-weight: 700; color: #1a6f4a; }\n.bsx-sticky-btn:hover { opacity: .8; }\n.bsx-sticky-btn .bsx-sticky-chev { width: 22px; height: 22px; flex-shrink: 0; }\n\n.bsx-readmore-toggle {\n  display: none;\n  background: none !important;\n  border: none !important;\n  outline: none !important;\n  box-shadow: none !important;\n  padding: 0 !important;\n  margin: 0;\n  color: #6b7280;\n  font-weight: 500;\n  cursor: pointer;\n  font-family: inherit;\n  font-size: inherit;\n  line-height: inherit;\n  -webkit-appearance: none;\n  appearance: none;\n}\n.bsx-readmore-toggle:focus,\n.bsx-readmore-toggle:focus-visible,\n.bsx-readmore-toggle:active { outline: none !important; box-shadow: none !important; }\n\n@media (max-width: 720px) {\n  .bsx-band { padding: 8px 0 6px; }\n  .bsx-band-inner { padding: 0 16px; }\n  .bsx-title { font-size: 15px; margin: 0 0 6px; }\n  body.bsx-broad .bsx-title { margin: 0; }\n  .bsx-sticky { padding: 12px 16px; }\n  .bsx-sticky-btn { font-size: 17px; }\n  .bsx-sticky-btn .bsx-sticky-chev { width: 19px; height: 19px; }\n  .bsx-picker { width: calc(100vw - 32px); max-width: 380px; }\n  .bsx-allcars-desk { display: none; }\n  .bsx-allcars-mob { display: inline; }\n  .bsx-chips { padding-bottom: 0; }\n  .bsx-chip { padding: 4px 10px; font-size: 11px; }\n  body.bsx-active .srp-title { font-size: 22px !important; line-height: 1.2 !important; margin-bottom: 6px !important; }\n  body.bsx-active .srp-intro {\n    display: -webkit-box;\n    -webkit-line-clamp: 2;\n    -webkit-box-orient: vertical;\n    overflow: hidden;\n    margin-bottom: 0 !important;\n    line-height: 1.4 !important;\n    font-size: 14px !important;\n    position: relative;\n  }\n  body.bsx-active .srp-intro.bsx-rm-expanded { -webkit-line-clamp: unset; overflow: visible; }\n  body.bsx-active .srp-intro .bsx-readmore-toggle.bsx-rm-visible { display: inline; }\n  body.bsx-active .srp-intro.bsx-rm-expanded .bsx-readmore-toggle { display: none; }\n  /* Right-edge fade: feather over 24px and end at 35% alpha (not full\n     transparent) so the trailing chip stays readable but signals \"more\". */\n  .bsx-chips {\n    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), rgba(0,0,0,0.35));\n    mask-image: linear-gradient(to right, black calc(100% - 24px), rgba(0,0,0,0.35));\n  }\n}\n\nbody.bsx-broad .content-wrapper > .bsx-band,\nbody.bsx-active .content-wrapper > .bsx-band {\n  width: 100% !important;\n  max-width: none !important;\n  align-self: stretch !important;\n  margin-left: 0 !important;\n  margin-right: 0 !important;\n  flex: 0 0 auto !important;\n  padding-left: 24px !important;\n  padding-right: 24px !important;\n  border-radius: 10px !important;\n  box-sizing: border-box !important;\n}\nbody.bsx-broad .content-wrapper > .bsx-band > .bsx-band-inner,\nbody.bsx-active .content-wrapper > .bsx-band > .bsx-band-inner {\n  max-width: none !important;\n  margin: 0 !important;\n  padding: 0 !important;\n  width: 100% !important;\n}\n\n@media (max-width: 720px) {\n  body.bsx-active .srp-intro { display: none !important; }\n  /* Tighter band padding on mobile. Must come AFTER the bsx-broad/bsx-active\n     padding-left: 24px !important block above; CSS resolves equal-specificity\n     !important conflicts by source order, so this needs to be the LAST rule\n     touching .bsx-band padding in the file. */\n  body.bsx-broad .content-wrapper > .bsx-band,\n  body.bsx-active .content-wrapper > .bsx-band {\n    padding-left: 14px !important;\n    padding-right: 14px !important;\n  }\n}\n";(document.head||document.documentElement).appendChild(s);})();
+(function(){if(document.getElementById('bsx-band-styles'))return;var s=document.createElement('style');s.id='bsx-band-styles';s.textContent=".bsx-band, .bsx-band *,\n.bsx-sticky, .bsx-sticky *,\n.bsx-picker, .bsx-picker * {\n  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;\n}\n\nbody.bsx-active .w-nav { transition: opacity .25s ease; }\nbody.bsx-active.bsx-sticky-on .w-nav { opacity: 0; pointer-events: none; }\n\n.bsx-band {\n  background: #f0f7f2;\n  padding: 14px 0 12px;\n  margin: 0 0 8px;\n  width: 100%;\n  align-self: stretch;\n  flex-shrink: 0;\n  border-radius: 10px;\n}\n.bsx-band-inner { max-width: none; margin: 0; padding: 0 24px; }\n.bsx-title { font-size: 16px; color: #1a1a1a; line-height: 1.4; margin: 0 0 8px; font-weight: 400; }\nbody.bsx-broad .bsx-title { margin: 0; }\n.bsx-prefix { font-weight: 700; color: #1a1a1a; }\n.bsx-seglink { color: #1a1a1a; font-weight: 700; cursor: pointer; display: inline-flex; align-items: baseline; gap: 5px; }\n.bsx-seglink-text { border-bottom: 1.5px solid #1a6f4a; padding-bottom: 1px; transition: border-color .15s; }\n.bsx-seglink:hover .bsx-seglink-text { border-bottom-color: #1a1a1a; }\n.bsx-band.bsx-pending .bsx-seglink-chev { visibility: hidden; }\n.bsx-seglink-chev { width: 16px; height: 16px; color: #1a6f4a; transform: translateY(3px); flex-shrink: 0; }\n\n.bsx-chips {\n  display: flex;\n  gap: 7px;\n  overflow-x: auto;\n  padding-bottom: 2px;\n  padding-right: 24px;\n  scrollbar-width: none;\n  -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);\n  mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);\n}\n.bsx-chips::-webkit-scrollbar { display: none; }\n.bsx-chip {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 5px 11px;\n  border-radius: 14px;\n  font-size: 12px;\n  font-weight: 600;\n  cursor: pointer;\n  user-select: none;\n  transition: all .15s;\n  white-space: nowrap;\n  background: #fff;\n  border: 1px solid #e5e0d0;\n  line-height: 1.3;\n}\n/* Checkmark is always visible \u2014 signals \"Bestest recommended\", not filter state.\n   Keeps chip widths stable when toggling filter. */\n.bsx-chip .bsx-check { font-size: 11px; color: #1a6f4a; display: inline-block; }\n.bsx-chip .bsx-ct    { font-size: 11px; font-weight: 500; }\n/* Active (included in current filter, or no filter applied yet) */\n.bsx-chip.bsx-on  { color: #1a1a1a; border-color: #1a6f4a; }\n.bsx-chip.bsx-on .bsx-ct { color: #6b7280; }\n/* Inactive (deselected by user) */\n.bsx-chip.bsx-off { color: #aaa; border-color: #e5e0d0; }\n.bsx-chip.bsx-off .bsx-ct { color: #aaa; }\n.bsx-chip.bsx-off .bsx-check { opacity: 0.55; }\n.bsx-chip:hover         { opacity: .9; }\n.bsx-chip.bsx-off:hover { opacity: 1; }\n\n\n.bsx-picker {\n  position: fixed;\n  background: #fff;\n  border: 1px solid #e0e0e0;\n  border-radius: 12px;\n  box-shadow: 0 8px 24px rgba(0,0,0,.10);\n  padding: 6px 0;\n  width: 380px;\n  max-height: 70vh;\n  overflow-y: auto;\n  z-index: 9998;\n  display: none;\n}\n.bsx-picker.bsx-open { display: block; }\n.bsx-pgrouplabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #6b7280; background: #f3f3f0; padding: 7px 14px; margin: 0; }\n.bsx-pitem { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; padding: 11px 14px; cursor: pointer; text-decoration: none; color: inherit; border-bottom: 0.5px solid #f2f0e8; }\n.bsx-pitem:hover { background: #faf8f1; }\n.bsx-pitem.bsx-pactive { background: #e8f3ec; }\n.bsx-pitem.bsx-pactive .bsx-pname { color: #1a6f4a; }\n.bsx-ptext { min-width: 0; }\n.bsx-pname { font-size: 15px; font-weight: 700; color: #1a1a1a; margin: 0 0 2px; line-height: 1.25; }\n.bsx-peg { font-size: 12px; color: #6b7280; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n.bsx-parrow { color: #c0c0c0; font-size: 14px; flex-shrink: 0; }\n.bsx-pitem:hover .bsx-parrow { color: #1a1a1a; }\n.bsx-pallcars { padding: 11px 14px; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #1a1a1a; font-weight: 700; border-bottom: 1px solid #e0e0e0; margin-bottom: 4px; text-decoration: none; }\n.bsx-pallcars:hover { background: #f5f5f5; color: #1a1a1a; }\n.bsx-pallcars.bsx-pactive { background: #e8f3ec; color: #1a6f4a; }\n\n.bsx-sticky {\n  position: fixed;\n  top: 0; left: 0; right: 0;\n  background: rgba(255,255,255,.96);\n  backdrop-filter: blur(8px);\n  -webkit-backdrop-filter: blur(8px);\n  border-bottom: 0.5px solid #e0e0e0;\n  padding: 14px 32px;\n  z-index: 9997;\n  opacity: 0;\n  pointer-events: none;\n  transition: opacity .25s ease;\n}\n.bsx-sticky.bsx-svisible { opacity: 1; pointer-events: auto; }\n.bsx-sticky-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }\n.bsx-sticky-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 20px; font-weight: 700; color: #1a6f4a; }\n.bsx-sticky-btn:hover { opacity: .8; }\n.bsx-sticky-btn .bsx-sticky-chev { width: 22px; height: 22px; flex-shrink: 0; }\n\n.bsx-readmore-toggle {\n  display: inline-block;\n  background: none !important;\n  border: none !important;\n  outline: none !important;\n  box-shadow: none !important;\n  padding: 12px 2px !important;\n  margin: -12px -2px;\n  color: #1a6f4a;\n  font-weight: 400;\n  text-decoration: none;\n  cursor: pointer;\n  font-family: inherit;\n  font-size: inherit;\n  line-height: inherit;\n  vertical-align: baseline;\n  -webkit-appearance: none;\n  appearance: none;\n}\n.bsx-readmore-toggle:focus,\n.bsx-readmore-toggle:focus-visible,\n.bsx-readmore-toggle:active { outline: none !important; box-shadow: none !important; }\n\n@media (max-width: 720px) {\n  .bsx-band { padding: 8px 0 6px; }\n  .bsx-band-inner { padding: 0 16px; }\n  .bsx-title { font-size: 15px; margin: 0 0 6px; }\n  body.bsx-broad .bsx-title { margin: 0; }\n  .bsx-sticky { padding: 12px 16px; }\n  .bsx-sticky-btn { font-size: 17px; }\n  .bsx-sticky-btn .bsx-sticky-chev { width: 19px; height: 19px; }\n  .bsx-picker { width: calc(100vw - 32px); max-width: 380px; }\n  .bsx-chips { padding-bottom: 0; }\n  .bsx-chip { padding: 4px 10px; font-size: 11px; }\n  body.bsx-active .srp-title { font-size: 22px !important; line-height: 1.2 !important; margin-bottom: 6px !important; }\n  body.bsx-active .srp-intro { margin-bottom: 0 !important; line-height: 1.4 !important; font-size: 14px !important; }\n  /* Right-edge fade: feather over 24px and end at 35% alpha (not full\n     transparent) so the trailing chip stays readable but signals \"more\". */\n  .bsx-chips {\n    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), rgba(0,0,0,0.35));\n    mask-image: linear-gradient(to right, black calc(100% - 24px), rgba(0,0,0,0.35));\n  }\n}\n\nbody.bsx-broad .content-wrapper > .bsx-band,\nbody.bsx-active .content-wrapper > .bsx-band {\n  width: 100% !important;\n  max-width: none !important;\n  align-self: stretch !important;\n  margin-left: 0 !important;\n  margin-right: 0 !important;\n  flex: 0 0 auto !important;\n  padding-left: 24px !important;\n  padding-right: 24px !important;\n  border-radius: 10px !important;\n  box-sizing: border-box !important;\n}\nbody.bsx-broad .content-wrapper > .bsx-band > .bsx-band-inner,\nbody.bsx-active .content-wrapper > .bsx-band > .bsx-band-inner {\n  max-width: none !important;\n  margin: 0 !important;\n  padding: 0 !important;\n  width: 100% !important;\n}\n\n@media (max-width: 720px) {\n  /* Tighter band padding on mobile. Must come AFTER the bsx-broad/bsx-active\n     padding-left: 24px !important block above; CSS resolves equal-specificity\n     !important conflicts by source order, so this needs to be the LAST rule\n     touching .bsx-band padding in the file. */\n  body.bsx-broad .content-wrapper > .bsx-band,\n  body.bsx-active .content-wrapper > .bsx-band {\n    padding-left: 14px !important;\n    padding-right: 14px !important;\n  }\n}\n";(document.head||document.documentElement).appendChild(s);})();
 (function() {
   var MODE = window.BS_SEGMENT ? 'segment' : (window.BS_BROAD ? 'broad' : null);
   if (!MODE) return;
+  // Model-city pages (/best-used/toyota-rav4-irvine: BS_BROAD + BS_PREFILTER.model) show the MODEL'S segment in
+  // the band with that model's chip highlighted (SRP streamline, 11/5), not "All Cars".
+  var SCOPE_MODEL = (MODE === 'broad' && window.BS_PREFILTER && Array.isArray(window.BS_PREFILTER.model) &&
+                     window.BS_PREFILTER.model.length === 1) ? window.BS_PREFILTER.model[0] : null;
 
   var SEGMENT_GROUPS = {
     'SUVs': [
@@ -48,27 +52,41 @@
     return name + 's';
   }
 
-  function findActiveSegment() {
+  function findSegment(filterValue) {
     var groupNames = Object.keys(SEGMENT_GROUPS);
     for (var i = 0; i < groupNames.length; i++) {
       var items = SEGMENT_GROUPS[groupNames[i]];
       for (var j = 0; j < items.length; j++) {
-        if (items[j].filterValue === window.BS_SEGMENT) return items[j];
+        if (items[j].filterValue === filterValue) return items[j];
       }
     }
     return null;
   }
 
+  // ACTIVE = the segment the band names: the page's own on segment SRPs, the scope model's (resolved from the
+  // feed once it loads) on model-city pages, null on hubs / the broad /used-cars page ("All Cars").
   var ACTIVE = null;
   var ACTIVE_PLURAL = '';
   if (MODE === 'segment') {
-    ACTIVE = findActiveSegment();
+    ACTIVE = findSegment(window.BS_SEGMENT);
     if (!ACTIVE) return;
     ACTIVE_PLURAL = plural(ACTIVE.name);
   }
+  function activeLabel() { return ACTIVE ? ACTIVE_PLURAL : 'All Cars'; }
+
+  // Scoped landing pages navigate UP to their parent (the city hub, else /used-cars) when the scope changes
+  // (Autotrader pattern, spec sec. 5-6), so URL, H1 and cards always agree.
+  function parentPath() {
+    if (typeof window.BS_PARENT_URL === 'string' && window.BS_PARENT_URL) return window.BS_PARENT_URL;
+    if (window.BS_CITY && window.BS_CITY.slug) return '/best-used/' + window.BS_CITY.slug;
+    return '/used-cars';
+  }
 
   document.body.classList.add('bsx-active');
-  if (MODE === 'broad') document.body.classList.add('bsx-broad');
+
+  if (MODE === 'broad' && !SCOPE_MODEL) document.body.classList.add('bsx-broad');
+
+  var CHEV = '<svg class="bsx-seglink-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
 
   function buildBand() {
     var dynList = document.querySelector('.w-dyn-list');
@@ -78,66 +96,28 @@
     var band = document.createElement('div');
     band.className = 'bsx-band';
     band.id = 'bsx-band';
-
-    if (MODE === 'segment') {
-      band.innerHTML =
-        '<div class="bsx-band-inner">' +
-          '<p class="bsx-title">' +
-            '<span class="bsx-prefix">The Best Used</span> ' +
-            '<span class="bsx-seglink" id="bsx-seglink">' +
-              '<span class="bsx-seglink-text">' + ACTIVE_PLURAL + '</span>' +
-              '<svg class="bsx-seglink-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
-            '</span>' +
-          '</p>' +
-          '<div class="bsx-chips" id="bsx-chips"></div>' +
-        '</div>';
-    } else {
-      band.innerHTML =
-        '<div class="bsx-band-inner">' +
-          '<p class="bsx-title">' +
-            '<span class="bsx-prefix">Viewing</span> ' +
-            '<span class="bsx-seglink" id="bsx-seglink">' +
-              '<span class="bsx-seglink-text">All Cars</span>' +
-              '<svg class="bsx-seglink-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
-            '</span>' +
-          '</p>' +
-        '</div>';
-    }
+    // One line: the segment name + chevron (no "Viewing", no "The Best Used"). Chips under it where there is a segment.
+    band.innerHTML =
+      '<div class="bsx-band-inner">' +
+        '<p class="bsx-title">' +
+          '<span class="bsx-seglink" id="bsx-seglink">' +
+            '<span class="bsx-seglink-text" id="bsx-seglink-text">' + (SCOPE_MODEL ? '&nbsp;' : activeLabel()) + '</span>' +
+            CHEV +
+          '</span>' +
+        '</p>' +
+        ((MODE === 'segment' || SCOPE_MODEL) ? '<div class="bsx-chips" id="bsx-chips"></div>' : '') +
+      '</div>';
+    if (SCOPE_MODEL) band.classList.add('bsx-pending');   // title fills once the feed says which segment the model is in
 
     bsBar.parentNode.insertBefore(band, bsBar);
-
-    var pills = bsBar.querySelector('.bs-pills');
-    if (pills && MODE === 'segment') {
-      var pillsRow = document.createElement('div');
-      pillsRow.className = 'bsx-pills-row';
-      pills.parentNode.insertBefore(pillsRow, pills);
-      pillsRow.appendChild(pills);
-      var allcarsDesk = document.createElement('a');
-      allcarsDesk.className = 'bsx-allcars bsx-allcars-desk';
-      allcarsDesk.href = '/used-cars';
-      allcarsDesk.textContent = 'See all listings →';
-      pillsRow.appendChild(allcarsDesk);
-    }
-
-    if (MODE === 'segment') {
-      var bsMeta = bsBar.querySelector('.bs-meta');
-      if (bsMeta) {
-        var allcarsMob = document.createElement('a');
-        allcarsMob.className = 'bsx-allcars bsx-allcars-mob';
-        allcarsMob.href = '/used-cars';
-        allcarsMob.textContent = 'See all listings →';
-        bsMeta.appendChild(allcarsMob);
-      }
-    }
 
     var sticky = document.createElement('div');
     sticky.className = 'bsx-sticky';
     sticky.id = 'bsx-sticky';
-    var stickyLabel = MODE === 'segment' ? ACTIVE_PLURAL : 'All Cars';
     sticky.innerHTML =
       '<div class="bsx-sticky-inner">' +
         '<div class="bsx-sticky-btn" id="bsx-sticky-btn">' +
-          '<span class="bsx-sticky-label">' + stickyLabel + '</span>' +
+          '<span class="bsx-sticky-label" id="bsx-sticky-label">' + (SCOPE_MODEL ? '' : activeLabel()) + '</span>' +
           '<svg class="bsx-sticky-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
         '</div>' +
       '</div>';
@@ -152,14 +132,24 @@
     return true;
   }
 
+  function setActiveSegment(seg) {
+    ACTIVE = seg;
+    ACTIVE_PLURAL = seg ? plural(seg.name) : '';
+    var t = document.getElementById('bsx-seglink-text'); if (t) t.textContent = activeLabel();
+    var sl = document.getElementById('bsx-sticky-label'); if (sl) sl.textContent = activeLabel();
+    var band = document.getElementById('bsx-band'); if (band) band.classList.remove('bsx-pending');
+    renderPicker();
+  }
+
   function renderPicker() {
     var picker = document.getElementById('bsx-picker');
     if (!picker) return;
-    var html = '';
+    // "All Cars" sits at the TOP, separated from the segment list (spec sec. 5).
+    var html = '<a class="bsx-pallcars' + (ACTIVE ? '' : ' bsx-pactive') + '" href="/used-cars">All Cars</a>';
     Object.keys(SEGMENT_GROUPS).forEach(function(groupName) {
       html += '<p class="bsx-pgrouplabel">' + groupName + '</p>';
       SEGMENT_GROUPS[groupName].forEach(function(s) {
-        var cls = (MODE === 'segment' && s.filterValue === window.BS_SEGMENT) ? 'bsx-pactive' : '';
+        var cls = (ACTIVE && s.filterValue === ACTIVE.filterValue) ? 'bsx-pactive' : '';
         var label = plural(s.name);
         html += '<a class="bsx-pitem ' + cls + '" href="' + s.url + '">' +
           '<div class="bsx-ptext">' +
@@ -170,8 +160,6 @@
         '</a>';
       });
     });
-    var allcarsCls = MODE === 'broad' ? ' bsx-pactive' : '';
-    html += '<a class="bsx-pallcars' + allcarsCls + '" href="/used-cars">→ All Cars</a>';
     picker.innerHTML = html;
   }
 
@@ -227,20 +215,35 @@
     });
   }
 
+  // The segment a scope model belongs to: the segment most of its feed records carry.
+  function resolveModelSegment() {
+    var counts = {};
+    window.Bestest.getAllItems().forEach(function(item) {
+      var d = window.Bestest.getData(item);
+      if (d.model !== SCOPE_MODEL || !d.segment) return;
+      counts[d.segment] = (counts[d.segment] || 0) + 1;
+    });
+    var best = null;
+    Object.keys(counts).forEach(function(k) { if (!best || counts[k] > counts[best]) best = k; });
+    return best ? findSegment(best) : null;
+  }
+
   function computeModelCounts() {
     var allItems = window.Bestest.getAllItems();
     var getData = window.Bestest.getData;
     var counts = {};
     var labels = {};
+    var makes = {};
     allItems.forEach(function(item) {
       var d = getData(item);
-      if (d.segment !== window.BS_SEGMENT) return;
+      if (!ACTIVE || d.segment !== ACTIVE.filterValue) return;
       if (!d.model) return;
       counts[d.model] = (counts[d.model] || 0) + 1;
       if (!labels[d.model]) labels[d.model] = (d.make ? d.make + ' ' : '') + d.model;
+      if (!makes[d.model] && d.make) makes[d.model] = d.make;
     });
     return Object.keys(counts).map(function(m) {
-      return { name: m, label: labels[m], count: counts[m] };
+      return { name: m, label: labels[m], make: makes[m] || '', count: counts[m] };
     }).sort(function(a, b) {
       return b.count - a.count || a.label.localeCompare(b.label);
     });
@@ -252,7 +255,7 @@
     var models = computeModelCounts();
     if (!models.length) { row.innerHTML = ''; return; }
     var stateModel = window.Bestest.state.model;
-    var allOn = !stateModel.length;
+    var allOn = MODE === 'segment' && !stateModel.length;
     var html = models.map(function(m) {
       var on = allOn || stateModel.indexOf(m.name) !== -1;
       return '<span class="bsx-chip ' + (on ? 'bsx-on' : 'bsx-off') + '" data-model="' + m.name + '">' +
@@ -270,6 +273,23 @@
 
   function toggleChip(modelName, allModels) {
     var state = window.Bestest.state;
+    if (SCOPE_MODEL) {
+      // Model-city page: a second model (or dropping the scope model) leaves the page for the hub with the models
+      // in the query, e.g. /best-used/irvine?make=Toyota,Honda&model=RAV4,CR-V.
+      var next = state.model.slice();
+      var i = next.indexOf(modelName);
+      if (i === -1) next.push(modelName); else next.splice(i, 1);
+      if (next.length === 1 && next[0] === SCOPE_MODEL) return;
+      var makes = [];
+      next.forEach(function(m) {
+        for (var k = 0; k < allModels.length; k++) if (allModels[k].name === m && allModels[k].make && makes.indexOf(allModels[k].make) === -1) makes.push(allModels[k].make);
+      });
+      var q = [];
+      if (makes.length) q.push('make=' + encodeURIComponent(makes.join(',')));
+      if (next.length) q.push('model=' + encodeURIComponent(next.join(',')));
+      window.location.href = parentPath() + (q.length ? '?' + q.join('&') : '');
+      return;
+    }
     var allOn = !state.model.length;
     if (allOn) {
       // From "all on" (no filter): first click isolates to just the clicked
@@ -293,13 +313,6 @@
     var band = document.getElementById('bsx-band');
     var sticky = document.getElementById('bsx-sticky');
     if (!band || !sticky) return;
-    // A hidden band (model pages hide it via .bs-nocars) reports bottom 0, which read as
-    // "scrolled past" and swapped the site header for the sticky bar at the top of the page.
-    if (!band.getClientRects().length) {
-      sticky.classList.remove('bsx-svisible');
-      document.body.classList.remove('bsx-sticky-on');
-      return;
-    }
     var rect = band.getBoundingClientRect();
     var fadeStart = 80;
     var fadeEnd = 0;
@@ -315,49 +328,66 @@
     }
   }
 
+  // Intro peek on phones (<=720px; spec sec. 3, App Store pattern): the intro shows collapsed to the text through
+  // "qualify as Bestest", then whatever else fits on that line, then "… more" at the end of the last line. Never cut
+  // before the anchor; a dangling clause is fine (it reads as a teaser). "more"/"less" are inline buttons, same size
+  // and weight as the paragraph, link green, no underline; expand in place. Desktop shows the full intro.
+  function isMobile() { return window.matchMedia('(max-width: 720px)').matches; }
+  function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function setupReadMore() {
     var intro = document.querySelector('.srp-intro');
-    if (!intro) return;
-    var more = document.createElement('button');
-    more.className = 'bsx-readmore-toggle';
-    more.type = 'button';
-    more.textContent = 'more…';
-    intro.appendChild(document.createTextNode(' '));
-    intro.appendChild(more);
-    function checkOverflow() {
-      var isMobile = window.matchMedia('(max-width: 720px)').matches;
-      if (!isMobile) {
-        more.classList.remove('bsx-rm-visible');
-        return;
-      }
-      more.style.display = 'none';
-      intro.classList.add('bsx-rm-expanded');
-      var fullHeight = intro.scrollHeight;
-      intro.classList.remove('bsx-rm-expanded');
-      var clampedHeight = intro.clientHeight;
-      more.style.display = '';
-      if (fullHeight > clampedHeight + 4) {
-        more.classList.add('bsx-rm-visible');
-      } else {
-        more.classList.remove('bsx-rm-visible');
-      }
+    if (!intro || intro.__bsxRm) return;
+    intro.__bsxRm = true;
+    var fullHTML = intro.innerHTML;
+    var fullText = intro.textContent.replace(/\s+/g, ' ').trim();
+    var m = /qualif(?:y|ies) as Bestest/.exec(fullText);
+    var minEnd = m ? m.index + m[0].length : 0;
+    var expanded = false, collapsed = false;
+    function btn(label) {
+      return ' <button type="button" class="bsx-readmore-toggle" aria-expanded="' + (label === 'less') + '" aria-controls="' + (intro.id || '') + '">' + label + '</button>';
     }
-    checkOverflow();
-    window.addEventListener('resize', checkOverflow);
-    more.addEventListener('click', function() {
-      intro.classList.add('bsx-rm-expanded');
+    function lines(span) { return span.getClientRects().length; }
+    function wrap(inner) { intro.innerHTML = '<span class="bsx-rm-text">' + inner + '</span>'; return intro.firstChild; }
+    function setCut(cut) {
+      var txt = fullText.slice(0, cut).replace(/[\s,.;:]+$/, '');
+      return wrap(escHtml(txt) + '…' + btn('more'));
+    }
+    function showFull(withLess) { intro.innerHTML = fullHTML + (withLess ? btn('less') : ''); }
+    function layout() {
+      if (expanded) return;
+      if (!isMobile()) { showFull(false); collapsed = false; intro.classList.remove('bsx-rm-collapsed'); return; }
+      var full = lines(wrap(fullHTML));
+      var L = Math.max(lines(setCut(minEnd)), minEnd ? 1 : 2);
+      if (full <= L) { showFull(false); collapsed = false; intro.classList.remove('bsx-rm-collapsed'); return; }
+      // word boundaries from the anchor on; binary-search the longest cut that still fits in L lines
+      var cuts = [minEnd];
+      var re = /\s/g, r;
+      while ((r = re.exec(fullText))) { if (r.index > minEnd) cuts.push(r.index); }
+      cuts.push(fullText.length);
+      var lo = 0, hi = cuts.length - 1, best = minEnd;
+      while (lo <= hi) {
+        var mid = (lo + hi) >> 1;
+        if (lines(setCut(cuts[mid])) <= L) { best = cuts[mid]; lo = mid + 1; } else { hi = mid - 1; }
+      }
+      setCut(best);
+      collapsed = true;
+      intro.classList.add('bsx-rm-collapsed');
+    }
+    intro.addEventListener('click', function(e) {
+      var b = e.target.closest && e.target.closest('.bsx-readmore-toggle');
+      if (!b) return;
+      e.preventDefault();
+      if (b.textContent === 'more') { expanded = true; collapsed = false; showFull(true); intro.classList.remove('bsx-rm-collapsed'); }
+      else { expanded = false; layout(); }
     });
+    var t = null;
+    window.addEventListener('resize', function() { clearTimeout(t); t = setTimeout(layout, 120); });
+    layout();
   }
 
-  // City hubs: "What {City} drives ↓" jump link to the city-data module (#city-cars, a CMS HTML
-  // embed below the listings). Lives at the end of srp-engine's .bs-meta row ("1,114 Bestest
-  // listings · Clear all filters · Irvine"), so it costs ~0px above the listings on mobile
-  // (measured: first listing moves 4px). .bs-meta is built after the feed loads, so poll for it.
-  // Desktop: the summary's closing sentence ("See what else {City} is driving, and what it's not.")
-  // becomes the jump link itself, so the link sits next to the line it describes. Mobile (<=720px)
-  // clamps the summary behind "more...", so the .bs-meta link stays there and is hidden on desktop
-  // only when the sentence link exists.
-  // GA4: city_cars_jump_click (with where: intro | meta) + city_cars_view (once, at 25% visible).
+  // City hubs and fuel pages: the intro's own closing sentence ("See what Irvine drives ↓") is the jump link to the
+  // city-data module (#city-cars, a CMS HTML embed below the listings). No link in the meta row (spec sec. 4).
+  // GA4: city_cars_jump_click (where: intro) + city_cars_view (once, at 25% visible).
   var cityCarsDone = false;
   function setupCityCars() {
     if (cityCarsDone) return;
@@ -368,29 +398,18 @@
     var track = function (name, where) {
       try { if (typeof window.gtag === 'function') window.gtag('event', name, { city: city, where: where || '' }); } catch (e) {}
     };
-    var jump = function (where) {
-      return function (e) {
-        e.preventDefault();
-        e.stopPropagation();   // Webflow's own delegated '#' smooth-scroll would otherwise win and land with no header offset
-        track('city_cars_jump_click', where);
-        var y = mod.getBoundingClientRect().top + window.pageYOffset - 90;   // clear the sticky header/band
-        window.scrollTo({ top: y, behavior: 'smooth' });
-      };
-    };
-    var hasIntroLink = linkIntroSentence(jump('intro'));
-    var a = document.createElement('a');
-    a.href = '#city-cars';
-    a.className = 'bs-cc-jump';
-    a.textContent = 'What ' + city + ' drives \u2193';
-    a.style.cssText = 'font:600 12px/1.4 Montserrat,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:#1a6f4a;text-decoration:underline;text-underline-offset:2px;white-space:nowrap;margin-left:auto';
-    if (hasIntroLink) a.classList.add('bs-cc-jump-mobile');
-    a.addEventListener('click', jump('meta'));
-    var tries = 0;
-    (function place() {
-      var meta = document.querySelector('.bs-meta');
-      if (meta) { if (!meta.contains(a)) meta.appendChild(a); }
-      else if (++tries < 60) setTimeout(place, 250);
-    })();
+    linkIntroSentence();
+    // Delegated (capture) so the link survives the intro being re-rendered by the peek, and so Webflow's own
+    // delegated '#' smooth-scroll never wins (it lands with no header offset).
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a.bs-cc-intro-link');
+      if (!a) return;
+      e.preventDefault();
+      e.stopPropagation();
+      track('city_cars_jump_click', 'intro');
+      var y = mod.getBoundingClientRect().top + window.pageYOffset - 90;   // clear the sticky header/band
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }, true);
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
         if (entries.some(function (en) { return en.isIntersecting; })) { track('city_cars_view'); io.disconnect(); }
@@ -399,30 +418,26 @@
     }
   }
 
-  // Wrap "See what else ... it's not." in the city summary (.srp-intro) as a link to #city-cars.
-  // The sentence is plain CMS text, so it stays crawlable text; only the anchor is added here.
-  function linkIntroSentence(onClick) {
+  // Wrap the "See what {City} drives ↓" sentence (or the older "See what else ... it's not.") in the summary
+  // (.srp-intro) as a link to #city-cars. The sentence is plain CMS text, so it stays crawlable text.
+  function linkIntroSentence() {
     var intro = document.querySelector('.srp-intro');
     if (!intro) return false;
     for (var n = intro.firstChild; n; n = n.nextSibling) {
       if (n.nodeType !== 3) continue;
-      var i = n.data.indexOf('See what else');
+      var i = n.data.indexOf('See what ');
       if (i < 0) continue;
-      var end = n.data.indexOf('.', i);
-      end = end < 0 ? n.data.length : end + 1;
+      var end = -1, arrow = n.data.indexOf('↓', i), dot = n.data.indexOf('.', i);
+      if (arrow >= 0 && (dot < 0 || arrow < dot)) end = arrow + 1;
+      else end = dot < 0 ? n.data.length : dot + 1;
       var tail = n.splitText(i); tail.splitText(end - i);
       var link = document.createElement('a');
       link.href = '#city-cars';
       link.className = 'bs-cc-intro-link';
       link.style.cssText = 'color:#1a6f4a;font-weight:600;text-decoration:underline;text-underline-offset:3px';
-      link.textContent = tail.data.replace(/\.$/, '') + ' \u2193';
+      var text = tail.data.replace(/[.\s]+$/, '');
+      link.textContent = /↓$/.test(text) ? text : text + ' ↓';
       tail.parentNode.replaceChild(link, tail);
-      link.addEventListener('click', onClick);
-      if (!document.getElementById('bs-cc-jump-css')) {
-        var st = document.createElement('style'); st.id = 'bs-cc-jump-css';
-        st.textContent = '@media (min-width:721px){.bs-cc-jump-mobile{display:none!important}}';
-        document.head.appendChild(st);
-      }
       return true;
     }
     return false;
@@ -438,7 +453,10 @@
     setupReadMore();
     if (MODE === 'segment') {
       window.Bestest.onReady(function() { renderChips(); });
+    } else if (SCOPE_MODEL) {
+      window.Bestest.onReady(function() { setActiveSegment(resolveModelSegment()); renderChips(); });
     }
+    document.addEventListener('bestest:render', function() { if (ACTIVE && window.Bestest.isReady()) renderChips(); });   // Clear all, ✕ chips, back/forward
     window.addEventListener('scroll', checkSticky, { passive: true });
     checkSticky();
   }

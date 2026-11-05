@@ -5,6 +5,10 @@
         intro field passes a real link through Webflow rich text)
      2) otherwise, the literal phrase "Which cars make the cut?" found in page
         text is wrapped into an interactive link in place.
+   Plus, always (SRP streamline 11/5): the card line "Recommended ✅ Model ✅ Dealer
+   ✅ Listing" (.text-block-7) opens the overlay on tap. Delegated at document
+   capture so it beats srp-engine's whole-card click and survives re-renders.
+   GA4: cut_overlay_open {where: card | link}.
    Embed once site-wide, before </body>:
      <script src="https://cdn.jsdelivr.net/gh/ShopBestest/bestest-web@<sha>/js/cut-overlay.js" defer></script>
 */
@@ -24,6 +28,7 @@
     s.textContent=
       ".bs-cut-link{color:"+GREEN+";cursor:pointer;text-decoration:none;font-weight:600;white-space:nowrap;background:none;border:none;padding:0;font:inherit;}"+
       ".bs-cut-link:hover{opacity:.75;}"+
+      ".text-block-7{cursor:pointer;}"+
       ".bs-cut-arrow{font-size:1.3em;line-height:0;vertical-align:-.06em;margin-left:.14em;display:inline-block;transition:transform .15s ease;}"+
       ".bs-cut-link:hover .bs-cut-arrow{transform:translateX(2px);}"+
       ".bs-cut-ov{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(20,20,20,.55);opacity:0;transition:opacity .18s ease;}"+
@@ -60,11 +65,23 @@
     document.body.appendChild(ov);
     return ov;
   }
-  function open(e){ if(e)e.preventDefault(); buildOverlay(); ov.classList.add('bs-open'); document.addEventListener('keydown',onKey); }
+  function track(where){ try{ if(typeof window.gtag==='function')window.gtag('event','cut_overlay_open',{where:where||'link'}); }catch(err){} }
+  function open(e,where){ if(e)e.preventDefault(); buildOverlay(); ov.classList.add('bs-open'); document.addEventListener('keydown',onKey); track(where); }
   function close(){ if(ov)ov.classList.remove('bs-open'); document.removeEventListener('keydown',onKey); }
   function onKey(e){ if(e.key==='Escape')close(); }
 
-  function bindEl(el){ if(el.__bsCutBound)return; el.__bsCutBound=true; el.classList.add('bs-cut-link'); el.setAttribute('role','button'); el.setAttribute('tabindex','0'); el.addEventListener('click',open); el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' ')open(e); }); }
+  function bindEl(el){ if(el.__bsCutBound)return; el.__bsCutBound=true; el.classList.add('bs-cut-link'); el.setAttribute('role','button'); el.setAttribute('tabindex','0'); el.addEventListener('click',function(e){open(e,'link');}); el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' ')open(e,'link'); }); }
+
+  // 0) the trust line on every card (server-rendered and srp-engine re-rendered alike)
+  function isCardLine(t){ return !!(t&&t.closest&&t.closest('.text-block-7')&&t.closest('.text-block-7').textContent.indexOf('Recommended')!==-1); }
+  function bindCardLines(){
+    document.addEventListener('click',function(e){ if(!isCardLine(e.target))return; e.preventDefault(); e.stopPropagation(); open(null,'card'); },true);
+    document.addEventListener('keydown',function(e){ if((e.key==='Enter'||e.key===' ')&&isCardLine(e.target)){ e.preventDefault(); e.stopPropagation(); open(null,'card'); } },true);
+    function a11y(){ document.querySelectorAll('.text-block-7').forEach(function(el){ if(el.__bsCutA11y)return; el.__bsCutA11y=true; el.setAttribute('role','button'); el.setAttribute('tabindex','0'); el.setAttribute('aria-label','How we choose cars'); }); }
+    a11y();
+    var grid=document.querySelector('.collection-list-2');
+    if(grid&&'MutationObserver' in window)new MutationObserver(a11y).observe(grid,{childList:true,subtree:true});
+  }
 
   // 1) explicit triggers
   function bindExplicit(){
@@ -104,6 +121,7 @@
 
   function init(){
     injectStyles();
+    bindCardLines();
     var hasExplicit=bindExplicit();
     if(!hasExplicit)wrapPhrase();
   }
