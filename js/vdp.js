@@ -1390,6 +1390,11 @@
       ['bst-main-cta', 'bst-slim-cta'].forEach(function (id) {
         var a = document.getElementById(id); if (a) a.textContent = 'Ask if it’s still available →';
       });
+      /* Car Offer availability: the template embed says InStock; no CMS field is free (60-field cap, every
+         field bound), so patch the JSON-LD here. Googlebot renders JS; non-JS engines still read the sentence. */
+      [].slice.call(document.querySelectorAll('script[type="application/ld+json"]')).forEach(function (sc) {
+        if (/schema\.org\/InStock/.test(sc.textContent)) sc.textContent = sc.textContent.replace(/schema\.org\/InStock/g, 'schema.org/LimitedAvailability');
+      });
       /* Pattern B trust line was rendered while the car was Active: drop "right now". */
       [].slice.call(document.querySelectorAll('.bst-vdp-body p, .bstb-card p, .bst-about-h1, .bst-about-bullet-text')).forEach(function (el) {
         if (/for sale in Orange County right now/.test(el.textContent)) el.innerHTML = el.innerHTML.replace(/ right now/, '');
