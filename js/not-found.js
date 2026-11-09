@@ -2,7 +2,7 @@
    Sold VDPs hard-404 by design (status 404 + noindex stay). When the missing URL is a VDP
    (/used/{year}-{make}-{model}[-{trim}]-{vin6}), this replaces the generic 404 markup with:
      1. "That {year} {make} {model} {trim} was one of the best {model}s for sale in Orange County"
-     2. "But here are the others!" + the three closest live cars of the same model (trim, then
+     2. "Here are the others" + the four closest live cars of the same model (trim, then
         powertrain, then year, then 15+ photos, then newest arrival); segment cars if none live
      3. "See all Bestest {model}s" (right-aligned)
      4. "Bestest isn't like other used-car listing sites." + descriptor (Jason's copy, 11/3)
@@ -122,7 +122,7 @@
     return trim.split(' ').map(function (w) { return w.length <= 3 && !/^(and|the|for|awd|fwd|rwd)$/.test(w) ? w.toUpperCase() : w.toUpperCase() === w ? w : w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
   }
 
-  // Closest three: same trim, same powertrain (hybrid or not), nearest year, 15+ photos, newest arrival, newest photos.
+  // Closest four (Jason 11/8; was three): same trim, same powertrain (hybrid or not), nearest year, 15+ photos, newest arrival, newest photos.
   function pick(cars, year, trim) {
     var hyb = /\bhybrid\b/.test(trim), t = slugify(trim.replace(/\bhybrid\b/, ''));
     function key(x) {
@@ -132,7 +132,14 @@
     return cars.map(function (x) { return { x: x, k: key(x) }; }).sort(function (a, b) {
       for (var i = 0; i < a.k.length; i++) { if (a.k[i] > b.k[i]) return -1; if (a.k[i] < b.k[i]) return 1; }
       return 0;
-    }).slice(0, 3).map(function (o) { return o.x; });
+    }).slice(0, 4).map(function (o) { return o.x; });
+  }
+
+  // "Nissan of Costa Mesa" needs no " · Costa Mesa" after it (site rule: a dealer name that carries the city stands alone).
+  function dealerLine(dn, dc) {
+    dn = dn || ''; dc = dc || '';
+    if (dc && dn.toLowerCase().indexOf(dc.toLowerCase()) >= 0) return dn;
+    return [dn, dc].filter(Boolean).join(' · ');
   }
 
   function card(x, i) {
@@ -142,7 +149,7 @@
       (x.img ? '<img src="' + esc(x.img) + '" alt="' + esc(name) + '" loading="lazy" decoding="async">' : '<span class="b4-noimg"></span>') +
       '<span class="b4-cb"><span class="b4-ch">' + esc(name) + '</span><span class="b4-cs">' + esc(sub) + '</span>' +
       (x.p ? '<span class="b4-cp">$' + fmt(x.p) + '</span>' : '') +
-      '<span class="b4-cd">' + esc([x.dn, x.dc].filter(Boolean).join(' · ')) + '</span></span></a>';
+      '<span class="b4-cd">' + esc(dealerLine(x.dn, x.dc)) + '</span></span></a>';
   }
 
   function dual(nIn, nTot, subIn, subOut) {
@@ -157,13 +164,15 @@
     '.b4{font-family:Montserrat,-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;max-width:980px;margin:0 auto;padding:28px 0 64px;text-align:left}' +
     '.b4 a{text-decoration:none}.b4 p,.b4 h1,.b4 h2,.b4 a,.b4 span,.b4 b{font-family:Montserrat,-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:normal}' + // site p = Lora
     '.b4-sold{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a877e;background:#f3f1ea;border-radius:6px;padding:4px 9px;margin:0 0 12px}' +
-    '.b4 h1.b4-h1{font-family:Montserrat,sans-serif;font-size:32px;line-height:1.2;font-weight:700;margin:0 0 14px;max-width:860px;color:#1a1a1a}' +
-    '.b4-lead{font-size:20px;font-weight:600;margin:0 0 14px;color:#333}' +
-    '.b4-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:0 0 16px}' +
+    '.b4 h1.b4-h1{font-family:Montserrat,sans-serif;font-size:28px;line-height:1.2;font-weight:700;margin:0 0 14px;max-width:860px;color:#1a1a1a}' +
+    '.b4-leadrow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:0 0 12px}' +
+    '.b4-lead{font-size:20px;font-weight:600;margin:0;color:#333}' +
+    '.b4-seeall{color:#1a6f4a!important;font-weight:600;font-size:14px;white-space:nowrap}.b4-seeall:hover{text-decoration:underline}' +
+    '.b4-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 0 26px}' +
     '.b4-card{display:block;color:inherit;border:.5px solid #e7e5dd;border-radius:14px;overflow:hidden;background:#fff;transition:box-shadow .15s}.b4-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}' +
-    '.b4-card img,.b4-noimg{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#f3f1ea}' +
-    '.b4-cb{display:block;padding:14px 16px 16px}.b4-ch{display:block;font-weight:700;font-size:17px;line-height:1.25}' +
-    '.b4-cs{display:block;color:#6b7280;font-size:13.5px;margin:4px 0 8px}.b4-cp{display:block;font-size:22px;font-weight:700;color:#1a6f4a}.b4-cd{display:block;font-size:13px;color:#444;margin-top:4px}' +
+    '.b4-card img,.b4-noimg{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#f3f1ea}' +
+    '.b4-cb{display:block;padding:10px 12px 12px}.b4-ch{display:block;font-weight:700;font-size:14.5px;line-height:1.25}' +
+    '.b4-cs{display:block;color:#6b7280;font-size:12.5px;margin:3px 0 6px}.b4-cp{display:block;font-size:18px;font-weight:700;color:#1a6f4a}.b4-cd{display:block;font-size:12px;color:#444;margin-top:3px}' +
     '.b4-more{text-align:right;margin:0 0 36px}.b4-more.b4-r{margin:4px 0 0}' +
     '.b4-btn{display:inline-flex;padding:13px 20px;border-radius:10px;background:#1a6f4a;color:#fff!important;font-weight:600;font-size:15px}' +
     '.b4-btn.b4-ghost{background:#fff;color:#1a6f4a!important;border:1px solid #1a6f4a;margin-top:6px}' +
@@ -177,7 +186,8 @@
     '.b4-dl>span{display:flex;flex-direction:column;gap:3px;font-size:13.5px;color:#555;margin-top:3px}.b4-out>span{align-items:flex-end}' +
     '.b4-dl a{color:#1a1a1a;font-weight:500}.b4-out a{color:#8a877e}.b4-dl a:hover{text-decoration:underline}' +
     '@media(max-width:720px){.b4{padding:20px 0 40px}.b4 h1.b4-h1{font-size:24px}.b4-lead{font-size:18px}.b4 h2.b4-nl{font-size:24px}' +
-    '.b4-cards{grid-template-columns:1fr;gap:10px}.b4-card{display:grid;grid-template-columns:120px 1fr}.b4-card img,.b4-noimg{height:100%;aspect-ratio:auto}' +
+    '.b4-leadrow{flex-direction:column;align-items:flex-start;gap:4px}.b4-seeall{font-size:13px}' +
+    '.b4-cards{grid-template-columns:1fr;gap:10px;margin-bottom:20px}.b4-card{display:grid;grid-template-columns:120px 1fr}.b4-card img,.b4-noimg{height:100%;aspect-ratio:auto}' +
     '.b4-cb{padding:10px 12px}.b4-ch{font-size:15px}.b4-cs{font-size:12.5px;margin:2px 0 4px}.b4-cp{font-size:18px}.b4-cd{font-size:12px}' +
     '.b4-btn{width:100%;justify-content:center;text-align:center}.b4-more{text-align:center}.b4-dl b{font-size:16px}.b4-dl>span{font-size:12.5px}}';
 
@@ -193,11 +203,13 @@
     var html = '<p class="b4-sold">Sold</p>' +
       '<h1 class="b4-h1">That ' + esc(name) + ' was one of the best ' + esc(plural(md)) + ' for sale in Orange County</h1>';
     if (cars.length) {
-      html += '<p class="b4-lead">' + (scope === 'model' ? (cars.length === 1 ? 'But here\u2019s another!' : 'But here are the others!') : 'But here are other Bestest ' + esc(segLow) + '!') + '</p>' +
-        '<div class="b4-cards">' + cars.map(card).join('') + '</div>' +
-        '<div class="b4-more">' + (scope === 'model'
-          ? '<a class="b4-btn" data-b4="see_all" href="/used-cars?make=' + encodeURIComponent(mk) + '&model=' + encodeURIComponent(md) + '">See all Bestest ' + esc(plural(md)) + ' →</a>'
-          : '<a class="b4-btn" data-b4="browse" href="' + esc(seg.url) + '">See all Bestest ' + esc(segLow) + ' →</a>') + '</div>';
+      // Jason 11/8: lead without punctuation, "See all" as a link beside it (not a button row under the cards), four cards
+      // across on desktop, so the row ends sooner and the next section peeks above the fold.
+      var seeAll = scope === 'model'
+        ? '<a class="b4-seeall" data-b4="see_all" href="/used-cars?make=' + encodeURIComponent(mk) + '&model=' + encodeURIComponent(md) + '">See all ' + fmt(same.length) + ' Bestest ' + esc(plural(md)) + ' →</a>'
+        : '<a class="b4-seeall" data-b4="browse" href="' + esc(seg.url) + '">See all Bestest ' + esc(segLow) + ' →</a>';
+      html += '<div class="b4-leadrow"><p class="b4-lead">' + (scope === 'model' ? (cars.length === 1 ? 'Here\u2019s another' : 'Here are the others') : 'Here are other Bestest ' + esc(segLow)) + '</p>' + seeAll + '</div>' +
+        '<div class="b4-cards">' + cars.map(card).join('') + '</div>';
     }
 
     var tot = d.oc && d.oc.total, live = d.feed.length;
