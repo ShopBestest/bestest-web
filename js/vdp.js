@@ -1335,6 +1335,92 @@
     }
 
   
+    /* ── "Likely sold" notice (grace period, 2026-11-09) ──
+       A car missing from the data pull is Unconfirmed for 3 days before it is Sold. Its VDP stays
+       live; the sentence ("We haven't seen this listing since Nov 8, which usually means it sold.")
+       is SERVER-RENDERED into #bst-unc .bst-unc-note from the CMS field listing-status (empty while
+       Active), so crawlers and AI engines read the fact without JS. This adds the chrome only:
+       heading, the three closest live cars of the same model, the dealer check line, the CTA label,
+       and drops "right now" from the Pattern B trust line. Nothing here states a fact of its own. */
+    function renderUnconfirmed(d) {
+      var box = document.getElementById('bst-unc');
+      if (!box) return;
+      var note = box.querySelector('.bst-unc-note');
+      var text = note ? (note.textContent || '').trim() : '';
+      if (!text) { box.style.display = 'none'; return; }
+      document.documentElement.classList.add('bst-unconfirmed');
+      box.classList.add('is-on');
+      var css = document.createElement('style');
+      css.textContent = [
+        '.bst-unc-h{font:800 17px/1.35 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 4px}',
+        '.bst-unc-h::before{content:"";display:inline-block;width:11px;height:11px;border-radius:50%;background:#e0a526;margin:0 9px 1px 0}',
+        '.bst-unc-p{font:500 14.5px/1.55 Montserrat,sans-serif;color:#3d3d3d;margin:8px 0 0}',
+        '.bst-unc-all{font-weight:700;color:#1a6f4a;text-decoration:none}',
+        '.bst-unc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0 12px}',
+        '.bst-unc-cards:empty{display:none}',
+        '.bst-unc-card{display:block;background:#fff;border:1px solid #e4e1d7;border-radius:10px;overflow:hidden;text-decoration:none;color:#1a1a1a}',
+        '.bst-unc-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#f0f0f0}',
+        '.bst-unc-card-body{padding:10px 12px 12px}',
+        '.bst-unc-card-title{font:700 13.5px/1.3 Montserrat,sans-serif;margin-bottom:4px}',
+        '.bst-unc-card-meta{font:500 12.5px/1.4 Montserrat,sans-serif;color:#555}',
+        '.bst-unc-card-meta b{color:#155539;font-weight:800}',
+        '.bst-unc-foot{font:500 12.5px/1.5 Montserrat,sans-serif;color:#6b7280;margin:0}',
+        '.bst-unc-foot a{color:#1a6f4a;font-weight:600;text-decoration:underline;text-underline-offset:2px}',
+        '@media (max-width:600px){.bst-unc.is-on{padding:14px 14px 12px}.bst-unc-cards{grid-template-columns:1fr 1fr}.bst-unc-card:nth-child(3){display:none}.bst-unc-h{font-size:15.5px}}'
+      ].join('');
+      document.head.appendChild(css);
+
+      var h = document.createElement('p'); h.className = 'bst-unc-h'; h.textContent = 'Likely sold';
+      box.insertBefore(h, note);
+      var srp = SEGMENT_TO_SLUG[d.segment] || '/used-cars';
+      var intro = document.createElement('p'); intro.className = 'bst-unc-p';
+      intro.innerHTML = 'Here are the closest Bestest matches. <a class="bst-unc-all" data-bst-track="unconfirmed_see_all" data-bst-vin="' + escapeHtml(d.vin) + '" href="'
+        + escapeHtml(srp + '?model=' + encodeURIComponent(d.model)) + '">See all Bestest ' + escapeHtml(d.model) + 's &rsaquo;</a>';
+      box.appendChild(intro);
+      var cards = document.createElement('div'); cards.className = 'bst-unc-cards'; cards.id = 'bst-unc-cards';
+      box.appendChild(cards);
+      if (d.vdpUrl) {
+        var foot = document.createElement('p'); foot.className = 'bst-unc-foot';
+        foot.innerHTML = 'Want to be sure it’s gone? <a href="' + escapeHtml(d.vdpUrl) + '" target="_blank" rel="noopener" data-bst-track="unconfirmed_dealer_click" data-bst-vin="'
+          + escapeHtml(d.vin) + '" data-bst-dealer="' + escapeHtml(d.dealerName) + '">Check the dealer’s listing ↗</a>';
+        box.appendChild(foot);
+      }
+
+      /* the CTA stays: the dealer may still have it. Relabel both buttons. */
+      ['bst-main-cta', 'bst-slim-cta'].forEach(function (id) {
+        var a = document.getElementById(id); if (a) a.textContent = 'Ask if it’s still available →';
+      });
+      /* Pattern B trust line was rendered while the car was Active: drop "right now". */
+      [].slice.call(document.querySelectorAll('.bst-vdp-body p, .bstb-card p, .bst-about-h1, .bst-about-bullet-text')).forEach(function (el) {
+        if (/for sale in Orange County right now/.test(el.textContent)) el.innerHTML = el.innerHTML.replace(/ right now/, '');
+      });
+
+      /* three closest live cars of the same model (same rules as the sold page: trim, powertrain, year, 15+ photos, newest) */
+      var feedUrl = (typeof window.BS_FEED_URL === 'string' && window.BS_FEED_URL) || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/';
+      var vin6 = (d.vin || '').slice(-6).toLowerCase();
+      function slugify(x) { return (x || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+      function fmt(n) { return Number(n).toLocaleString('en-US'); }
+      fetch(feedUrl, { credentials: 'omit' }).then(function (r) { return r.ok ? r.json() : []; }).then(function (recs) {
+        var pool = recs.filter(function (x) { return x.md === d.model && x.mk === d.make && (x.slug || '').slice(-6).toLowerCase() !== vin6; });
+        if (!pool.length) pool = recs.filter(function (x) { return x.sg === d.segment && (x.slug || '').slice(-6).toLowerCase() !== vin6; });
+        var t = slugify(d.trim), yr = parseInt(d.year, 10) || 0, pt = (d.powertrain || '').toLowerCase();
+        function key(x) {
+          return [slugify(x.tr) === t ? 1 : 0, (x.pt || '').toLowerCase() === pt ? 1 : 0, -Math.abs((x.y || 0) - yr), (x.pho || 0) >= 15 ? 1 : 0, x.fs || '', x.pm || ''];
+        }
+        var top = pool.map(function (x) { return { x: x, k: key(x) }; }).sort(function (a, b) {
+          for (var i = 0; i < a.k.length; i++) { if (a.k[i] > b.k[i]) return -1; if (a.k[i] < b.k[i]) return 1; }
+          return 0;
+        }).slice(0, 3).map(function (o) { return o.x; });
+        cards.innerHTML = top.map(function (x, i) {
+          return '<a class="bst-unc-card" href="/used/' + escapeHtml(x.slug) + '" data-bst-track="unconfirmed_match" data-bst-pos="' + (i + 1) + '">'
+            + (x.img ? '<img src="' + escapeHtml(x.img) + '" alt="' + escapeHtml(x.t || '') + '" loading="lazy" decoding="async">' : '')
+            + '<div class="bst-unc-card-body"><div class="bst-unc-card-title">' + escapeHtml(x.t || '') + '</div>'
+            + '<div class="bst-unc-card-meta">' + (x.p ? '<b>$' + fmt(x.p) + '</b> · ' : '') + (x.mi != null ? fmt(x.mi) + ' mi · ' : '') + escapeHtml(x.dc || '') + '</div></div></a>';
+        }).join('');
+        if (!top.length) intro.style.display = 'none';
+      }).catch(function () { intro.style.display = 'none'; });
+    }
+
     onReady(function () {
       var d = getData();
       if (!d) return;
@@ -1347,6 +1433,7 @@
       styleBespokeLinks(d);
       richListingStyles();
       mountSlimBar(d);
+      renderUnconfirmed(d);
       setupGA4(d);
       buildSimilar(d);
       if (pb) renderPatternB(blk, d);
