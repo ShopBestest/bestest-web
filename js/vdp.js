@@ -477,6 +477,24 @@
     /* The listing field is Airtable rich text; Whalesync delivers it to the page as Webflow
        rich text (p, h3, strong, a). Keep only those tags, drop every attribute but a safe href. */
     var RICH_TAGS = { P: 1, H3: 1, STRONG: 1, B: 1, EM: 1, I: 1, A: 1, BR: 1, UL: 1, OL: 1, LI: 1 };
+    /* ── Dealer page link (11/9) ──
+       The facts section (facts_html, rendered by the pipeline) links the store's name in its Dealer tile when the
+       store has a /dealers/{slug} page (dealer_links.py). That served anchor is the one source: read its href and
+       reuse it wherever else the page shows the dealer's name. No anchor = no dealer page = plain text. */
+    var DEALER_PAGE_RE = /^(?:https:\/\/shopbestest\.com)?(\/dealers\/[a-z0-9-]+)\/?$/;
+    function dealerPagePath() {
+      var a = document.querySelector('.bst-facts a[href*="/dealers/"]');
+      var m = a && DEALER_PAGE_RE.exec(a.getAttribute('href') || '');
+      return m ? m[1] : '';
+    }
+    function dealerNameHtml(name, vin) {
+      var path = dealerPagePath();
+      if (!name || !path) return escapeHtml(name || '');
+      return '<a class="bst-dealer-page-link" href="' + path + '" data-bst-track="dealer_page_link" data-bst-vin="' + escapeHtml(vin || '')
+        + '" data-bst-dealer="' + escapeHtml(name) + '" style="color:inherit;text-decoration:underline;text-decoration-color:#31b56b;text-decoration-thickness:2px;text-underline-offset:3px">'
+        + escapeHtml(name) + '</a>';
+    }
+
     function sanitizeRich(html) {
       var box = document.createElement('div');
       box.innerHTML = html || '';
@@ -894,6 +912,7 @@
         'phone_chip':          'dealer_phone_tap',
         'email_chip':          'dealer_email_tap',
         'bespoke_dealer_link': 'dealer_referral_click_bespoke',
+        'dealer_page_link':    'dealer_page_click',   // internal: the store's /dealers/ page, not a referral
         'carfax_link':         'carfax_link_click',
         'similar_card':        'similar_listing_click',
         'segment_link':        'segment_link_click',
@@ -969,6 +988,15 @@
     }
 
     function styleBespokeLinks(d) {
+      /* The store's own page on Bestest (the facts section's Dealer tile): its own event, never a referral. */
+      [].forEach.call(document.querySelectorAll('.bst-facts a[href*="/dealers/"], .bst-about-rich a[href*="/dealers/"]'), function (a) {
+        var m = DEALER_PAGE_RE.exec(a.getAttribute('href') || '');
+        if (!m) return;
+        a.setAttribute('href', m[1]);
+        a.setAttribute('data-bst-track', 'dealer_page_link');
+        if (d.vin) a.setAttribute('data-bst-vin', d.vin);
+        if (d.dealerName) a.setAttribute('data-bst-dealer', d.dealerName);
+      });
       var box = document.getElementById('bst-about-block');
       if (!box) return;
       var anchors = box.querySelectorAll('a[href]');
@@ -1285,7 +1313,7 @@
         + '<span><b>Jason Allan</b>, Bestest founder</span></figcaption></figure>';
       var html = '';
       if (dl.name) {
-        html += '<div class="bstb-seller"><b>For sale at</b> ' + escapeHtml(dl.name) + (addr ? ', ' + escapeHtml(addr) : '') + ', a Bestest-approved dealer. '
+        html += '<div class="bstb-seller"><b>For sale at</b> ' + dealerNameHtml(dl.name, (b.listing || {}).vin) + (addr ? ', ' + escapeHtml(addr) : '') + ', a Bestest-approved dealer. '
           + (b.bestest.approved_dealers ? 'Bestest lists cars from only ' + b.bestest.approved_dealers + ' of the more than 400 dealers selling used cars in Orange County, and ' + escapeHtml(dl.name) + ' is one of them. ' : '')
           + 'Listing and photos come from the dealer. The picks' + (hasTake ? ', ranks and Jason&rsquo;s take are' : ' and ranks are')
           + ' Bestest&rsquo;s own: Bestest isn&rsquo;t a dealer, isn&rsquo;t affiliated with any dealership, and no dealer or automaker pays to be listed or ranked.</div>';
