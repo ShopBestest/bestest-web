@@ -547,7 +547,7 @@
       '.bst-facts-history .bst-rows span{order:1;font:500 13.5px/1.35 Montserrat,sans-serif;color:#5f6f67;margin:0}',
       '@media(min-width:768px){.bst-facts-car .bst-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:36px}.bst-facts-car .bst-rows li:nth-child(2){border-top:0}.bst-facts h2,.bst-facts-history h2{font-size:18px;margin-bottom:14px}.bst-facts .bst-cpo{margin-bottom:10px;padding:14px 18px 14px 22px}.bst-facts .bst-cpo b{font-size:18px}.bst-facts .bst-cpo span{font-size:13px}}',
       '@media(min-width:992px){.bst-facts{display:grid;grid-template-columns:2fr 1fr;gap:40px;padding-top:26px}.bst-facts-car{grid-column:1/-1}.bst-facts-car:not(:last-child){grid-column:1}.bst-facts-listing{margin-top:0;align-self:start;background:#f4f8f6;border:1px solid #e4e9e6;border-radius:14px;padding:18px 20px 8px}}',
-      '@media(min-width:601px){#bst-below-fold.bst-has-facts [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:repeat(3,1fr) !important}}'
+      '@media(min-width:601px){#bst-below-fold.bst-has-facts [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important;max-width:700px}}'
     ].join('');
     function factsSection() {
       var sec = document.querySelector('section.bst-facts');
@@ -847,9 +847,12 @@
       var ptLabel   = powertrainLabel(d.powertrain);
       var isElectric = d.powertrain === 'BEV';
   
-      /* The served facts section owns colors, mileage, VIN, stock no., engine, mpg and transmission. */
+      /* The served facts section owns colors, mileage, VIN, stock no., engine, mpg and transmission, and
+         (Jason, 11/11) drivetrain, body type and seating when it carries its drive and body rows. */
       var facts = factsSection();
       var owned = facts ? { 'Engine': 1, 'City MPG': 1, 'Hwy MPG': 1, 'Transmission': 1 } : {};
+      if (facts && facts.querySelector('li[data-k="drive"]')) owned['Drivetrain'] = 1;
+      if (facts && facts.querySelector('li[data-k="body"]')) { owned['Body type'] = 1; owned['Seating'] = 1; }
       function keep(r) { return r[1] && !owned[r[0]]; }
 
       var identityRows = [['Make',d.make],['Model',d.variantModel || d.model],['Year',d.year],['Trim',d.trim],['Condition','Used']].filter(function(r){return r[1];});
