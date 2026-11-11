@@ -281,6 +281,23 @@
     return /^https:\/\//.test(u) ? u : '';
   }
 
+  // "31,315 miles" from the CMS data div, or '' when unknown.
+  function carMiles() {
+    var el = document.getElementById('bst-vin-data');
+    var n = Number(el && el.dataset.miles);
+    return n > 0 ? Math.round(n).toLocaleString('en-US') + ' miles' : '';
+  }
+
+  // "Westminster · 7 mi away" as vdp.js painted it (city only until the visitor's zip
+  // resolves), else the dealer city from the data div.
+  function carPlace() {
+    var line = document.getElementById('bst-dealer-distance');
+    var t = line && line.style.display !== 'none' ? line.textContent.replace(/\s+/g, ' ').trim() : '';
+    if (t) return t;
+    var el = document.getElementById('bst-vin-data');
+    return (el && el.dataset.dealerCity) || '';
+  }
+
   function fmtPrice(n) {
     var x = Number(n);
     return (!isNaN(x) && x > 0) ? '$' + Math.round(x).toLocaleString('en-US') : '';
@@ -359,6 +376,9 @@
       ".bstlf-car-txt{min-width:0;}" +
       ".bstlf-veh{font-size:14px;font-weight:600;color:#0e1523;margin:0;line-height:1.35;}" +
       ".bstlf-car-price{font-size:15px;font-weight:700;color:#0e1523;margin:2px 0 0;line-height:1.3;}" +
+      ".bstlf-car-meta{font-size:12.5px;font-weight:500;color:#4b5563;margin:2px 0 0;line-height:1.4;}" +
+      ".bstlf-car-ok{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#1a6f4a;margin:4px 0 0;line-height:1.3;}" +
+      ".bstlf-car-ok svg{flex:none;width:14px;height:14px;}" +
       ".bstlf-note{font-size:13px;font-weight:500;color:#4b5563;margin:0 0 14px;line-height:1.5;}" +
       ".bstlf-field{margin-bottom:10px;}" +
       ".bstlf-name-row{display:flex;gap:10px;}" +
@@ -372,7 +392,7 @@
       ".bstlf-submit{width:100%;margin-top:12px;padding:13px;background:#1a6f4a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s;}" +
       ".bstlf-submit:hover{background:#155539;}" +
       ".bstlf-submit:disabled{opacity:.6;cursor:default;}" +
-      ".bstlf-err-msg{color:#c0392b;font-size:12px;min-height:15px;margin-top:6px;}" +
+      ".bstlf-err-msg{color:#c0392b;font-size:12px;margin-top:6px;}" +
       ".bstlf-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}" +
       ".bstlf-done{text-align:center;padding:8px 0;}" +
       ".bstlf-done h3{font-size:18px;font-weight:700;color:#1a6f4a;margin:0 0 8px;}" +
@@ -397,7 +417,9 @@
           '<h2 class="bstlf-title" id="bstlf-title">Check availability</h2>' +
           '<div class="bstlf-car">' +
             '<img class="bstlf-car-img" alt="" hidden>' +
-            '<div class="bstlf-car-txt"><p class="bstlf-veh"></p><p class="bstlf-car-price"></p></div>' +
+            '<div class="bstlf-car-txt"><p class="bstlf-veh"></p><p class="bstlf-car-price"></p><p class="bstlf-car-meta"></p>' +
+              '<p class="bstlf-car-ok"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#31b56b"/><path d="M5.6 10.3l2.7 2.7 5.9-6.3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Bestest approved</span></p>' +
+            '</div>' +
           '</div>' +
           '<p class="bstlf-note">Ask the dealer to confirm it’s still available. They’ll reply by email.</p>' +
           '<form class="bstlf-form" novalidate>' +
@@ -546,7 +568,13 @@
     // GA params, and is revealed in the confirmation). Urgency lives on the VDP; the
     // modal shows the car (photo, name, price) and one plain line on what happens next.
     backdrop.querySelector('.bstlf-veh').textContent = longName;
-    backdrop.querySelector('.bstlf-car-price').textContent = fmtPrice(price);
+    // Price and mileage share a line; the dealer's city and distance sit under it, read
+    // from the VDP's own location line so the two can never disagree.
+    var milesStr = carMiles();
+    backdrop.querySelector('.bstlf-car-price').textContent = [fmtPrice(price), milesStr].filter(Boolean).join(' · ');
+    var meta = backdrop.querySelector('.bstlf-car-meta');
+    meta.textContent = carPlace();
+    meta.style.display = meta.textContent ? '' : 'none';
     var img = backdrop.querySelector('.bstlf-car-img');
     var photo = heroImage();
     if (photo) { img.src = photo; img.hidden = false; } else { img.hidden = true; }
