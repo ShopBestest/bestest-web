@@ -273,6 +273,14 @@
     return v;
   }
 
+  // The listing's lead photo: the CMS data div's hero URL, else the page's og:image.
+  function heroImage() {
+    var el = document.getElementById('bst-vin-data');
+    var u = (el && el.dataset.heroImageUrl) || '';
+    if (!u) { var og = document.querySelector('meta[property="og:image"]'); u = (og && og.getAttribute('content')) || ''; }
+    return /^https:\/\//.test(u) ? u : '';
+  }
+
   function fmtPrice(n) {
     var x = Number(n);
     return (!isNaN(x) && x > 0) ? '$' + Math.round(x).toLocaleString('en-US') : '';
@@ -345,15 +353,20 @@
       ".bstlf-card{position:relative;background:#fff;border-radius:14px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;padding:24px 22px;box-shadow:0 16px 48px rgba(0,0,0,.2);box-sizing:border-box;}" +
       ".bstlf-close{position:absolute;top:8px;right:12px;width:30px;height:30px;border:none;background:transparent;color:#999;font-size:22px;line-height:1;cursor:pointer;padding:0;}" +
       ".bstlf-title{font-size:18px;font-weight:700;color:#0e1523;margin:0 6px 4px 0;line-height:1.3;}" +
-      ".bstlf-sub{font-size:13px;color:#666;margin:0 0 16px;line-height:1.45;}" +
-      ".bstlf-note{font-size:12.5px;font-weight:500;color:#4b5563;margin:-10px 0 16px;line-height:1.5;}" +
+      // Car summary card (11/11): photo + name + price, so the pop-up shows the car it is about.
+      ".bstlf-car{display:flex;align-items:center;gap:12px;margin:10px 0 12px;padding:8px;border:1px solid #e3ebe6;border-radius:10px;}" +
+      ".bstlf-car-img{flex:none;width:92px;height:69px;object-fit:cover;border-radius:6px;background:#f1f4f2;}" +
+      ".bstlf-car-txt{min-width:0;}" +
+      ".bstlf-veh{font-size:14px;font-weight:600;color:#0e1523;margin:0;line-height:1.35;}" +
+      ".bstlf-car-price{font-size:15px;font-weight:700;color:#0e1523;margin:2px 0 0;line-height:1.3;}" +
+      ".bstlf-note{font-size:13px;font-weight:500;color:#4b5563;margin:0 0 14px;line-height:1.5;}" +
       ".bstlf-field{margin-bottom:10px;}" +
       ".bstlf-name-row{display:flex;gap:10px;}" +
       ".bstlf-name-row .bstlf-input{flex:1 1 0;min-width:0;}" +
       ".bstlf-input{width:100%;padding:10px 12px;border:1px solid #d0d0d0;border-radius:8px;font-size:15px;font-family:inherit;color:#1a1a1a;box-sizing:border-box;outline:none;transition:border-color .15s;}" +
       ".bstlf-input:focus{border-color:#1a6f4a;}" +
       ".bstlf-input.bstlf-err{border-color:#c0392b;}" +
-      "textarea.bstlf-input{min-height:64px;resize:vertical;}" +
+      "textarea.bstlf-input{min-height:88px;line-height:1.45;resize:vertical;}" +
       ".bstlf-consent{font-size:11px;color:#6b7280;line-height:1.45;margin:10px 0 0;}" +
       ".bstlf-consent a{color:#1a6f4a;text-decoration:underline;}" +
       ".bstlf-submit{width:100%;margin-top:12px;padding:13px;background:#1a6f4a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s;}" +
@@ -382,8 +395,11 @@
         '<button type="button" class="bstlf-close" aria-label="Close">×</button>' +
         '<div class="bstlf-form-wrap">' +
           '<h2 class="bstlf-title" id="bstlf-title">Check availability</h2>' +
-          '<p class="bstlf-sub bstlf-veh"></p>' +
-          '<p class="bstlf-note">We’ll send this straight to the dealer’s sales desk. You’ll hear back by email. No spam from Bestest, ever.</p>' +
+          '<div class="bstlf-car">' +
+            '<img class="bstlf-car-img" alt="" hidden>' +
+            '<div class="bstlf-car-txt"><p class="bstlf-veh"></p><p class="bstlf-car-price"></p></div>' +
+          '</div>' +
+          '<p class="bstlf-note">Ask the dealer to confirm it’s still available. They’ll reply by email.</p>' +
           '<form class="bstlf-form" novalidate>' +
             '<input class="bstlf-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">' +
             '<div class="bstlf-field bstlf-name-row">' +
@@ -413,6 +429,7 @@
     backdrop.addEventListener('click', function (e) { if (e.target === backdrop) close(); });
     card.addEventListener('click', function (e) { e.stopPropagation(); });
     backdrop.querySelector('.bstlf-close').addEventListener('click', close);
+    backdrop.querySelector('.bstlf-car-img').addEventListener('error', function () { this.hidden = true; });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && backdrop.classList.contains('bstlf-open')) close();
     });
@@ -527,8 +544,12 @@
 
     // Pre-lead the dealer stays anonymous here too (name still rides the payload and
     // GA params, and is revealed in the confirmation). Urgency lives on the VDP; the
-    // modal's job is the payoff promise (.bstlf-note, static in the markup).
+    // modal shows the car (photo, name, price) and one plain line on what happens next.
     backdrop.querySelector('.bstlf-veh').textContent = longName;
+    backdrop.querySelector('.bstlf-car-price').textContent = fmtPrice(price);
+    var img = backdrop.querySelector('.bstlf-car-img');
+    var photo = heroImage();
+    if (photo) { img.src = photo; img.hidden = false; } else { img.hidden = true; }
 
     var openToken = openedAt = Date.now();
     getListedDays(function (days) {
@@ -548,6 +569,17 @@
       'you shortly. Thanks for using Bestest!';
 
     backdrop.classList.add('bstlf-open');
+    // Grow the message box to fit the prefilled sentence (it was clipped mid-line).
+    // Measured a frame after the modal paints (a same-tick read on first open saw a
+    // zero-width box) and capped so a bad measurement can never blow up the card.
+    var ta = backdrop.querySelector('.bstlf-message');
+    ta.style.height = '';
+    var fit = function () {
+      if (!ta.clientWidth) return;
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(180, ta.scrollHeight + 2) + 'px';
+    };
+    if (window.requestAnimationFrame) requestAnimationFrame(function () { requestAnimationFrame(fit); }); else setTimeout(fit, 50);
     track('lead_form_open', ctxParams());
     setTimeout(function () { var n = backdrop.querySelector('.bstlf-first'); if (n) n.focus(); }, 60);
   }
