@@ -77,8 +77,9 @@
   function getPhotos() {
     var b = readBlock();
     if (b && b.listing && b.listing.photos && b.listing.photos.length) return b.listing.photos.slice();
+    // Webflow binds the pipe-delimited URLs to an attribute (data-images), not page text; textContent = old template.
     var el = document.querySelector('.photo-links');
-    var s = el ? el.textContent.trim() : '';
+    var s = el ? (el.getAttribute('data-images') || el.getAttribute('data-photo-links') || el.textContent || '').trim() : '';
     return s ? s.split('|').map(function(u) { return u.trim(); }).filter(Boolean) : [];
   }
 
@@ -477,6 +478,96 @@
     /* The listing field is Airtable rich text; Whalesync delivers it to the page as Webflow
        rich text (p, h3, strong, a). Keep only those tags, drop every attribute but a safe href. */
     var RICH_TAGS = { P: 1, H3: 1, STRONG: 1, B: 1, EM: 1, I: 1, A: 1, BR: 1, UL: 1, OL: 1, LI: 1 };
+    /* ── Dealer page link (11/9) ──
+       The facts section (facts_html, rendered by the pipeline) links the store's name in its dealer row when the
+       store has a /dealers/{slug} page (dealer_links.py). That served anchor is the one source: read its href and
+       reuse it wherever else the page shows the dealer's name. No anchor = no dealer page = plain text. */
+    var DEALER_PAGE_RE = /^(?:https:\/\/shopbestest\.com)?(\/dealers\/[a-z0-9-]+)\/?$/;
+    function dealerPagePath() {
+      var a = document.querySelector('.bst-facts a[href*="/dealers/"]');
+      var m = a && DEALER_PAGE_RE.exec(a.getAttribute('href') || '');
+      return m ? m[1] : '';
+    }
+    function dealerNameHtml(name, vin) {
+      var path = dealerPagePath();
+      if (!name || !path) return escapeHtml(name || '');
+      return '<a class="bst-dealer-page-link" href="' + path + '" data-bst-track="dealer_page_link" data-bst-vin="' + escapeHtml(vin || '')
+        + '" data-bst-dealer="' + escapeHtml(name) + '" style="color:inherit;text-decoration:underline;text-decoration-color:#31b56b;text-decoration-thickness:2px;text-underline-offset:3px">'
+        + escapeHtml(name) + '</a>';
+    }
+
+    /* ── Facts section (2026-11-11) ──
+       <section class="bst-facts"> is rendered by the pipeline (vdp_facts.py) and served in the page HTML through
+       the facts-html field. It owns the car's facts (miles, EPA mpg or range, drive, engine, transmission, colors,
+       body, VIN) and the listing's (dealer, listed date, price drop, stock no.). This script only styles and
+       places the served nodes: it never builds their text and never injects HTML from a field. When the section
+       is on the page, the icon row and the spec rows it owns are not built, so no fact shows twice; when it is
+       absent, the page builds exactly as before. Styles also in css/vdp.css; carried here so a pin change alone
+       is enough. */
+    var FACTS_CSS = [
+      '.bst-facts{font-family:Montserrat,sans-serif;color:#1a1a1a;margin:0;padding:22px 0 8px;border-top:1px solid #e4e9e6}',
+      '.bst-facts h2,.bst-facts-history h2{font:700 16px/1.3 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 10px}',
+      '.bst-facts .bst-rows{list-style:none;margin:0;padding:0}',
+      '.bst-facts .bst-rows li{display:grid;grid-template-columns:22px minmax(0,1fr);column-gap:12px;align-items:start;margin:0;padding:9px 0;border-top:1px solid #e4e9e6}',
+      '.bst-facts .bst-rows li:first-child{border-top:0}',
+      '.bst-facts .bst-rows li::before{content:"";grid-column:1;grid-row:1/span 2;width:22px;height:22px;margin-top:1px;background:#555;-webkit-mask:var(--bst-i) center/contain no-repeat;mask:var(--bst-i) center/contain no-repeat}',
+      '.bst-facts .bst-rows b{grid-column:2;display:block;font:700 14px/1.35 Montserrat,sans-serif;color:#1a1a1a;overflow-wrap:anywhere}',
+      '.bst-facts .bst-rows span{grid-column:2;display:block;font:500 12.5px/1.4 Montserrat,sans-serif;color:#5f6f67;margin-top:2px}',
+      '.bst-facts .bst-rows a{color:#1a6f4a;text-decoration:underline;text-underline-offset:2px}',
+      '.bst-facts li[data-k="vin"] b{font-family:ui-monospace,Menlo,monospace;font-size:13px}',
+      '.bst-facts li[data-k="miles"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M4 16a8 8 0 1 1 16 0\'/%3E%3Cpath d=\'M12 16l4-5\'/%3E%3Ccircle cx=\'12\' cy=\'16\' r=\'1\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="fuel"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5\'/%3E%3Cpath d=\'M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16\'/%3E%3Cpath d=\'M2 21h13\'/%3E%3Cpath d=\'M3 9h11\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="range"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23000\'%3E%3Cpath d=\'M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="drive"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'4\' y=\'2\' width=\'3\' height=\'5\' rx=\'1\'/%3E%3Crect x=\'17\' y=\'2\' width=\'3\' height=\'5\' rx=\'1\'/%3E%3Crect x=\'4\' y=\'17\' width=\'3\' height=\'5\' rx=\'1\'/%3E%3Crect x=\'17\' y=\'17\' width=\'3\' height=\'5\' rx=\'1\'/%3E%3Cpath d=\'M7 4.5h10\'/%3E%3Cpath d=\'M7 19.5h10\'/%3E%3Cpath d=\'M12 4.5v15\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="engine"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 512 512\' fill=\'%23000\'%3E%3Cpath d=\'M494.32,196.801l-4.858-8.131h-85.516v39.564h-8.557v-57.371h-44.32l-28.138-24.95h-46.53v-22.695h14.966V89.827H172.742v33.391h14.966v22.695h-48.443l-28.138,24.95H55.791v16.696v66.236h-22.4v-42.616H0v118.625h33.391v-42.617h22.4v66.236v16.696h83.474l58.709,52.054h197.414v-58.444h8.557v39.565h85.516l4.858-8.132c1.81-3.027,17.68-31.537,17.68-99.181S496.13,199.829,494.32,196.801z M221.101,123.22h21.909v22.695h-21.909V123.22z M468.927,369.902h-31.59v-39.565h-75.34v58.444H210.646l-58.709-52.054H89.183V204.255h34.617l28.138-24.95h158.32l28.138,24.95h23.601v57.371h75.34v-39.564h31.59c3.873,11.386,9.681,34.956,9.681,73.921C478.609,334.947,472.801,358.516,468.927,369.902z\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="motor"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0zM12 16v5\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="transmission"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M11 10.27 7 3.34\'/%3E%3Cpath d=\'m11 13.73-4 6.93\'/%3E%3Cpath d=\'M12 22v-2\'/%3E%3Cpath d=\'M12 2v2\'/%3E%3Cpath d=\'M14 12h8\'/%3E%3Cpath d=\'m17 20.66-1-1.73\'/%3E%3Cpath d=\'m17 3.34-1 1.73\'/%3E%3Cpath d=\'M2 12h2\'/%3E%3Cpath d=\'m20.66 17-1.73-1\'/%3E%3Cpath d=\'m20.66 7-1.73 1\'/%3E%3Cpath d=\'m3.34 17 1.73-1\'/%3E%3Cpath d=\'m3.34 7 1.73 1\'/%3E%3Ccircle cx=\'12\' cy=\'12\' r=\'2\'/%3E%3Ccircle cx=\'12\' cy=\'12\' r=\'8\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="ext"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m14.622 17.897-10.68-2.913\'/%3E%3Cpath d=\'M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z\'/%3E%3Cpath d=\'M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="int"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M11 17a4 4 0 0 1-8 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z\'/%3E%3Cpath d=\'M16.7 13H19a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H7\'/%3E%3Cpath d=\'M 7 17h.01\'/%3E%3Cpath d=\'m11 8 2.3-2.3a2.4 2.4 0 0 1 3.404.004L18.6 7.6a2.4 2.4 0 0 1 .026 3.434L9.9 19.8\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="body"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\'/%3E%3Cpath d=\'M9 17h6\'/%3E%3Ccircle cx=\'7\' cy=\'17\' r=\'2\'/%3E%3Ccircle cx=\'17\' cy=\'17\' r=\'2\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="vin"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M5 6v12M8 6v12M11.5 6v12M14 6v12M17 6v12M19.5 6v12\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="dealer"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M12 21c4-4.5 6-7.8 6-10.5a6 6 0 0 0-12 0C6 13.2 8 16.5 12 21z\'/%3E%3Ccircle cx=\'12\' cy=\'10.5\' r=\'2\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="listed"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'4\' y=\'5.5\' width=\'16\' height=\'14.5\' rx=\'2\'/%3E%3Cpath d=\'M4 10h16M8.5 3.5v4M15.5 3.5v4\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="drop"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M4 7l6 6 4-4 6 7\'/%3E%3Cpath d=\'M20 11v5h-5\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="stock"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M4 9h16M4 15h16M10 4L8 20M16 4l-2 16\'/%3E%3C/svg%3E")}',
+      '.bst-facts .bst-cpo{display:grid;grid-template-columns:46px minmax(0,1fr);column-gap:18px;align-items:center;background:#fffdf6;border:1.5px solid #d9b85c;border-radius:12px;padding:12px 14px 12px 18px;margin:0 0 6px}',
+      '.bst-facts .bst-cpo::before{content:"";grid-column:1;grid-row:1/span 3;width:46px;height:46px;border-radius:50%;background:#155539 url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23e8c766\' stroke-width=\'1.9\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M12 3l7 2.8v5c0 4.4-3 7.7-7 9.4-4-1.7-7-5-7-9.4v-5z\'/%3E%3Cpath d=\'M8.5 12l2.5 2.5 4.5-5\'/%3E%3C/svg%3E") center/26px no-repeat;box-shadow:0 0 0 3px #fffdf6,0 0 0 5px #d9b85c}',
+      '.bst-facts .bst-cpo small{grid-column:2;display:block;font:800 10.5px/1.3 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8a6d1f}',
+      '.bst-facts .bst-cpo b{grid-column:2;display:block;font:800 16px/1.2 Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.02em;color:#1a1a1a;margin-top:2px}',
+      '.bst-facts .bst-cpo span{grid-column:2;display:block;font:500 12px/1.4 Montserrat,sans-serif;color:#6b7280;margin-top:3px}',
+      '.bst-facts-listing{margin-top:22px}',
+      '.bst-facts-history{font-family:Montserrat,sans-serif;color:#1a1a1a;max-width:700px;margin:22px 0 0}',
+      '.bst-facts .bst-facts-history{grid-column:1/-1}',
+      '.bst-facts-history .bst-rows{list-style:none;margin:0;padding:0}',
+      '.bst-facts-history .bst-rows li{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin:0;padding:8px 0;border-top:1px solid #e4e9e6}',
+      '.bst-facts-history .bst-rows li:first-child{border-top:0}',
+      '.bst-facts-history .bst-rows li::before{content:none}',
+      '.bst-facts-history .bst-rows b{order:2;font:700 14px/1.35 Montserrat,sans-serif;color:#1a1a1a}',
+      '.bst-facts-history .bst-rows span{order:1;font:500 13.5px/1.35 Montserrat,sans-serif;color:#5f6f67;margin:0}',
+      '@media(min-width:768px){.bst-facts-car .bst-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:36px}.bst-facts-car .bst-rows li:nth-child(2){border-top:0}.bst-facts h2,.bst-facts-history h2{font-size:18px;margin-bottom:14px}.bst-facts .bst-cpo{margin-bottom:10px;padding:14px 18px 14px 22px}.bst-facts .bst-cpo b{font-size:18px}.bst-facts .bst-cpo span{font-size:13px}}',
+      '@media(min-width:992px){.bst-facts{display:grid;grid-template-columns:2fr 1fr;gap:40px;padding-top:26px}.bst-facts-car{grid-column:1/-1}.bst-facts-car:not(:last-child){grid-column:1}.bst-facts-listing{margin-top:0;align-self:start;background:#f4f8f6;border:1px solid #e4e9e6;border-radius:14px;padding:18px 20px 8px}}',
+      '@media(min-width:601px){#bst-below-fold.bst-has-facts [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:repeat(3,1fr) !important}}'
+    ].join('');
+    function factsSection() {
+      var sec = document.querySelector('section.bst-facts');
+      return sec && sec.querySelector('.bst-facts-car li') ? sec : null;
+    }
+    function placeFacts(sec, bf) {
+      if (!document.getElementById('bst-facts-css')) {
+        var st = document.createElement('style');
+        st.id = 'bst-facts-css';
+        st.textContent = FACTS_CSS;
+        document.head.appendChild(st);
+      }
+      bf.classList.add('bst-has-facts');
+      /* price history first (it is served inside the section): the last thing in the page content */
+      var hist = sec.querySelector('.bst-facts-history') || document.querySelector('.bst-facts-history');
+      var end = bf.querySelector('.bst-below-end');
+      if (hist && end) bf.insertBefore(hist, end);
+      /* the section takes the icon row's place, wherever the template's embed printed it */
+      bf.insertBefore(sec, bf.firstChild);
+    }
+
     function sanitizeRich(html) {
       var box = document.createElement('div');
       box.innerHTML = html || '';
@@ -755,6 +846,11 @@
       var ptLabel   = powertrainLabel(d.powertrain);
       var isElectric = d.powertrain === 'BEV';
   
+      /* The served facts section owns colors, mileage, VIN, stock no., engine, mpg and transmission. */
+      var facts = factsSection();
+      var owned = facts ? { 'Engine': 1, 'City MPG': 1, 'Hwy MPG': 1, 'Transmission': 1 } : {};
+      function keep(r) { return r[1] && !owned[r[0]]; }
+
       var identityRows = [['Make',d.make],['Model',d.variantModel || d.model],['Year',d.year],['Trim',d.trim],['Condition','Used']].filter(function(r){return r[1];});
       var engineRows   = [
         ['Engine', d.engine],
@@ -762,9 +858,9 @@
         ['City MPG', d.cityMpg],
         ['Hwy MPG', d.hwyMpg],
         ['Powertrain', ptLabel]
-      ].filter(function(r){return r[1];});
-      var bodyRows     = [['Body type', d.bodyType || inferBodyType(d.segment)],['Drivetrain',d.drivetrain],['Transmission',d.transmission],['Seating',d.seating?d.seating+' passengers':'']].filter(function(r){return r[1];});
-      var colorRows    = [['Exterior',d.extColor],['Interior',d.intColor],['Mileage',milesStr?milesStr+' mi':''],['VIN',d.vin],['Stock no.',d.stockNo]].filter(function(r){return r[1];});
+      ].filter(keep);
+      var bodyRows     = [['Body type', d.bodyType || inferBodyType(d.segment)],['Drivetrain',d.drivetrain],['Transmission',d.transmission],['Seating',d.seating?d.seating+' passengers':'']].filter(keep);
+      var colorRows    = [['Exterior',d.extColor],['Interior',d.intColor],['Mileage',milesStr?milesStr+' mi':''],['VIN',d.vin],['Stock no.',d.stockNo]].filter(function(r){return r[1] && !facts;});
   
       var mobileMpgLabel = isElectric ? 'MPGe' : 'MPG';
       var mobileSpecRows = [
@@ -795,7 +891,15 @@
   
       var greenBlock = buildAboutBlock(d);
   
+      var cards = [
+        card('Vehicle identity', identityRows),
+        facts && !engineRows.length ? '' : card('Engine &amp; performance', engineRows),
+        facts && !bodyRows.length ? '' : card('Body &amp; configuration', bodyRows),
+        facts && !colorRows.length ? '' : card('Colors &amp; listing info', colorRows)
+      ];
+
       bf.innerHTML = [
+        facts ? '' : [
         '<div class="bst-spec-icons" style="padding:20px 0;">',
           '<div style="display:grid;grid-template-columns:repeat(' + iconCols + ',1fr);gap:4px;">',
             iconCells.join(''),
@@ -803,20 +907,19 @@
         '</div>',
         '<div class="bst-spec-rows" style="padding:14px 0;">',
           '<div class="bst-spec-rows-grid">' + mobileSpecRows + '</div>',
-        '</div>',
-        '<div style="padding:8px 0 0;">',
+        '</div>'
+        ].join(''),
+        '<div style="padding:' + (facts ? '28px' : '8px') + ' 0 0;">',
           greenBlock,
         '</div>',
         '<div style="padding:36px 0 0;">',
           '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">',
-            card('Vehicle identity', identityRows),
-            card('Engine &amp; performance', engineRows),
-            card('Body &amp; configuration', bodyRows),
-            card('Colors &amp; listing info', colorRows),
+            cards.join(''),
           '</div>',
         '</div>',
-        '<div style="padding-bottom:48px;"></div>',
+        '<div class="bst-below-end" style="padding-bottom:48px;"></div>',
       ].join('');
+      if (facts) placeFacts(facts, bf);
   
       var simWrap = document.querySelector('.bst-similar-wrap');
       if (simWrap) simWrap.parentNode.insertBefore(bf, simWrap);
@@ -894,6 +997,7 @@
         'phone_chip':          'dealer_phone_tap',
         'email_chip':          'dealer_email_tap',
         'bespoke_dealer_link': 'dealer_referral_click_bespoke',
+        'dealer_page_link':    'dealer_page_click',   // internal: the store's /dealers/ page, not a referral
         'carfax_link':         'carfax_link_click',
         'similar_card':        'similar_listing_click',
         'segment_link':        'segment_link_click',
@@ -969,6 +1073,15 @@
     }
 
     function styleBespokeLinks(d) {
+      /* The store's own page on Bestest (the facts section's dealer row): its own event, never a referral. */
+      [].forEach.call(document.querySelectorAll('.bst-facts a[href*="/dealers/"], .bst-about-rich a[href*="/dealers/"]'), function (a) {
+        var m = DEALER_PAGE_RE.exec(a.getAttribute('href') || '');
+        if (!m) return;
+        a.setAttribute('href', m[1]);
+        a.setAttribute('data-bst-track', 'dealer_page_link');
+        if (d.vin) a.setAttribute('data-bst-vin', d.vin);
+        if (d.dealerName) a.setAttribute('data-bst-dealer', d.dealerName);
+      });
       var box = document.getElementById('bst-about-block');
       if (!box) return;
       var anchors = box.querySelectorAll('a[href]');
@@ -1285,7 +1398,7 @@
         + '<span><b>Jason Allan</b>, Bestest founder</span></figcaption></figure>';
       var html = '';
       if (dl.name) {
-        html += '<div class="bstb-seller"><b>For sale at</b> ' + escapeHtml(dl.name) + (addr ? ', ' + escapeHtml(addr) : '') + ', a Bestest-approved dealer. '
+        html += '<div class="bstb-seller"><b>For sale at</b> ' + dealerNameHtml(dl.name, (b.listing || {}).vin) + (addr ? ', ' + escapeHtml(addr) : '') + ', a Bestest-approved dealer. '
           + (b.bestest.approved_dealers ? 'Bestest lists cars from only ' + b.bestest.approved_dealers + ' of the more than 400 dealers selling used cars in Orange County, and ' + escapeHtml(dl.name) + ' is one of them. ' : '')
           + 'Listing and photos come from the dealer. The picks' + (hasTake ? ', ranks and Jason&rsquo;s take are' : ' and ranks are')
           + ' Bestest&rsquo;s own: Bestest isn&rsquo;t a dealer, isn&rsquo;t affiliated with any dealership, and no dealer or automaker pays to be listed or ranked.</div>';
