@@ -484,7 +484,7 @@
        reuse it wherever else the page shows the dealer's name. No anchor = no dealer page = plain text. */
     var DEALER_PAGE_RE = /^(?:https:\/\/shopbestest\.com)?(\/dealers\/[a-z0-9-]+)\/?$/;
     function dealerPagePath() {
-      var a = document.querySelector('.bst-facts a[href*="/dealers/"]');
+      var a = document.querySelector('.bst-facts a[href*="/dealers/"], .bst-facts-dealer a[href*="/dealers/"]');
       var m = a && DEALER_PAGE_RE.exec(a.getAttribute('href') || '');
       return m ? m[1] : '';
     }
@@ -526,7 +526,8 @@
       '.bst-facts li[data-k="int"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M11 17a4 4 0 0 1-8 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z\'/%3E%3Cpath d=\'M16.7 13H19a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H7\'/%3E%3Cpath d=\'M 7 17h.01\'/%3E%3Cpath d=\'m11 8 2.3-2.3a2.4 2.4 0 0 1 3.404.004L18.6 7.6a2.4 2.4 0 0 1 .026 3.434L9.9 19.8\'/%3E%3C/svg%3E")}',
       '.bst-facts li[data-k="body"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\'/%3E%3Cpath d=\'M9 17h6\'/%3E%3Ccircle cx=\'7\' cy=\'17\' r=\'2\'/%3E%3Ccircle cx=\'17\' cy=\'17\' r=\'2\'/%3E%3C/svg%3E")}',
       '.bst-facts li[data-k="vin"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M5 6v12M8 6v12M11.5 6v12M14 6v12M17 6v12M19.5 6v12\'/%3E%3C/svg%3E")}',
-      '.bst-facts li[data-k="dealer"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M12 21c4-4.5 6-7.8 6-10.5a6 6 0 0 0-12 0C6 13.2 8 16.5 12 21z\'/%3E%3Ccircle cx=\'12\' cy=\'10.5\' r=\'2\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="place"],.bst-facts li[data-k="dealer"],.bst-facts-dealer li[data-k="dealer"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M12 21c4-4.5 6-7.8 6-10.5a6 6 0 0 0-12 0C6 13.2 8 16.5 12 21z\'/%3E%3Ccircle cx=\'12\' cy=\'10.5\' r=\'2\'/%3E%3C/svg%3E")}',
+      '.bst-facts li[data-k="seen"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Ccircle cx=\'12\' cy=\'12\' r=\'9\'/%3E%3Cpath d=\'M8 12.5l2.7 2.7L16 9.5\'/%3E%3C/svg%3E")}',
       '.bst-facts li[data-k="listed"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'4\' y=\'5.5\' width=\'16\' height=\'14.5\' rx=\'2\'/%3E%3Cpath d=\'M4 10h16M8.5 3.5v4M15.5 3.5v4\'/%3E%3C/svg%3E")}',
       '.bst-facts li[data-k="drop"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M4 7l6 6 4-4 6 7\'/%3E%3Cpath d=\'M20 11v5h-5\'/%3E%3C/svg%3E")}',
       '.bst-facts li[data-k="stock"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M4 9h16M4 15h16M10 4L8 20M16 4l-2 16\'/%3E%3C/svg%3E")}',
@@ -536,6 +537,17 @@
       '.bst-facts .bst-cpo b{grid-column:2;display:block;font:800 16px/1.2 Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.02em;color:#1a1a1a;margin-top:2px}',
       '.bst-facts .bst-cpo span{grid-column:2;display:block;font:500 12px/1.4 Montserrat,sans-serif;color:#6b7280;margin-top:3px}',
       '.bst-facts-listing{margin-top:22px}',
+      /* the dealer group: served last in the section, moved down the page by placeDealer(), so it styles itself */
+      '.bst-facts-dealer{font-family:Montserrat,sans-serif;color:#1a1a1a;margin:22px 0 0}',
+      '.bst-facts .bst-facts-dealer{grid-column:1/-1}',
+      '.bst-facts-dealer h2{font:700 16px/1.3 Montserrat,sans-serif;color:#1a1a1a;margin:0 0 10px}',
+      '.bst-facts-dealer .bst-rows{list-style:none;margin:0;padding:0}',
+      '.bst-facts-dealer .bst-rows li{display:grid;grid-template-columns:22px minmax(0,1fr);column-gap:12px;align-items:start;margin:0;padding:9px 0}',
+      '.bst-facts-dealer .bst-rows li::before{content:"";grid-column:1;grid-row:1/span 2;width:22px;height:22px;margin-top:1px;background:#555;-webkit-mask:var(--bst-i) center/contain no-repeat;mask:var(--bst-i) center/contain no-repeat}',
+      '.bst-facts-dealer .bst-rows b{grid-column:2;display:block;font:700 14px/1.35 Montserrat,sans-serif;color:#1a1a1a;overflow-wrap:anywhere}',
+      '.bst-facts-dealer .bst-rows span{grid-column:2;display:block;font:500 12.5px/1.4 Montserrat,sans-serif;color:#5f6f67;margin-top:2px}',
+      '.bst-facts-dealer .bst-rows a{color:#1a6f4a;text-decoration:underline;text-underline-offset:2px}',
+      '.bstb-seller .bst-facts-dealer{margin:0 0 10px}',
       '.bst-facts-history{font-family:Montserrat,sans-serif;color:#1a1a1a;max-width:700px;margin:22px 0 0}',
       '.bst-facts .bst-facts-history{grid-column:1/-1}',
       '.bst-facts-history .bst-rows{list-style:none;margin:0;padding:0}',
@@ -565,8 +577,25 @@
       var hist = sec.querySelector('.bst-facts-history') || document.querySelector('.bst-facts-history');
       var end = bf.querySelector('.bst-below-end');
       if (hist && end) bf.insertBefore(hist, end);
+      /* the dealer group next (11/11, Jason): the store's name sits low on the page, as on every big listing
+         site. Served last in the section; it goes ahead of the price history here, and closerB() takes it into
+         the seller note on pages that have one. */
+      var dealer = sec.querySelector('.bst-facts-dealer');
+      if (dealer && end) bf.insertBefore(dealer, hist && hist.parentNode === bf ? hist : end);
       /* the section takes the icon row's place, wherever the template's embed printed it */
       bf.insertBefore(sec, bf.firstChild);
+      markVerifiedToday(sec);
+    }
+    /* "Verified for sale Nov 11th" is served with the date alone. "today, " goes in front only while that date
+       is today's on the Pacific calendar, so a cached page or a missed sync never claims a today it has not earned. */
+    function markVerifiedToday(sec) {
+      var t = sec.querySelector('li[data-k="seen"] time[datetime]');
+      if (!t || t.getAttribute('data-bst-today')) return;
+      var today = '';
+      try { today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); } catch (e) { return; }
+      if (t.getAttribute('datetime') !== today) return;
+      t.setAttribute('data-bst-today', '1');
+      t.parentNode.insertBefore(document.createTextNode('today, '), t);
     }
 
     function sanitizeRich(html) {
@@ -1078,7 +1107,7 @@
 
     function styleBespokeLinks(d) {
       /* The store's own page on Bestest (the facts section's dealer row): its own event, never a referral. */
-      [].forEach.call(document.querySelectorAll('.bst-facts a[href*="/dealers/"], .bst-about-rich a[href*="/dealers/"]'), function (a) {
+      [].forEach.call(document.querySelectorAll('.bst-facts a[href*="/dealers/"], .bst-facts-dealer a[href*="/dealers/"], .bst-about-rich a[href*="/dealers/"]'), function (a) {
         var m = DEALER_PAGE_RE.exec(a.getAttribute('href') || '');
         if (!m) return;
         a.setAttribute('href', m[1]);
@@ -1401,13 +1430,23 @@
         + '<figcaption><img src="https://cdn.prod.website-files.com/69b85a00ef6f024daf996304/6a7e0645fce29258ea8ace96_ja-profile-blue-larger-p-500.jpeg" alt="Jason Allan" width="36" height="36" loading="lazy">'
         + '<span><b>Jason Allan</b>, Bestest founder</span></figcaption></figure>';
       var html = '';
-      if (dl.name) {
+      /* 11/11 (Jason): the served dealer group (name, link, city and county) heads this note when the page has
+         one, and the note itself drops its "For sale at" opener so the store is named once. */
+      var served = document.querySelector('.bst-facts-dealer');
+      if (dl.name && served) {
+        html += '<div class="bstb-seller"><span id="bst-dealer-slot"></span>' + escapeHtml(dl.name) + ' is a Bestest-approved dealer' + (addr ? ' at ' + escapeHtml(addr) : '') + '. '
+          + (b.bestest.approved_dealers ? 'Bestest lists cars from only ' + b.bestest.approved_dealers + ' of the more than 400 dealers selling used cars in Orange County. ' : '')
+          + 'Listing and photos come from the dealer. The picks' + (hasTake ? ', ranks and Jason&rsquo;s take are' : ' and ranks are')
+          + ' Bestest&rsquo;s own: Bestest isn&rsquo;t a dealer, isn&rsquo;t affiliated with any dealership, and no dealer or automaker pays to be listed or ranked.</div>';
+      } else if (dl.name) {
         html += '<div class="bstb-seller"><b>For sale at</b> ' + dealerNameHtml(dl.name, (b.listing || {}).vin) + (addr ? ', ' + escapeHtml(addr) : '') + ', a Bestest-approved dealer. '
           + (b.bestest.approved_dealers ? 'Bestest lists cars from only ' + b.bestest.approved_dealers + ' of the more than 400 dealers selling used cars in Orange County, and ' + escapeHtml(dl.name) + ' is one of them. ' : '')
           + 'Listing and photos come from the dealer. The picks' + (hasTake ? ', ranks and Jason&rsquo;s take are' : ' and ranks are')
           + ' Bestest&rsquo;s own: Bestest isn&rsquo;t a dealer, isn&rsquo;t affiliated with any dealership, and no dealer or automaker pays to be listed or ranked.</div>';
       }
       anchor.insertAdjacentHTML('afterend', html + quote);
+      var slot = document.getElementById('bst-dealer-slot');
+      if (slot && served) slot.parentNode.replaceChild(served, slot);
     }
 
     function renderPatternB(b, d) {
