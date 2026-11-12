@@ -106,10 +106,9 @@
       '.bst-award-seal svg{display:block;width:64px;height:auto;}' +
       '.bst-award-body small{display:block;font-weight:800;font-size:10.5px;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:#8a6d1f;}' +
       '.bst-award-lead{margin:3px 0 0;font-size:14.5px;line-height:1.45;font-weight:500;color:#1a1a1a;font-family:inherit;}.bst-award-lead b{font-weight:800;}' +
-      '.bst-award-foot{display:flex;flex-wrap:wrap;align-items:center;column-gap:5px;margin-top:8px;font-size:12px;line-height:1.4;font-weight:500;color:#6b7280;}' +
-      '.bst-award .bst-return-row{display:inline-flex;width:auto;gap:5px;margin:0;padding:0;border:0;font-size:12px;font-weight:500;color:#6b7280;line-height:1.4;}.bst-award .bst-return-row svg{display:none;}' +
-      '.bst-award .bst-return-i{width:14px;height:14px;font-size:9px;}.bst-award .bst-return-info{flex-basis:100%;}' +
-      '@media(max-width:480px){.bst-award-foot{flex-direction:column;align-items:flex-start;row-gap:1px;}.bst-award-dot{display:none;}}' +
+      '.bst-award-after{margin:-4px 0 10px;padding:0 2px;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-award-after .bst-return-row{display:inline-flex;width:auto;gap:5px;margin:0;padding:0;border:0;font-size:12px;font-weight:500;color:#6b7280;line-height:1.4;}.bst-award-after .bst-return-row svg{display:none;}' +
+      '.bst-award-after .bst-return-i{width:14px;height:14px;font-size:9px;}' +
       // CARS Act row: shield (not a 4th check, since the checks are Bestest's own vetting)
       '.bst-return-row{display:flex;align-items:center;gap:8px;width:100%;margin:10px 0 0;padding:10px 0 0;border:0;border-top:1px solid #e3ebe6;background:none;cursor:pointer;text-align:left;font-size:13px;color:#0e1523;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-return-row svg{flex:none;width:16px;height:16px;}' +
@@ -155,23 +154,22 @@
         clearInterval(panelTimer);
         if (document.querySelector('.bst-award')) return;
         /* The award (Jason, 11/12): the ratio is the claim, in gold, and gold belongs to this panel alone.
-           The three checkmark rows are gone; the certified row's own wording and the 3-day return ride in
-           one grey line. New class names on purpose: the pasted VDP stylesheet styles .bst-claim-*. */
+           The three checkmark rows are gone. New class names on purpose: the pasted VDP stylesheet styles .bst-claim-*. */
         var panel = document.createElement('div');
         panel.className = 'bst-award';
         panel.innerHTML = '<div class="bst-award-seal" aria-hidden="true">' + awardSeal() + '</div>' +
-          '<div class="bst-award-body"><small>Bestest approved</small><p class="bst-award-lead">' + awardHtml(dd) + '</p>' +
-          '<div class="bst-award-foot"></div></div>';
-        var cert = certText(checks);
+          '<div class="bst-award-body"><small>Bestest approved</small><p class="bst-award-lead">' + awardHtml(dd) + '</p></div>';
         checks.parentNode.insertBefore(panel, checks);
         checks.style.display = 'none';
-        var foot = panel.querySelector('.bst-award-foot');
-        if (cert) { var cs = document.createElement('span'); cs.textContent = cert; foot.appendChild(cs); }
+        /* Nothing else rides in the award (Jason, 11/12): no certified line, no 3-day return. The return
+           keeps its tap-to-explain as a grey line of its own just under the panel until the pricing
+           details get their own home. */
         if (returnEligible(dd.price)) {
-          if (cert) foot.insertAdjacentHTML('beforeend', '<span class="bst-award-dot" aria-hidden="true">·</span>');
-          addReturnRow(foot, dd.price);
+          var after = document.createElement('div');
+          after.className = 'bst-award-after';
+          panel.parentNode.insertBefore(after, panel.nextSibling);
+          addReturnRow(after, dd.price);
         }
-        if (!foot.firstChild) foot.parentNode.removeChild(foot);
         addPriceNote(); // no-op if the init-time call already ran
         document.documentElement.classList.add('bst-claim-ready'); // releases vdp.css's rail reserve
       } else if (++panelTries > 40) { clearInterval(panelTimer); document.documentElement.classList.add('bst-claim-ready'); }
@@ -190,19 +188,6 @@
 
   // Row under the checks + tap-to-open explainer that does this car's fee math.
   // Credits California law, never Bestest: we don't sell cars or guarantee returns.
-  // The certified row's own words ("Toyota-certified pre-owned"), read from the checkmark list the
-  // template renders, so the award never words a certification the page didn't already state.
-  function certText(checks) {
-    var els = checks.getElementsByTagName('*');
-    for (var i = 0; i < els.length; i++) {
-      var el = els[i];
-      if (el.namespaceURI !== 'http://www.w3.org/1999/xhtml' || el.querySelector('div,span,p,li') || (el.closest && el.closest('.w-condition-invisible'))) continue;   // a row is text plus its check icon
-      var t = (el.textContent || '').replace(/\s+/g, ' ').trim();
-      if (/certified/i.test(t) && t.length < 60) return t;
-    }
-    return '';
-  }
-
   // "Only 37 of the 354 used Toyota RAV4s for sale in Orange County qualify as Bestest. This is one
   // of them." The counts are the block's model-level funnel; without them the block's claim sentence
   // (or the segment line) stands in. "Only" drops out once more than a third qualify.
