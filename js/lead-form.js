@@ -106,9 +106,8 @@
       '.bst-award-seal svg{display:block;width:64px;height:auto;}' +
       '.bst-award-body small{display:block;font-weight:800;font-size:10.5px;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:#8a6d1f;}' +
       '.bst-award-lead{margin:3px 0 0;font-size:14.5px;line-height:1.45;font-weight:500;color:#1a1a1a;font-family:inherit;}.bst-award-lead b{font-weight:800;}' +
-      '.bst-award-after{margin:-4px 0 10px;padding:0 2px;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
-      '.bst-award-after .bst-return-row{display:inline-flex;width:auto;gap:5px;margin:0;padding:0;border:0;font-size:12px;font-weight:500;color:#6b7280;line-height:1.4;}.bst-award-after .bst-return-row svg{display:none;}' +
-      '.bst-award-after .bst-return-i{width:14px;height:14px;font-size:9px;}' +
+      '.bst-return-fact .bst-return-row{display:inline-flex;align-items:center;width:auto;gap:6px;margin:0;padding:0;border:0;background:none;cursor:pointer;font:inherit;color:inherit;text-align:left;}.bst-return-fact .bst-return-row svg{display:none;}' +
+      '.bst-return-fact .bst-return-info{grid-column:1/-1;margin:6px 0 2px;}.bst-return-fact .bst-return-info b{display:inline;font:inherit;font-weight:700;color:inherit;margin:0;}' +
       // CARS Act row: shield (not a 4th check, since the checks are Bestest's own vetting)
       '.bst-return-row{display:flex;align-items:center;gap:8px;width:100%;margin:10px 0 0;padding:10px 0 0;border:0;border-top:1px solid #e3ebe6;background:none;cursor:pointer;text-align:left;font-size:13px;color:#0e1523;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-return-row svg{flex:none;width:16px;height:16px;}' +
@@ -162,20 +161,15 @@
         checks.parentNode.insertBefore(panel, checks);
         checks.style.display = 'none';
         /* Nothing else rides in the award (Jason, 11/12): no certified line, no 3-day return. The return
-           keeps its tap-to-explain as a grey line of its own just under the panel until the pricing
-           details get their own home. */
-        if (returnEligible(dd.price)) {
-          var after = document.createElement('div');
-          after.className = 'bst-award-after';
-          panel.parentNode.insertBefore(after, panel.nextSibling);
-          addReturnRow(after, dd.price);
-        }
+           is a row in the facts section's "This listing" box; wireReturnFact makes it tappable. */
+        wireReturnFact(dd.price);
         addPriceNote(); // no-op if the init-time call already ran
         document.documentElement.classList.add('bst-claim-ready'); // releases vdp.css's rail reserve
       } else if (++panelTries > 40) { clearInterval(panelTimer); document.documentElement.classList.add('bst-claim-ready'); }
     }, 250);
 
     addPriceNote();
+    wireReturnFact(dd.price);
 
     // Hiding .bst-crumb-current can strand a trailing ">" separator — hide that too,
     // but only if the preceding element really is a bare separator.
@@ -219,6 +213,20 @@
     }
     return '<svg viewBox="0 0 60 60" focusable="false">' + s + '<circle cx="30" cy="30" r="15.5" fill="#155539"/>' +
       '<g transform="translate(30 30) scale(.78) translate(-30.5 -30.5)"><path d="M19.5 30l8 8L42 22.5" fill="none" stroke="#fff" stroke-width="5.4"/></g></svg>';
+  }
+
+  // The served "3-day return by California law" row in the facts section's listing box becomes the
+  // tap-to-explain (the row is rendered by the pipeline; without it nothing is added anywhere).
+  function wireReturnFact(price) {
+    if (!returnEligible(price)) return;
+    var li = document.querySelector('.bst-facts li[data-k="return"]');
+    if (!li || li.querySelector('.bst-return-row')) return;
+    li.classList.add('bst-return-fact');
+    li.innerHTML = '<b></b>';
+    addReturnRow(li.firstChild, price);
+    var lab = li.querySelector('.bst-return-row span');     // the facts section styles a row's <span> as its grey sub-line
+    if (lab) lab.parentNode.replaceChild(document.createTextNode(lab.textContent), lab);
+    li.appendChild(li.firstChild.querySelector('.bst-return-info'));
   }
 
   function addReturnRow(panel, price) {
