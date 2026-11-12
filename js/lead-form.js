@@ -102,6 +102,14 @@
       '.bst-claim-panel{margin:6px 0 10px;padding:12px 14px;background:#fff;border:1px solid #d8e4dc;border-radius:8px;}' +
       '.bst-claim-lead{margin:0 0 10px;font-size:14px;color:#0e1523;line-height:1.5;font-weight:500;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-claim-lead b{font-weight:700;}' +
+      '.bst-award{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:12px;align-items:center;margin:6px 0 12px;padding:14px 16px 14px 14px;background:#fffdf6;border:1.5px solid #d9b85c;border-radius:12px;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-award-seal svg{display:block;width:64px;height:auto;}' +
+      '.bst-award-body small{display:block;font-weight:800;font-size:10.5px;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:#8a6d1f;}' +
+      '.bst-award-lead{margin:3px 0 0;font-size:14.5px;line-height:1.45;font-weight:500;color:#1a1a1a;font-family:inherit;}.bst-award-lead b{font-weight:800;}' +
+      '.bst-award-foot{display:flex;flex-wrap:wrap;align-items:center;column-gap:5px;margin-top:8px;font-size:12px;line-height:1.4;font-weight:500;color:#6b7280;}' +
+      '.bst-award .bst-return-row{display:inline-flex;width:auto;gap:5px;margin:0;padding:0;border:0;font-size:12px;font-weight:500;color:#6b7280;line-height:1.4;}.bst-award .bst-return-row svg{display:none;}' +
+      '.bst-award .bst-return-i{width:14px;height:14px;font-size:9px;}.bst-award .bst-return-info{flex-basis:100%;}' +
+      '@media(max-width:480px){.bst-award-foot{flex-direction:column;align-items:flex-start;row-gap:1px;}.bst-award-dot{display:none;}}' +
       // CARS Act row: shield (not a 4th check, since the checks are Bestest's own vetting)
       '.bst-return-row{display:flex;align-items:center;gap:8px;width:100%;margin:10px 0 0;padding:10px 0 0;border:0;border-top:1px solid #e3ebe6;background:none;cursor:pointer;text-align:left;font-size:13px;color:#0e1523;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-return-row svg{flex:none;width:16px;height:16px;}' +
@@ -145,17 +153,25 @@
       var checks = findChecks();
       if (checks) {
         clearInterval(panelTimer);
-        if (document.querySelector('.bst-claim-panel')) return;
+        if (document.querySelector('.bst-award')) return;
+        /* The award (Jason, 11/12): the ratio is the claim, in gold, and gold belongs to this panel alone.
+           The three checkmark rows are gone; the certified row's own wording and the 3-day return ride in
+           one grey line. New class names on purpose: the pasted VDP stylesheet styles .bst-claim-*. */
         var panel = document.createElement('div');
-        panel.className = 'bst-claim-panel';
-        var lead = document.createElement('p');
-        lead.className = 'bst-claim-lead';
-        lead.innerHTML = (dd.claim && dd.claim.text) ? claimHtml(dd.claim) :
-          'This is one of the <b>best ' + segmentPhrase(dd.segment) + '</b> for sale in Orange County right now.';
+        panel.className = 'bst-award';
+        panel.innerHTML = '<div class="bst-award-seal" aria-hidden="true">' + awardSeal() + '</div>' +
+          '<div class="bst-award-body"><small>Bestest approved</small><p class="bst-award-lead">' + awardHtml(dd) + '</p>' +
+          '<div class="bst-award-foot"></div></div>';
+        var cert = certText(checks);
         checks.parentNode.insertBefore(panel, checks);
-        panel.appendChild(lead);
-        panel.appendChild(checks);
-        if (returnEligible(dd.price)) addReturnRow(panel, dd.price);
+        checks.style.display = 'none';
+        var foot = panel.querySelector('.bst-award-foot');
+        if (cert) { var cs = document.createElement('span'); cs.textContent = cert; foot.appendChild(cs); }
+        if (returnEligible(dd.price)) {
+          if (cert) foot.insertAdjacentHTML('beforeend', '<span class="bst-award-dot" aria-hidden="true">·</span>');
+          addReturnRow(foot, dd.price);
+        }
+        if (!foot.firstChild) foot.parentNode.removeChild(foot);
         addPriceNote(); // no-op if the init-time call already ran
         document.documentElement.classList.add('bst-claim-ready'); // releases vdp.css's rail reserve
       } else if (++panelTries > 40) { clearInterval(panelTimer); document.documentElement.classList.add('bst-claim-ready'); }
@@ -174,6 +190,52 @@
 
   // Row under the checks + tap-to-open explainer that does this car's fee math.
   // Credits California law, never Bestest: we don't sell cars or guarantee returns.
+  // The certified row's own words ("Toyota-certified pre-owned"), read from the checkmark list the
+  // template renders, so the award never words a certification the page didn't already state.
+  function certText(checks) {
+    var els = checks.getElementsByTagName('*');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (el.namespaceURI !== 'http://www.w3.org/1999/xhtml' || el.querySelector('div,span,p,li') || (el.closest && el.closest('.w-condition-invisible'))) continue;   // a row is text plus its check icon
+      var t = (el.textContent || '').replace(/\s+/g, ' ').trim();
+      if (/certified/i.test(t) && t.length < 60) return t;
+    }
+    return '';
+  }
+
+  // "Only 37 of the 354 used Toyota RAV4s for sale in Orange County qualify as Bestest. This is one
+  // of them." The counts are the block's model-level funnel; without them the block's claim sentence
+  // (or the segment line) stands in. "Only" drops out once more than a third qualify.
+  function awardHtml(dd) {
+    var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    var f = dd.funnel, c = dd.claim, noun = '';
+    var m = c && c.kind === 'model' && c.text && String(c.text).match(/best (used .+?) for sale in/);
+    if (m) noun = m[1];
+    else if (dd.make && dd.model) noun = 'used ' + dd.make + ' ' + dd.model + (/s$/i.test(dd.model) ? '' : 's');
+    var n = f && Number(f.listed), t = f && Number(f.oc_total);
+    if (noun && n > 0 && t > 0 && n <= t) {
+      var only = n / t <= 1 / 3 ? 'Only ' : '';
+      var of = n + ' of the ' + t.toLocaleString('en-US') + ' ' + esc(noun);
+      return n === 1
+        ? '<b>' + only + of + '</b> for sale in Orange County qualifies as Bestest. This is it.'
+        : '<b>' + only + of + '</b> for sale in Orange County qualify as Bestest. This is one of them.';
+    }
+    return (c && c.text) ? claimHtml(c) :
+      'This is one of the <b>best ' + segmentPhrase(dd.segment) + '</b> for sale in Orange County right now.';
+  }
+
+  // Gold laurel wreath around a small dark green disc with a white, square-ended check.
+  function awardSeal() {
+    var s = '', side, i, deg, ang, x, y;
+    for (side = -1; side <= 1; side += 2) for (i = 0; i < 7; i++) {
+      deg = -70 + i * 23; ang = deg * Math.PI / 180;
+      x = (30 + side * 24 * Math.cos(ang)).toFixed(1); y = (31 - 24 * Math.sin(ang)).toFixed(1);
+      s += '<ellipse cx="' + x + '" cy="' + y + '" rx="2.5" ry="5.8" fill="#d9b85c" transform="rotate(' + (side * (28 - deg)) + ' ' + x + ' ' + y + ')"/>';
+    }
+    return '<svg viewBox="0 0 60 60" focusable="false">' + s + '<circle cx="30" cy="30" r="15.5" fill="#155539"/>' +
+      '<g transform="translate(30 30) scale(.78) translate(-30.5 -30.5)"><path d="M19.5 30l8 8L42 22.5" fill="none" stroke="#fff" stroke-width="5.4"/></g></svg>';
+  }
+
   function addReturnRow(panel, price) {
     var row = document.createElement('button');
     row.type = 'button';
@@ -327,7 +389,8 @@
       variantModel: l.variant_model || l.model || '', variantTrim: l.variant_trim || l.trim || '',
       segment: l.segment || '', price: l.price != null ? String(l.price) : '', dealer: dl.name || '',
       vin: l.vin || '', dealerPhone: dl.phone || '', certified: !!l.certified,
-      claim: (b.bestest && b.bestest.claim) || null
+      claim: (b.bestest && b.bestest.claim) || null,
+      funnel: (b.bestest && b.bestest.funnel) || null
     };
   }
   function divData() {
@@ -348,7 +411,7 @@
       year: d.year || '', make: d.make || '', model: d.model || '', trim: d.trim || '',
       variantModel: variantModel, variantTrim: d.trim || '',
       segment: d.segment || '', price: d.price || '', dealer: d.dealerName || '', vin: d.vin || '',
-      dealerPhone: d.dealerPhone || '', certified: d.isCertified === 'true', claim: null
+      dealerPhone: d.dealerPhone || '', certified: d.isCertified === 'true', claim: null, funnel: null
     };
   }
 
