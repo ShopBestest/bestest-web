@@ -1374,6 +1374,12 @@
       }
       var tel = document.querySelector('#bst-main-cta-frame .bcf-phone-wrap');
       if (tel && tel.querySelector('.bcf-phone')) tel.insertAdjacentHTML('afterend', '<div class="bstb-call-note">Calls go straight to the dealer.</div>');
+      /* Why to ask (Jason, 11/11): a dealer's listing can outlive the sale, which most shoppers don't know.
+         Said here, at the button, and not on the "Listing verified" row. renderUnconfirmed removes it:
+         a likely-sold page already says so in its own notice. Styled inline: the VDP stylesheet is pasted into
+         the Webflow template head, so a css/vdp.css change would not reach the page with a pin bump. */
+      var cta = document.getElementById('bst-main-cta');
+      if (cta && !document.querySelector('#bst-main-cta-frame .bstb-cta-note')) cta.insertAdjacentHTML('afterend', '<div class="bstb-cta-note" style="font:500 12px/1.45 \'Montserrat\',sans-serif;color:#6b7280;text-align:center;margin:8px 4px 10px">Sold cars can stay listed for days. Confirm this one is still there before you make the trip.</div>');
     }
 
     function slimB(b, d) {
@@ -1542,6 +1548,7 @@
         box.appendChild(foot);
       }
 
+      var lag = document.querySelector('#bst-main-cta-frame .bstb-cta-note'); if (lag) lag.remove();
       /* the CTA stays: the dealer may still have it. Relabel both buttons. */
       ['bst-main-cta', 'bst-slim-cta'].forEach(function (id) {
         var a = document.getElementById(id); if (a) a.textContent = 'Ask if it’s still available →';
