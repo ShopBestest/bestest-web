@@ -1379,7 +1379,7 @@
          a likely-sold page already says so in its own notice. Styled inline: the VDP stylesheet is pasted into
          the Webflow template head, so a css/vdp.css change would not reach the page with a pin bump. */
       var cta = document.getElementById('bst-main-cta');
-      if (cta && !document.querySelector('#bst-main-cta-frame .bstb-cta-note')) cta.insertAdjacentHTML('afterend', '<div class="bstb-cta-note" style="font:500 12px/1.45 \'Montserrat\',sans-serif;color:#6b7280;text-align:center;margin:8px 4px 10px">Sold cars can stay listed for days. Confirm this one is still there before you make the trip.</div>');
+      if (cta && !document.querySelector('#bst-main-cta-frame .bstb-cta-note')) cta.insertAdjacentHTML('afterend', '<div class="bstb-cta-note" style="font:500 12px/1.45 \'Montserrat\',sans-serif;color:#6b7280;text-align:center;text-wrap:balance;margin:8px 4px 10px">Dealer listings can stay live a day or two after a car sells. A quick check keeps a sold car off your shortlist.</div>');
     }
 
     function slimB(b, d) {
