@@ -115,6 +115,13 @@
       '.bst-return-info{margin:8px 0 0;font-size:12.5px;color:#3b4a42;line-height:1.5;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-return-info p{margin:0 0 6px;font:inherit;color:inherit;}.bst-return-info a{color:#1a6f4a;font-weight:600;}' +
       '.bst-price-note{display:inline;margin-left:8px;padding:0;border:0;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#6b7a72;vertical-align:middle;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-fee-chip{display:inline-flex;align-items:center;gap:5px;margin-left:10px;padding:4px 9px 4px 7px;border:0;border-radius:6px;background:#eaf6ef;color:#155539;font:600 12.5px/1.2 \'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;cursor:pointer;vertical-align:middle;text-decoration:underline;text-underline-offset:2px;}.bst-fee-chip svg{width:13px;height:13px;flex:none;}' +
+      '.bst-fee-back{position:fixed;inset:0;background:rgba(14,21,35,.55);z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px;}' +
+      '.bst-fee-box{background:#fff;border-radius:14px;width:100%;max-width:440px;box-shadow:0 18px 50px rgba(0,0,0,.25);overflow:hidden;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-fee-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #e3e6ea;}.bst-fee-head h3{margin:0;font-family:inherit;font-weight:800;font-size:18px;line-height:1.2;color:#1a1a1a;}' +
+      '.bst-fee-x{border:0;background:none;font-family:inherit;font-size:24px;line-height:1;color:#1a1a1a;cursor:pointer;padding:0 2px;}' +
+      '.bst-fee-rows{padding:4px 18px 0;}.bst-fee-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #eceff2;font-size:15px;line-height:1.3;font-weight:500;color:#1a1a1a;}.bst-fee-row.bst-fee-total{border-bottom:0;font-weight:800;font-size:16px;}' +
+      '.bst-fee-note{padding:2px 18px 18px;font-size:13px;line-height:1.5;font-weight:500;color:#4b5563;}.bst-fee-note p{margin:0 0 8px;font:inherit;color:inherit;}.bst-fee-note p:last-child{margin:0;}' +
       '.bst-price-detail{margin:2px 0 4px;font-size:12px;color:#6b7a72;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}';
     (document.head || document.documentElement).appendChild(s);
   })();
@@ -260,28 +267,56 @@
     panel.appendChild(info);
   }
 
-  // "+ tax & registration" after the server-rendered price (the element right after
-  // #bst-rail-top). Tap reveals the full CARS Act "total price" wording.
+  // Price line (Jason, 11/12, after CarGurus): "Price includes fees" beside the price when Marketcheck's
+  // listing says the price includes the dealer's fees (data-dealer-fees in the packed div, written by the
+  // pipeline only when that flag is true). The chip opens "Pricing details". With no figure the price stands
+  // alone: no "+ tax & registration" (no other price on the site carries it).
+  function dealerFees() {
+    var d = document.querySelector('#bst-vin-data[data-packed]') || document.getElementById('bst-vin-data');
+    var n = d ? parseInt(d.getAttribute('data-dealer-fees') || '', 10) : NaN;
+    return n > 0 ? n : 0;
+  }
+  // One total from the feed, split only where the total itself says what it is: $85 is California's cap on
+  // the document charge; $122 is that $85 plus the $37 electronic filing fee. Any other total is one row.
+  function feeRows(fees) {
+    if (fees === 85) return [['Documentation fee', 85]];
+    if (fees === 122) return [['Documentation fee', 85], ['Electronic filing fee', 37]];
+    return [['Dealer fees', fees]];
+  }
   function addPriceNote() {
     var rail = document.getElementById('bst-rail-top');
     var el = rail && rail.nextElementSibling;
-    if (!el || !/^\$[\d,]+$/.test(el.textContent.trim()) || el.querySelector('.bst-price-note')) return;
-    var note = document.createElement('button');
-    note.type = 'button';
-    note.className = 'bst-price-note';
-    note.setAttribute('aria-expanded', 'false');
-    note.textContent = '+ tax & registration';
-    var detail = document.createElement('div');
-    detail.className = 'bst-price-detail';
-    detail.hidden = true;
-    detail.textContent = 'Dealer’s advertised price. Excludes tax, title, registration and government fees.';
-    note.addEventListener('click', function () {
-      detail.hidden = !detail.hidden;
-      note.setAttribute('aria-expanded', String(!detail.hidden));
+    if (!el || el.querySelector('.bst-fee-chip') || !/^\$[\d,]+$/.test(el.textContent.trim())) return;
+    var total = parseInt(el.textContent.replace(/[^\d]/g, ''), 10), fees = dealerFees();
+    if (!fees || !(total > fees)) return;
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'bst-fee-chip';
+    chip.setAttribute('aria-haspopup', 'dialog');
+    chip.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="#155539" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Price includes fees';
+    chip.addEventListener('click', function () {
+      if (document.querySelector('.bst-fee-back')) return;
+      var rows = [['Vehicle price', total - fees]].concat(feeRows(fees));
+      var back = document.createElement('div');
+      back.className = 'bst-fee-back';
+      back.innerHTML = '<div class="bst-fee-box" role="dialog" aria-modal="true" aria-labelledby="bst-fee-h">' +
+        '<div class="bst-fee-head"><h3 id="bst-fee-h">Pricing details</h3><button type="button" class="bst-fee-x" aria-label="Close">×</button></div>' +
+        '<div class="bst-fee-rows">' + rows.map(function (r) {
+          return '<div class="bst-fee-row"><span>' + r[0] + '</span><span>' + fmtPrice(r[1]) + '</span></div>';
+        }).join('') + '<div class="bst-fee-row bst-fee-total"><span>Total price</span><span>' + fmtPrice(total) + '</span></div></div>' +
+        '<div class="bst-fee-note"><p>The dealer’s listing reports that its dealer fees are included in this price. Tax, registration and other government fees are extra.</p>' +
+        '<p>California requires a dealer’s advertised price to include its own fees.</p></div></div>';
+      function close() { back.remove(); document.removeEventListener('keydown', onKey); chip.focus(); }
+      function onKey(e) { if (e.key === 'Escape') close(); }
+      back.addEventListener('click', function (e) { if (e.target === back || e.target.classList.contains('bst-fee-x')) close(); });
+      document.addEventListener('keydown', onKey);
+      document.body.appendChild(back);
+      back.querySelector('.bst-fee-x').focus();
+      track('pricing_details_open', { listing_price: total, dealer_fees: fees });
     });
-    el.appendChild(note);
-    el.parentNode.insertBefore(detail, el.nextSibling);
+    el.appendChild(chip);
   }
+
 
   var CONSENT_TEXT ='By clicking Check availability, I agree to share my info with this dealer and ' +
     'to be contacted by Bestest and the dealer (and their agents) by email — and, if I provide my ' +
