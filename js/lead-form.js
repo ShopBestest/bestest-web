@@ -102,6 +102,12 @@
       '.bst-claim-panel{margin:6px 0 10px;padding:12px 14px;background:#fff;border:1px solid #d8e4dc;border-radius:8px;}' +
       '.bst-claim-lead{margin:0 0 10px;font-size:14px;color:#0e1523;line-height:1.5;font-weight:500;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-claim-lead b{font-weight:700;}' +
+      '.bst-award{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:12px;align-items:center;margin:6px 0 12px;padding:14px 16px 14px 14px;background:#fffdf6;border:1.5px solid #d9b85c;border-radius:12px;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-award-seal svg{display:block;width:64px;height:auto;}' +
+      '.bst-award-body small{display:block;font-weight:800;font-size:10.5px;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:#8a6d1f;}' +
+      '.bst-award-lead{margin:3px 0 0;font-size:14.5px;line-height:1.45;font-weight:500;color:#1a1a1a;font-family:inherit;}.bst-award-lead b{font-weight:800;}' +
+      '.bst-return-fact .bst-return-row{display:inline-flex;align-items:center;width:auto;gap:6px;margin:0;padding:0;border:0;background:none;cursor:pointer;font:inherit;color:inherit;text-align:left;}.bst-return-fact .bst-return-row svg{display:none;}' +
+      '.bst-return-fact .bst-return-info{grid-column:1/-1;margin:6px 0 2px;}.bst-return-fact .bst-return-info b{display:inline;font:inherit;font-weight:700;color:inherit;margin:0;}' +
       // CARS Act row: shield (not a 4th check, since the checks are Bestest's own vetting)
       '.bst-return-row{display:flex;align-items:center;gap:8px;width:100%;margin:10px 0 0;padding:10px 0 0;border:0;border-top:1px solid #e3ebe6;background:none;cursor:pointer;text-align:left;font-size:13px;color:#0e1523;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-return-row svg{flex:none;width:16px;height:16px;}' +
@@ -109,6 +115,13 @@
       '.bst-return-info{margin:8px 0 0;font-size:12.5px;color:#3b4a42;line-height:1.5;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-return-info p{margin:0 0 6px;font:inherit;color:inherit;}.bst-return-info a{color:#1a6f4a;font-weight:600;}' +
       '.bst-price-note{display:inline;margin-left:8px;padding:0;border:0;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#6b7a72;vertical-align:middle;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-fee-chip{display:inline-flex;align-items:center;gap:5px;margin-left:10px;padding:4px 9px 4px 7px;border:0;border-radius:6px;background:#eaf6ef;color:#155539;font:600 12.5px/1.2 \'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;cursor:pointer;vertical-align:middle;text-decoration:underline;text-underline-offset:2px;}.bst-fee-chip svg{width:13px;height:13px;flex:none;}' +
+      '.bst-fee-back{position:fixed;inset:0;background:rgba(14,21,35,.55);z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px;}' +
+      '.bst-fee-box{background:#fff;border-radius:14px;width:100%;max-width:440px;box-shadow:0 18px 50px rgba(0,0,0,.25);overflow:hidden;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
+      '.bst-fee-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #e3e6ea;}.bst-fee-head h3{margin:0;font-family:inherit;font-weight:800;font-size:18px;line-height:1.2;color:#1a1a1a;}' +
+      '.bst-fee-x{border:0;background:none;font-family:inherit;font-size:24px;line-height:1;color:#1a1a1a;cursor:pointer;padding:0 2px;}' +
+      '.bst-fee-rows{padding:4px 18px 0;}.bst-fee-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #eceff2;font-size:15px;line-height:1.3;font-weight:500;color:#1a1a1a;}.bst-fee-row.bst-fee-total{border-bottom:0;font-weight:800;font-size:16px;}' +
+      '.bst-fee-note{padding:2px 18px 18px;font-size:13px;line-height:1.5;font-weight:500;color:#4b5563;}.bst-fee-note p{margin:0 0 8px;font:inherit;color:inherit;}.bst-fee-note p:last-child{margin:0;}' +
       '.bst-price-detail{margin:2px 0 4px;font-size:12px;color:#6b7a72;line-height:1.4;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}';
     (document.head || document.documentElement).appendChild(s);
   })();
@@ -145,23 +158,33 @@
       var checks = findChecks();
       if (checks) {
         clearInterval(panelTimer);
-        if (document.querySelector('.bst-claim-panel')) return;
+        if (document.querySelector('.bst-award')) return;
+        /* A likely-sold page (server-rendered #bst-unc notice) gets no award: "for sale in Orange County"
+           beside "we haven't seen this listing" contradicts itself. The checkmarks stay hidden too. */
+        var unc = document.querySelector('#bst-unc .bst-unc-note');
+        if (unc && (unc.textContent || '').trim()) {
+          checks.style.display = 'none';
+          document.documentElement.classList.add('bst-claim-ready');
+          return;
+        }
+        /* The award (Jason, 11/12): the ratio is the claim, in gold, and gold belongs to this panel alone.
+           The three checkmark rows are gone. New class names on purpose: the pasted VDP stylesheet styles .bst-claim-*. */
         var panel = document.createElement('div');
-        panel.className = 'bst-claim-panel';
-        var lead = document.createElement('p');
-        lead.className = 'bst-claim-lead';
-        lead.innerHTML = (dd.claim && dd.claim.text) ? claimHtml(dd.claim) :
-          'This is one of the <b>best ' + segmentPhrase(dd.segment) + '</b> for sale in Orange County right now.';
+        panel.className = 'bst-award';
+        panel.innerHTML = '<div class="bst-award-seal" aria-hidden="true">' + awardSeal() + '</div>' +
+          '<div class="bst-award-body"><small>Bestest approved</small><p class="bst-award-lead">' + awardHtml(dd) + '</p></div>';
         checks.parentNode.insertBefore(panel, checks);
-        panel.appendChild(lead);
-        panel.appendChild(checks);
-        if (returnEligible(dd.price)) addReturnRow(panel, dd.price);
+        checks.style.display = 'none';
+        /* Nothing else rides in the award (Jason, 11/12): no certified line, no 3-day return. The return
+           is a row in the facts section's "This listing" box; wireReturnFact makes it tappable. */
+        wireReturnFact(dd.price);
         addPriceNote(); // no-op if the init-time call already ran
         document.documentElement.classList.add('bst-claim-ready'); // releases vdp.css's rail reserve
       } else if (++panelTries > 40) { clearInterval(panelTimer); document.documentElement.classList.add('bst-claim-ready'); }
     }, 250);
 
     addPriceNote();
+    wireReturnFact(dd.price);
 
     // Hiding .bst-crumb-current can strand a trailing ">" separator — hide that too,
     // but only if the preceding element really is a bare separator.
@@ -174,6 +197,53 @@
 
   // Row under the checks + tap-to-open explainer that does this car's fee math.
   // Credits California law, never Bestest: we don't sell cars or guarantee returns.
+  // "Only 37 of the 354 used Toyota RAV4s for sale in Orange County qualify as Bestest. This is one
+  // of them." The counts are the block's model-level funnel; without them the block's claim sentence
+  // (or the segment line) stands in. "Only" drops out once more than a third qualify.
+  function awardHtml(dd) {
+    var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    var f = dd.funnel, c = dd.claim, noun = '';
+    var m = c && c.kind === 'model' && c.text && String(c.text).match(/best (used .+?) for sale in/);
+    if (m) noun = m[1];
+    else if (dd.make && dd.model) noun = 'used ' + dd.make + ' ' + dd.model + (/s$/i.test(dd.model) ? '' : 's');
+    var n = f && Number(f.listed), t = f && Number(f.oc_total);
+    if (noun && n > 0 && t > 0 && n <= t) {
+      var only = n / t <= 1 / 3 ? 'Only ' : '';
+      var of = n + ' of the ' + t.toLocaleString('en-US') + ' ' + esc(noun);
+      return n === 1
+        ? '<b>' + only + of + '</b> for sale in Orange County qualifies as Bestest. This is it.'
+        : '<b>' + only + of + '</b> for sale in Orange County qualify as Bestest. This is one of them.';
+    }
+    return (c && c.text) ? claimHtml(c) :
+      'This is one of the <b>best ' + segmentPhrase(dd.segment) + '</b> for sale in Orange County right now.';
+  }
+
+  // Gold laurel wreath around a small dark green disc with a white, square-ended check.
+  function awardSeal() {
+    var s = '', side, i, deg, ang, x, y;
+    for (side = -1; side <= 1; side += 2) for (i = 0; i < 7; i++) {
+      deg = -70 + i * 23; ang = deg * Math.PI / 180;
+      x = (30 + side * 24 * Math.cos(ang)).toFixed(1); y = (31 - 24 * Math.sin(ang)).toFixed(1);
+      s += '<ellipse cx="' + x + '" cy="' + y + '" rx="2.5" ry="5.8" fill="#d9b85c" transform="rotate(' + (side * (28 - deg)) + ' ' + x + ' ' + y + ')"/>';
+    }
+    return '<svg viewBox="0 0 60 60" focusable="false">' + s + '<circle cx="30" cy="30" r="15.5" fill="#155539"/>' +
+      '<g transform="translate(30 30) scale(.78) translate(-30.5 -30.5)"><path d="M19.5 30l8 8L42 22.5" fill="none" stroke="#fff" stroke-width="5.4"/></g></svg>';
+  }
+
+  // The served "3-day return by California law" row in the facts section's listing box becomes the
+  // tap-to-explain (the row is rendered by the pipeline; without it nothing is added anywhere).
+  function wireReturnFact(price) {
+    if (!returnEligible(price)) return;
+    var li = document.querySelector('.bst-facts li[data-k="return"]');
+    if (!li || li.querySelector('.bst-return-row')) return;
+    li.classList.add('bst-return-fact');
+    li.innerHTML = '<b></b>';
+    addReturnRow(li.firstChild, price);
+    var lab = li.querySelector('.bst-return-row span');     // the facts section styles a row's <span> as its grey sub-line
+    if (lab) lab.parentNode.replaceChild(document.createTextNode(lab.textContent), lab);
+    li.appendChild(li.firstChild.querySelector('.bst-return-info'));
+  }
+
   function addReturnRow(panel, price) {
     var row = document.createElement('button');
     row.type = 'button';
@@ -205,28 +275,56 @@
     panel.appendChild(info);
   }
 
-  // "+ tax & registration" after the server-rendered price (the element right after
-  // #bst-rail-top). Tap reveals the full CARS Act "total price" wording.
+  // Price line (Jason, 11/12, after CarGurus): "Price includes fees" beside the price when Marketcheck's
+  // listing says the price includes the dealer's fees (data-dealer-fees in the packed div, written by the
+  // pipeline only when that flag is true). The chip opens "Pricing details". With no figure the price stands
+  // alone: no "+ tax & registration" (no other price on the site carries it).
+  function dealerFees() {
+    var d = document.querySelector('#bst-vin-data[data-packed]') || document.getElementById('bst-vin-data');
+    var n = d ? parseInt(d.getAttribute('data-dealer-fees') || '', 10) : NaN;
+    return n > 0 ? n : 0;
+  }
+  // One total from the feed, split only where the total itself says what it is: $85 is California's cap on
+  // the document charge; $122 is that $85 plus the $37 electronic filing fee. Any other total is one row.
+  function feeRows(fees) {
+    if (fees === 85) return [['Documentation fee', 85]];
+    if (fees === 122) return [['Documentation fee', 85], ['Electronic filing fee', 37]];
+    return [['Dealer fees', fees]];
+  }
   function addPriceNote() {
     var rail = document.getElementById('bst-rail-top');
     var el = rail && rail.nextElementSibling;
-    if (!el || !/^\$[\d,]+$/.test(el.textContent.trim()) || el.querySelector('.bst-price-note')) return;
-    var note = document.createElement('button');
-    note.type = 'button';
-    note.className = 'bst-price-note';
-    note.setAttribute('aria-expanded', 'false');
-    note.textContent = '+ tax & registration';
-    var detail = document.createElement('div');
-    detail.className = 'bst-price-detail';
-    detail.hidden = true;
-    detail.textContent = 'Dealer’s advertised price. Excludes tax, title, registration and government fees.';
-    note.addEventListener('click', function () {
-      detail.hidden = !detail.hidden;
-      note.setAttribute('aria-expanded', String(!detail.hidden));
+    if (!el || el.querySelector('.bst-fee-chip') || !/^\$[\d,]+$/.test(el.textContent.trim())) return;
+    var total = parseInt(el.textContent.replace(/[^\d]/g, ''), 10), fees = dealerFees();
+    if (!fees || !(total > fees)) return;
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'bst-fee-chip';
+    chip.setAttribute('aria-haspopup', 'dialog');
+    chip.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="#155539" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Price includes fees';
+    chip.addEventListener('click', function () {
+      if (document.querySelector('.bst-fee-back')) return;
+      var rows = [['Vehicle price', total - fees]].concat(feeRows(fees));
+      var back = document.createElement('div');
+      back.className = 'bst-fee-back';
+      back.innerHTML = '<div class="bst-fee-box" role="dialog" aria-modal="true" aria-labelledby="bst-fee-h">' +
+        '<div class="bst-fee-head"><h3 id="bst-fee-h">Pricing details</h3><button type="button" class="bst-fee-x" aria-label="Close">×</button></div>' +
+        '<div class="bst-fee-rows">' + rows.map(function (r) {
+          return '<div class="bst-fee-row"><span>' + r[0] + '</span><span>' + fmtPrice(r[1]) + '</span></div>';
+        }).join('') + '<div class="bst-fee-row bst-fee-total"><span>Total price</span><span>' + fmtPrice(total) + '</span></div></div>' +
+        '<div class="bst-fee-note"><p>The dealer’s listing reports that its dealer fees are included in this price. Tax, registration and other government fees are extra.</p>' +
+        '<p>California requires a dealer’s advertised price to include its own fees.</p></div></div>';
+      function close() { back.remove(); document.removeEventListener('keydown', onKey); chip.focus(); }
+      function onKey(e) { if (e.key === 'Escape') close(); }
+      back.addEventListener('click', function (e) { if (e.target === back || e.target.classList.contains('bst-fee-x')) close(); });
+      document.addEventListener('keydown', onKey);
+      document.body.appendChild(back);
+      back.querySelector('.bst-fee-x').focus();
+      track('pricing_details_open', { listing_price: total, dealer_fees: fees });
     });
-    el.appendChild(note);
-    el.parentNode.insertBefore(detail, el.nextSibling);
+    el.appendChild(chip);
   }
+
 
   var CONSENT_TEXT ='By clicking Check availability, I agree to share my info with this dealer and ' +
     'to be contacted by Bestest and the dealer (and their agents) by email — and, if I provide my ' +
@@ -327,7 +425,8 @@
       variantModel: l.variant_model || l.model || '', variantTrim: l.variant_trim || l.trim || '',
       segment: l.segment || '', price: l.price != null ? String(l.price) : '', dealer: dl.name || '',
       vin: l.vin || '', dealerPhone: dl.phone || '', certified: !!l.certified,
-      claim: (b.bestest && b.bestest.claim) || null
+      claim: (b.bestest && b.bestest.claim) || null,
+      funnel: (b.bestest && b.bestest.funnel) || null
     };
   }
   function divData() {
@@ -348,7 +447,7 @@
       year: d.year || '', make: d.make || '', model: d.model || '', trim: d.trim || '',
       variantModel: variantModel, variantTrim: d.trim || '',
       segment: d.segment || '', price: d.price || '', dealer: d.dealerName || '', vin: d.vin || '',
-      dealerPhone: d.dealerPhone || '', certified: d.isCertified === 'true', claim: null
+      dealerPhone: d.dealerPhone || '', certified: d.isCertified === 'true', claim: null, funnel: null
     };
   }
 

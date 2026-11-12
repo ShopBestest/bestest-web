@@ -530,11 +530,12 @@
       '.bst-facts li[data-k="seen"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Ccircle cx=\'12\' cy=\'12\' r=\'9\'/%3E%3Cpath d=\'M8 12.5l2.7 2.7L16 9.5\'/%3E%3C/svg%3E")}',
       '.bst-facts li[data-k="listed"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'4\' y=\'5.5\' width=\'16\' height=\'14.5\' rx=\'2\'/%3E%3Cpath d=\'M4 10h16M8.5 3.5v4M15.5 3.5v4\'/%3E%3C/svg%3E")}',
       '.bst-facts li[data-k="drop"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M4 7l6 6 4-4 6 7\'/%3E%3Cpath d=\'M20 11v5h-5\'/%3E%3C/svg%3E")}',
-      '.bst-facts li[data-k="stock"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M4 9h16M4 15h16M10 4L8 20M16 4l-2 16\'/%3E%3C/svg%3E")}',
-      '.bst-facts .bst-cpo{display:grid;grid-template-columns:46px minmax(0,1fr);column-gap:18px;align-items:center;background:#fffdf6;border:1.5px solid #d9b85c;border-radius:12px;padding:12px 14px 12px 18px;margin:0 0 6px}',
-      '.bst-facts .bst-cpo::before{content:"";grid-column:1;grid-row:1/span 3;width:46px;height:46px;border-radius:50%;background:#155539 url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23e8c766\' stroke-width=\'1.9\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M12 3l7 2.8v5c0 4.4-3 7.7-7 9.4-4-1.7-7-5-7-9.4v-5z\'/%3E%3Cpath d=\'M8.5 12l2.5 2.5 4.5-5\'/%3E%3C/svg%3E") center/26px no-repeat;box-shadow:0 0 0 3px #fffdf6,0 0 0 5px #d9b85c}',
-      '.bst-facts .bst-cpo small{grid-column:2;display:block;font:800 10.5px/1.3 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8a6d1f}',
-      '.bst-facts .bst-cpo b{grid-column:2;display:block;font:800 16px/1.2 Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.02em;color:#1a1a1a;margin-top:2px}',
+      '.bst-facts li[data-k="stock"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M4 9h16M4 15h16M10 4L8 20M16 4l-2 16\'/%3E%3C/svg%3E")}li[data-k="return"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M9 14L4 9l5-5\'/%3E%3Cpath d=\'M4 9h10.5a5.5 5.5 0 0 1 0 11H11\'/%3E%3C/svg%3E")}li[data-k="fees"]{--bst-i:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23000\' stroke-width=\'1.7\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z\'/%3E%3Ccircle cx=\'7.5\' cy=\'7.5\' r=\'1.5\'/%3E%3C/svg%3E")}',
+      /* Certified band (Jason, 11/12): a white card with a green rule. Gold is the Bestest award's alone. */
+      '.bst-facts .bst-cpo{display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:14px;align-items:center;background:#fff;border:1px solid #e3e6ea;border-left:4px solid #1a6f4a;border-radius:8px;padding:12px 14px;margin:0 0 6px}',
+      '.bst-facts .bst-cpo::before{content:"";grid-column:1;grid-row:1/span 3;width:40px;height:40px;border-radius:50%;background:#f0faf4 url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%231a6f4a\' stroke-width=\'1.9\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M12 3l7 2.8v5c0 4.4-3 7.7-7 9.4-4-1.7-7-5-7-9.4v-5z\'/%3E%3Cpath d=\'M9 11.8l2.2 2.2 3.8-4.2\'/%3E%3C/svg%3E") center/22px no-repeat}',
+      '.bst-facts .bst-cpo small{grid-column:2;display:block;font:800 10.5px/1.3 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6b7280}',
+      '.bst-facts .bst-cpo b{grid-column:2;display:block;font:800 16px/1.2 Montserrat,sans-serif;color:#1a1a1a;margin-top:2px}',
       '.bst-facts .bst-cpo span{grid-column:2;display:block;font:500 12px/1.4 Montserrat,sans-serif;color:#6b7280;margin-top:3px}',
       '.bst-facts-listing{margin-top:22px}',
       /* the dealer group: served last in the section, moved down the page by placeDealer(), so it styles itself */
@@ -557,7 +558,7 @@
       '.bst-facts-history .bst-rows b{order:2;font:400 14px/1.35 Montserrat,sans-serif;color:#1a1a1a}',
       '.bst-facts-history .bst-rows li.now b{font-weight:700;font-size:16px;color:#1a6f4a}',
       '.bst-facts-history .bst-rows span{order:1;font:500 13.5px/1.35 Montserrat,sans-serif;color:#5f6f67;margin:0}',
-      '@media(min-width:768px){.bst-facts-car .bst-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:36px}.bst-facts-car .bst-rows li:nth-child(2){border-top:0}.bst-facts h2,.bst-facts-history h2{font-size:18px;margin-bottom:14px}.bst-facts .bst-cpo{margin-bottom:10px;padding:14px 18px 14px 22px}.bst-facts .bst-cpo b{font-size:18px}.bst-facts .bst-cpo span{font-size:13px}}',
+      '@media(min-width:768px){.bst-facts-car .bst-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:36px}.bst-facts-car .bst-rows li:nth-child(2){border-top:0}.bst-facts h2,.bst-facts-history h2{font-size:18px;margin-bottom:14px}.bst-facts .bst-cpo{margin-bottom:10px;padding:14px 18px}.bst-facts .bst-cpo b{font-size:18px}.bst-facts .bst-cpo span{font-size:13px}}',
       '@media(min-width:992px){.bst-facts{display:grid;grid-template-columns:2fr 1fr;gap:40px;padding-top:26px}.bst-facts-car{grid-column:1/-1}.bst-facts-car:not(:last-child){grid-column:1}.bst-facts-listing{margin-top:0;align-self:start;background:#f4f8f6;border:1px solid #e4e9e6;border-radius:14px;padding:18px 20px 8px}}',
       '@media(min-width:601px){#bst-below-fold.bst-has-facts [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important;max-width:700px}}'
     ].join('');
@@ -1372,8 +1373,25 @@
         miles.classList.add('bstb-rail-miles');
         if (dist) { dist.classList.add('bstb-rail-loc'); miles.insertAdjacentElement('afterend', dist); }
       }
+      ctaBox();
+    }
+
+    /* The main button box, on every car page (11/12: railB runs only on cars with a data block, about 146 of
+       1,282, so these lived there first by mistake). Idempotent: railB and the page init both call it. */
+    function ctaBox() {
       var tel = document.querySelector('#bst-main-cta-frame .bcf-phone-wrap');
-      if (tel && tel.querySelector('.bcf-phone')) tel.insertAdjacentHTML('afterend', '<div class="bstb-call-note">Calls go straight to the dealer.</div>');
+      /* The chip says whose number it is ("Call dealer"); the separate "Calls go straight to the dealer."
+         line is gone (Jason, 11/12: one grey line in this box is enough). */
+      var lab = tel && tel.querySelector('.bcf-phone-label'); if (lab) lab.textContent = 'Call dealer';
+      /* No phone chip on a desktop (Jason, 11/12): a tap-to-call link does nothing there, and a number dialed
+         by hand is a contact we never see. Touch devices keep it. */
+      try { if (tel && !window.matchMedia('(pointer: coarse)').matches) tel.remove(); } catch (e) {}
+      /* Why to ask (Jason, 11/11): a dealer's listing can outlive the sale, which most shoppers don't know.
+         Said here, at the button, and not on the "Listing verified" row. renderUnconfirmed removes it:
+         a likely-sold page already says so in its own notice. Styled inline: the VDP stylesheet is pasted into
+         the Webflow template head, so a css/vdp.css change would not reach the page with a pin bump. */
+      var cta = document.getElementById('bst-main-cta');
+      if (cta && !document.querySelector('#bst-main-cta-frame .bstb-cta-note')) cta.insertAdjacentHTML('afterend', '<div class="bstb-cta-note" style="font:500 12px/1.45 \'Montserrat\',sans-serif;color:#6b7280;text-align:center;text-wrap:balance;margin:8px 4px 10px">Dealer listings can stay live a day or two after a car sells. A quick check keeps a sold car off your shortlist.</div>');
     }
 
     function slimB(b, d) {
@@ -1542,6 +1560,7 @@
         box.appendChild(foot);
       }
 
+      var lag = document.querySelector('#bst-main-cta-frame .bstb-cta-note'); if (lag) lag.remove();
       /* the CTA stays: the dealer may still have it. Relabel both buttons. */
       ['bst-main-cta', 'bst-slim-cta'].forEach(function (id) {
         var a = document.getElementById(id); if (a) a.textContent = 'Ask if it’s still available →';
@@ -1594,6 +1613,7 @@
       styleBespokeLinks(d);
       richListingStyles();
       mountSlimBar(d);
+      ctaBox();
       renderUnconfirmed(d);
       setupGA4(d);
       buildSimilar(d);
