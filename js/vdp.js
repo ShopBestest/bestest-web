@@ -1376,6 +1376,9 @@
       /* The chip says whose number it is ("Call dealer"); the separate "Calls go straight to the dealer."
          line is gone (Jason, 11/12: one grey line in this box is enough). */
       var lab = tel && tel.querySelector('.bcf-phone-label'); if (lab) lab.textContent = 'Call dealer';
+      /* No phone chip on a desktop (Jason, 11/12): a tap-to-call link does nothing there, and a number dialed
+         by hand is a contact we never see. Touch devices keep it. */
+      try { if (tel && !window.matchMedia('(pointer: coarse)').matches) tel.remove(); } catch (e) {}
       /* Why to ask (Jason, 11/11): a dealer's listing can outlive the sale, which most shoppers don't know.
          Said here, at the button, and not on the "Listing verified" row. renderUnconfirmed removes it:
          a likely-sold page already says so in its own notice. Styled inline: the VDP stylesheet is pasted into
