@@ -159,6 +159,14 @@
       if (checks) {
         clearInterval(panelTimer);
         if (document.querySelector('.bst-award')) return;
+        /* A likely-sold page (server-rendered #bst-unc notice) gets no award: "for sale in Orange County"
+           beside "we haven't seen this listing" contradicts itself. The checkmarks stay hidden too. */
+        var unc = document.querySelector('#bst-unc .bst-unc-note');
+        if (unc && (unc.textContent || '').trim()) {
+          checks.style.display = 'none';
+          document.documentElement.classList.add('bst-claim-ready');
+          return;
+        }
         /* The award (Jason, 11/12): the ratio is the claim, in gold, and gold belongs to this panel alone.
            The three checkmark rows are gone. New class names on purpose: the pasted VDP stylesheet styles .bst-claim-*. */
         var panel = document.createElement('div');

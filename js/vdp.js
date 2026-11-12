@@ -1373,6 +1373,12 @@
         miles.classList.add('bstb-rail-miles');
         if (dist) { dist.classList.add('bstb-rail-loc'); miles.insertAdjacentElement('afterend', dist); }
       }
+      ctaBox();
+    }
+
+    /* The main button box, on every car page (11/12: railB runs only on cars with a data block, about 146 of
+       1,282, so these lived there first by mistake). Idempotent: railB and the page init both call it. */
+    function ctaBox() {
       var tel = document.querySelector('#bst-main-cta-frame .bcf-phone-wrap');
       /* The chip says whose number it is ("Call dealer"); the separate "Calls go straight to the dealer."
          line is gone (Jason, 11/12: one grey line in this box is enough). */
@@ -1607,6 +1613,7 @@
       styleBespokeLinks(d);
       richListingStyles();
       mountSlimBar(d);
+      ctaBox();
       renderUnconfirmed(d);
       setupGA4(d);
       buildSimilar(d);
