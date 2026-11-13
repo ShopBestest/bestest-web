@@ -325,10 +325,13 @@
     return n > 0 ? n : 0;
   }
   // One total from the feed, split only where the total itself says what it is: $85 is California's cap on
-  // the document charge; $122 is that $85 plus the $37 electronic filing fee. Any other total is one row.
+  // the document charge; $122 is that $85 plus the $37 electronic filing fee; $172 adds a $50 emission
+  // (smog) testing charge, itemized that way by Crevier BMW, Audi South Coast and Hardin Honda (11/13,
+  // research-inputs/dealer-fee-172-2026-11-13). Any other total is one row.
   function feeRows(fees) {
     if (fees === 85) return [['Documentation fee', 85]];
     if (fees === 122) return [['Documentation fee', 85], ['Electronic filing fee', 37]];
+    if (fees === 172) return [['Documentation fee', 85], ['Electronic filing fee', 37], ['Emission testing fee', 50]];
     return [['Dealer fees', fees]];
   }
   function addPriceNote() {
@@ -352,8 +355,9 @@
         '<div class="bst-fee-rows">' + rows.map(function (r) {
           return '<div class="bst-fee-row"><span>' + r[0] + '</span><span>' + fmtPrice(r[1]) + '</span></div>';
         }).join('') + '<div class="bst-fee-row bst-fee-total"><span>Total price</span><span>' + fmtPrice(total) + '</span></div></div>' +
-        '<div class="bst-fee-note"><p>The dealer’s listing reports that its dealer fees are included in this price. Tax, registration and other government fees are extra.</p>' +
-        '<p>California requires a dealer’s advertised price to include its own fees.</p></div></div>';
+        '<div class="bst-fee-note"><p>The dealer’s listing reports that its dealer fees are included in this price. Tax, registration and other government fees are extra.</p></div></div>';
+      // No line on what California law requires (11/13): Vehicle Code 11713.1(b) lets dealers leave doc,
+      // filing and smog-test charges out of an advertised price, so the old line was wrong as worded.
       function close() { back.remove(); document.removeEventListener('keydown', onKey); chip.focus(); }
       function onKey(e) { if (e.key === 'Escape') close(); }
       back.addEventListener('click', function (e) { if (e.target === back || e.target.classList.contains('bst-fee-x')) close(); });
