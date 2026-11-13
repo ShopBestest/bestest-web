@@ -138,19 +138,6 @@
     var dd = dataDiv();
     if (!dd) { document.documentElement.classList.add('bst-claim-ready'); return; }
 
-    /* Cars without a vdp_json block (most of the site) get the award's ratio from the same two sources the
-       sold-car page uses (not-found.js): Bestest's count = live feed cars of this make and model, the county
-       count = the feed Worker's weekly /?oc facet. Started now so it is usually back before the panel goes in;
-       if it lands later, the panel's sentence is swapped in place. */
-    if (!dd.funnel && dd.make && dd.model) {
-      liveFunnel(dd, function (f) {
-        if (!f) return;
-        dd.funnel = f;
-        var lead = document.querySelector('.bst-award .bst-award-lead');
-        if (lead) lead.innerHTML = awardHtml(dd);
-      });
-    }
-
     // Claim panel: superlative headline + the existing checkmarks as its proof.
     // The checkmarks are rendered by a VDP embed AFTER DOMContentLoaded (same as the
     // CTA), so poll for them — a one-shot lookup here silently misses them in prod.
@@ -166,22 +153,27 @@
       }
       return checks;
     }
-    var panelTries = 0, panelTimer = null;
+    var panelTries = 0, panelTimer = null, funnelPending = false, t0 = Date.now(), FUNNEL_WAIT_MS = 1500;
     /* Tried once right away, then every 250 ms: vdp.js has usually built the rail by the time this
        loads, so the award goes in with no wait (11/13; the first try used to come 250 ms late). */
     function placeAward() {
       var checks = findChecks();
       if (checks) {
-        clearInterval(panelTimer);
-        if (document.querySelector('.bst-award')) return true;
+        if (document.querySelector('.bst-award')) { clearInterval(panelTimer); return true; }
         /* A likely-sold page (server-rendered #bst-unc notice) gets no award: "for sale in Orange County"
            beside "we haven't seen this listing" contradicts itself. The checkmarks stay hidden too. */
         var unc = document.querySelector('#bst-unc .bst-unc-note');
         if (unc && (unc.textContent || '').trim()) {
+          clearInterval(panelTimer);
           checks.style.display = 'none';
           document.documentElement.classList.add('bst-claim-ready');
           return true;
         }
+        /* Hold the award (in vdp.css's reserved space) until its counts are back, so the sentence never
+           changes under the reader (11/13: a cold visit showed the segment line, then the ratio ~0.7 s later).
+           Past FUNNEL_WAIT_MS it goes in with the fallback and the counts swap in if they still land. */
+        if (funnelPending && Date.now() - t0 < FUNNEL_WAIT_MS) return false;
+        clearInterval(panelTimer);
         /* The award (Jason, 11/12): the ratio is the claim, in gold, and gold belongs to this panel alone.
            The three checkmark rows are gone. New class names on purpose: the pasted VDP stylesheet styles .bst-claim-*. */
         var panel = document.createElement('div');
@@ -198,6 +190,20 @@
         return true;
       } else if (++panelTries > 40) { clearInterval(panelTimer); document.documentElement.classList.add('bst-claim-ready'); }
       return false;
+    }
+
+    /* Cars without a vdp_json block (most of the site) get the award's ratio from the same two sources the
+       sold-car page uses (not-found.js): Bestest's count = live feed cars of this make and model, the county
+       count = the feed Worker's weekly /?oc facet. placeAward waits for them (up to FUNNEL_WAIT_MS). */
+    if (!dd.funnel && dd.make && dd.model) {
+      funnelPending = true;
+      liveFunnel(dd, function (f) {
+        funnelPending = false;
+        if (f) dd.funnel = f;
+        var lead = document.querySelector('.bst-award .bst-award-lead');
+        if (lead) { if (f) lead.innerHTML = awardHtml(dd); }
+        else placeAward();
+      });
     }
     if (!placeAward()) panelTimer = setInterval(placeAward, 250);
 
@@ -240,9 +246,16 @@
       cb(n > 0 && t > 0 && n <= t ? { listed: n, oc_total: t, as_of: oc.date || null, source: 'live' } : null);
     }
     fetchFeed(function (r) { feedRecs = r; done(); });
+    var ocKey = 'bestest_oc_cache_v1', ocHit = null;   // weekly facet, kept per tab like the feed (11/13)
+    try { var p = JSON.parse(sessionStorage.getItem(ocKey)); if (p && p.oc && Date.now() - p.timestamp < FEED_CACHE_TTL_MS) ocHit = p.oc; } catch (e) {}
+    if (ocHit) { oc = ocHit; done(); return; }
     fetch(FEED_URL + '?oc', { credentials: 'omit' })
       .then(function (r) { if (!r.ok) throw new Error('oc ' + r.status); return r.json(); })
-      .then(function (j) { oc = j; done(); }, function () { oc = null; done(); });
+      .then(function (j) {
+        oc = j;
+        try { sessionStorage.setItem(ocKey, JSON.stringify({ timestamp: Date.now(), oc: j })); } catch (e) {}
+        done();
+      }, function () { oc = null; done(); });
   }
 
   function awardHtml(dd) {

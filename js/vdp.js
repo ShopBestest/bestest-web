@@ -699,7 +699,7 @@
     if (d.segment) {
       var segSlug = SEGMENT_TO_SLUG[d.segment];
       segmentHTML = segSlug
-        ? '<a class="bst-segment-link" href="' + escapeHtml(segSlug) + '" data-bst-track="segment_link" data-bst-vin="' + escapeHtml(d.vin) + '">' + escapeHtml(d.segment) + '</a>'
+        ? '<a class="bst-segment-link" style="display:none" href="' + escapeHtml(segSlug) + '" data-bst-track="segment_link" data-bst-vin="' + escapeHtml(d.vin) + '">' + escapeHtml(d.segment) + '</a>'
         : '<span style="font-size:13px;color:#6b7280;">' + escapeHtml(d.segment) + '</span>';
     }
   
@@ -729,7 +729,7 @@
       bottom.innerHTML = [
         milesLine ? '<div style="font-size:13px;color:#6b7280;margin-top:-16px;margin-bottom:8px;">' + milesLine + '</div>' : '',
         '<div class="bst-cta-frame" id="bst-main-cta-frame">',
-          '<p class="bcf-dealer-line">',
+          '<p class="bcf-dealer-line" style="display:none">',   /* hidden by lead-form.js (dealer stays anonymous pre-lead); born hidden so it never flashes (11/13) */
             '<span class="bcf-dealer-name">' + escapeHtml(d.dealerName) + '</span>',
             '<span class="bcf-dot">•</span>',
             '<span class="bcf-approval">A Bestest-approved dealer</span>',
