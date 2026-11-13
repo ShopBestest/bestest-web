@@ -138,6 +138,19 @@
     var dd = dataDiv();
     if (!dd) { document.documentElement.classList.add('bst-claim-ready'); return; }
 
+    /* Cars without a vdp_json block (most of the site) get the award's ratio from the same two sources the
+       sold-car page uses (not-found.js): Bestest's count = live feed cars of this make and model, the county
+       count = the feed Worker's weekly /?oc facet. Started now so it is usually back before the panel goes in;
+       if it lands later, the panel's sentence is swapped in place. */
+    if (!dd.funnel && dd.make && dd.model) {
+      liveFunnel(dd, function (f) {
+        if (!f) return;
+        dd.funnel = f;
+        var lead = document.querySelector('.bst-award .bst-award-lead');
+        if (lead) lead.innerHTML = awardHtml(dd);
+      });
+    }
+
     // Claim panel: superlative headline + the existing checkmarks as its proof.
     // The checkmarks are rendered by a VDP embed AFTER DOMContentLoaded (same as the
     // CTA), so poll for them — a one-shot lookup here silently misses them in prod.
@@ -200,12 +213,39 @@
   // "Only 37 of the 354 used Toyota RAV4s for sale in Orange County qualify as Bestest. This is one
   // of them." The counts are the block's model-level funnel; without them the block's claim sentence
   // (or the segment line) stands in. "Only" drops out once more than a third qualify.
+  // Same plural rule as not-found.js, so the VDP and the sold-car page name a model the same way.
+  function modelPlural(md) {
+    var last = md.split(/\s/).pop();
+    if (/series$/i.test(md)) return md;
+    if (/^[A-Z]{2,3}$/.test(last) || last === 'S') return md + ' models';
+    return /(s|x|z|ch|sh)$/.test(md) ? md + 'es' : md + 's';
+  }
+
+  // {listed, oc_total} for this make and model, or null (feed or /?oc unavailable, model under the weekly
+  // facet cap, or a count that makes no sense). Only cb(non-null) changes the page.
+  function liveFunnel(dd, cb) {
+    var mk = dd.make, md = String(dd.model).trim(), feedRecs, oc, left = 2;
+    function done() {
+      if (--left) return;
+      if (!Array.isArray(feedRecs) || !oc || !oc.m) return cb(null);
+      var n = feedRecs.filter(function (x) { return x && x.mk === mk && String(x.md || '').trim() === md; }).length;
+      var t = oc.m[md];
+      if (!t) { var k = Object.keys(oc.m).filter(function (x) { return x.toLowerCase() === md.toLowerCase(); })[0]; t = k ? oc.m[k] : 0; }
+      if (!t) t = oc.m[mk + ' ' + md + ' Pickup'] || 0;   // the facet names Ram trucks "Ram 1500 Pickup"
+      cb(n > 0 && t > 0 && n <= t ? { listed: n, oc_total: t, as_of: oc.date || null, source: 'live' } : null);
+    }
+    fetchFeed(function (r) { feedRecs = r; done(); });
+    fetch(FEED_URL + '?oc', { credentials: 'omit' })
+      .then(function (r) { if (!r.ok) throw new Error('oc ' + r.status); return r.json(); })
+      .then(function (j) { oc = j; done(); }, function () { oc = null; done(); });
+  }
+
   function awardHtml(dd) {
     var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
     var f = dd.funnel, c = dd.claim, noun = '';
     var m = c && c.kind === 'model' && c.text && String(c.text).match(/best (used .+?) for sale in/);
     if (m) noun = m[1];
-    else if (dd.make && dd.model) noun = 'used ' + dd.make + ' ' + dd.model + (/s$/i.test(dd.model) ? '' : 's');
+    else if (dd.make && dd.model) noun = 'used ' + dd.make + ' ' + modelPlural(String(dd.model).trim());
     var n = f && Number(f.listed), t = f && Number(f.oc_total);
     if (noun && n > 0 && t > 0 && n <= t) {
       var only = n / t <= 1 / 3 ? 'Only ' : '';
