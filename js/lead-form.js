@@ -166,19 +166,21 @@
       }
       return checks;
     }
-    var panelTries = 0;
-    var panelTimer = setInterval(function () {
+    var panelTries = 0, panelTimer = null;
+    /* Tried once right away, then every 250 ms: vdp.js has usually built the rail by the time this
+       loads, so the award goes in with no wait (11/13; the first try used to come 250 ms late). */
+    function placeAward() {
       var checks = findChecks();
       if (checks) {
         clearInterval(panelTimer);
-        if (document.querySelector('.bst-award')) return;
+        if (document.querySelector('.bst-award')) return true;
         /* A likely-sold page (server-rendered #bst-unc notice) gets no award: "for sale in Orange County"
            beside "we haven't seen this listing" contradicts itself. The checkmarks stay hidden too. */
         var unc = document.querySelector('#bst-unc .bst-unc-note');
         if (unc && (unc.textContent || '').trim()) {
           checks.style.display = 'none';
           document.documentElement.classList.add('bst-claim-ready');
-          return;
+          return true;
         }
         /* The award (Jason, 11/12): the ratio is the claim, in gold, and gold belongs to this panel alone.
            The three checkmark rows are gone. New class names on purpose: the pasted VDP stylesheet styles .bst-claim-*. */
@@ -193,8 +195,11 @@
         wireReturnFact(dd.price);
         addPriceNote(); // no-op if the init-time call already ran
         document.documentElement.classList.add('bst-claim-ready'); // releases vdp.css's rail reserve
+        return true;
       } else if (++panelTries > 40) { clearInterval(panelTimer); document.documentElement.classList.add('bst-claim-ready'); }
-    }, 250);
+      return false;
+    }
+    if (!placeAward()) panelTimer = setInterval(placeAward, 250);
 
     addPriceNote();
     wireReturnFact(dd.price);

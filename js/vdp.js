@@ -705,12 +705,16 @@
   
     rail.style.cssText = 'display:flex;flex-direction:column;gap:22px;justify-content:flex-start;';
   
-    /* TOP slot: segment + trust checks (between native H1 and native price) */
+    /* TOP slot: segment + trust checks (between native H1 and native price).
+       The check rows are born hidden (11/13): lead-form.js swaps them for the gold Bestest award
+       (Jason, 11/12: the three checkmark rows are gone) and finds its spot by their text, but it loads
+       after this runs, so visible rows painted for a beat on every reload. vdp.css's min-height on
+       #bst-rail-top holds the award's space until then. */
     var top = document.getElementById('bst-rail-top');
     if (top) {
       top.innerHTML = [
         segmentHTML ? '<div style="margin-top:-16px;margin-bottom:14px;">' + segmentHTML + '</div>' : '',
-        '<div style="display:flex;flex-direction:column;gap:0;">',
+        '<div class="bst-rail-checks" style="display:none;flex-direction:column;gap:0;">',
           isCPO ? check(d.make + '-certified pre-owned') : '',
           check('Recommended model'),
           check('Approved dealer'),
