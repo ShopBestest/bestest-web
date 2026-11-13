@@ -1449,7 +1449,7 @@
         + '</style>'
         + '<figure class="bstb-fq"><div class="bstb-fq-mark" aria-hidden="true">&ldquo;</div>'
         + '<blockquote><p>If it&rsquo;s not on Bestest, just do your homework.</p></blockquote>'
-        + '<figcaption><img src="https://cdn.prod.website-files.com/69b85a00ef6f024daf996304/6a7e0645fce29258ea8ace96_ja-profile-blue-larger-p-500.jpeg" alt="Jason Allan" width="36" height="36" loading="lazy">'
+        + '<figcaption><img src="https://cdn.prod.website-files.com/69b859ffef6f024daf9962a7/6af780fee064d45e0a481ce2_ja-headshot-circle-160.webp" alt="Jason Allan" width="36" height="36" loading="lazy">'
         + '<span><b>Jason Allan</b>, Bestest founder</span></figcaption></figure>';
       var html = '';
       /* 11/11 (Jason): the served dealer group (name, link, city and county) heads this note when the page has
