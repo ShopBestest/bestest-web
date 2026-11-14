@@ -4,7 +4,9 @@
 // the <img> and the real Cloudinary URL in a sibling .hero_image_url text node, so swap the
 // real (w_480) URL in NOW and eager/high-priority the first card. This gives a real LCP image
 // painting at parse time, before the feed fetch + render pipeline runs.
-(function(){var items=document.querySelectorAll('.collection-list-2 .w-dyn-item');if(!items.length)return;Array.prototype.forEach.call(items,function(item,idx){var img=item.querySelector('.listing-image');if(!img)return;var urlEl=item.querySelector('.hero_image_url');var url=urlEl?urlEl.textContent.trim():'';if(url)img.src=url.replace(/w_\d+/,'w_480');else if(img.src)img.src=img.src.replace(/w_\d+/,'w_480');img.decoding='async';if(idx===0){img.loading='eager';img.setAttribute('fetchpriority','high');}else{img.loading='lazy';}});})();
+// 11/14: the templates now ship the real photo in the <img> (bound src + alt), so only the old placeholder
+// markup still needs its URL swapped in; a real src is left as served, so the engine's page-1 cards reuse it.
+(function(){var items=document.querySelectorAll('.collection-list-2 .w-dyn-item');if(!items.length)return;Array.prototype.forEach.call(items,function(item,idx){var img=item.querySelector('.listing-image');if(!img)return;var placeholder=!img.getAttribute('src')||/placeholder/.test(img.getAttribute('src'));if(placeholder){var urlEl=item.querySelector('.hero_image_url');var url=urlEl?urlEl.textContent.trim():'';if(url)img.src=url.replace(/w_\d+/,'w_480');else if(img.src)img.src=img.src.replace(/w_\d+/,'w_480');}img.decoding='async';if(idx===0){img.loading='eager';img.setAttribute('fetchpriority','high');}else{img.loading='lazy';}});})();
 (function(){
   // ── Inventory feed ──────────────────────────────────────────────────────────
   // Single compact JSON of every synced listing, built by build_inventory_json.py and
@@ -22,6 +24,12 @@
   resolveModeFromWindow();
   if(!document.querySelector('.collection-list-2'))return;
   var PER_PAGE=24, MOBILE_PER_PAGE=PER_PAGE, BROAD_USED_CARS_PATH='/used-cars';
+  // Server card order (Webflow's list: photos updated, newest first), read before any re-render. On the default,
+  // unfiltered view page 1 keeps these cars in this order and the server cards stay in place, so the first paint
+  // is the settled page (11/14: no card swap, no second photo download; crawlers and shoppers see the same page 1).
+  var SERVER_RANK={}, SERVER_COUNT=0, firstRender=true;
+  (function(){var seen={};[].forEach.call(document.querySelectorAll('.collection-list-2 .w-dyn-item'),function(it){var a=it.querySelector('a[href^="/used/"]');var h=a&&a.getAttribute('href');if(h&&!(h in seen)){seen[h]=1;SERVER_RANK[h]=SERVER_COUNT++;}});})();
+  function cardHref(it){var a=it.querySelector('a[href^="/used/"]');return a?a.getAttribute('href'):'';}
   var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles',Hybrids:'/used-cars/best-used-hybrids','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs'};
   var state={make:[],model:[],segment:[],body_style:[],powertrain:[],price:[],miles:[],year:[],certified:[],page:1,shown:MOBILE_PER_PAGE};
   var sortKey='', defaultSortKey='', allItems=[], filtered=[], bsLock=false, loadComplete=false, hasActiveQuery=false, urlSyncReady=false;
@@ -200,25 +208,22 @@
   // ── Card construction ───────────────────────────────────────────────────────
   // Mirrors the live Webflow card markup verbatim so distance.js (.car-card data-attrs),
   // styles, and any downstream JS keep working. Trust-badge row is the static BADGE_TEXT.
+  // 11/14: cards use the feed's own photo URL (w_640), the same one the template's <img> serves, so a re-render
+  // hits the browser cache instead of downloading a second size (and Cloudinary builds one version per car).
   function cardHTML(d){
     var heading=(d.year+' '+d.make+' '+d.model).replace(/\s+/g,' ').trim();
+    var full=(heading+' '+(d.trim||'')).trim();
     return '<div role="listitem" class="w-dyn-item">'+
       '<div data-body-type="'+escAttr(d.body_type)+'" data-dealer-city="'+escAttr(d.city)+'" data-dealer-lat="'+(d.lat!=null?d.lat:'')+'" data-dealer-lng="'+(d.lng!=null?d.lng:'')+'" data-photo-count="'+(d.photoCount||0)+'" class="car-card">'+
-        '<div class="hero_image_url">'+escHtml(d.img)+'</div>'+
-        '<a href="'+escAttr(d.href)+'" aria-label="'+escAttr('View '+heading)+'" class="listing-image-wrapper w-inline-block">'+
-          '<img src="'+escAttr(d.imgSmall)+'" loading="lazy" decoding="async" alt="'+escAttr(heading)+'" class="listing-image"/>'+
+        '<a href="'+escAttr(d.href)+'" aria-label="'+escAttr('View '+full)+'" class="listing-image-wrapper w-inline-block">'+
+          '<img src="'+escAttr(d.img||d.imgSmall)+'" loading="lazy" decoding="async" alt="'+escAttr(full)+'" class="listing-image"/>'+
         '</a>'+
         '<div class="car-listing-name-wrapper">'+
-          '<h2 class="heading">'+escHtml(heading)+'</h2>'+
+          '<h3 class="heading">'+escHtml(heading)+'</h3>'+
           '<div class="div-block-10"><div class="text-block-2">'+escHtml(d.trim)+'</div><div class="text-block-14">•</div><div class="miles">'+escHtml(fmtMiles(d.miles))+'</div></div>'+
           
           '<div class="price">'+escHtml(fmtPrice(d.price))+'</div>'+
-          '<div class="text-block-15">'+escHtml(d.make)+'</div>'+
-          '<div class="text-block-16">'+escHtml(d.year)+'</div>'+
-          '<div class="text-block-17">'+escHtml(d.powertrain)+'</div>'+
-          '<div class="text-block-18">'+escHtml(d.segment)+'</div>'+
-          '<div class="text-block-19">'+escHtml(d.model)+'</div>'+
-          '<div class="div-block-11"><a href="'+escAttr(d.href)+'" aria-label="'+escAttr('See listing: '+heading)+'" class="primary-button car-listing-button w-button">See listing</a><div class="text-block-7">'+BADGE_TEXT+'</div></div>'+
+          '<div class="div-block-11"><a href="'+escAttr(d.href)+'" aria-label="'+escAttr('See listing: '+full)+'" class="primary-button car-listing-button w-button">See listing</a><div class="text-block-7">'+BADGE_TEXT+'</div></div>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -262,7 +267,7 @@
     if(window.BestestDistance&&typeof window.BestestDistance.getUserLatLng==='function'){var u=window.BestestDistance.getUserLatLng();if(u&&typeof u.lat==='number'&&typeof u.lng==='number')return u;}
     return null;
   }
-  function defaultSort(pairs){pairs.sort(function(a,b){var aRich=a.data.photoCount>=15?1:0;var bRich=b.data.photoCount>=15?1:0;if(aRich!==bRich)return bRich-aRich;return b.data.photosModifiedTime-a.data.photosModifiedTime;});}
+  function defaultSort(pairs){var useServer=SERVER_COUNT>0&&!isQueryActive();pairs.sort(function(a,b){if(useServer){var ra=SERVER_RANK[a.data.href],rb=SERVER_RANK[b.data.href],ia=ra!==undefined,ib=rb!==undefined;if(ia&&ib)return ra-rb;if(ia!==ib)return ia?-1:1;}var aRich=a.data.photoCount>=15?1:0;var bRich=b.data.photoCount>=15?1:0;if(aRich!==bRich)return bRich-aRich;return b.data.photosModifiedTime-a.data.photosModifiedTime;});}
   function sortItems(items){
     var pairs=items.map(function(rec){return {item:rec,data:rec};});
     if(sortKey==='distance-asc'){
@@ -414,9 +419,19 @@
     var visible;
     if(mobile)visible=filtered.slice(0,state.shown);
     else {var s=(state.page-1)*PER_PAGE;visible=filtered.slice(s,s+PER_PAGE);}
-    var html='';
-    for(var i=0;i<visible.length;i++)html+=cardHTML(visible[i]);
-    container.innerHTML=html;
+    var keep=false;
+    if(firstRender&&!sortKey&&!isQueryActive()&&state.page===1&&visible.length){
+      var server=container.querySelectorAll('.w-dyn-item');
+      if(server.length>=visible.length){keep=true;for(var k=0;k<visible.length;k++){if(cardHref(server[k])!==visible[k].href){keep=false;break;}}}
+      if(keep)for(var x=server.length-1;x>=visible.length;x--)server[x].parentNode.removeChild(server[x]);
+    }
+    firstRender=false;
+    if(!keep){
+      var html='';
+      for(var i=0;i<visible.length;i++)html+=cardHTML(visible[i]);
+      container.innerHTML=html;
+    }
+    document.documentElement.classList.add('bs-srp-ready');
     var cards=container.querySelectorAll('.w-dyn-item');
     // First visible card image is the LCP candidate; eager-load + boost priority.
     // Re-applied every render since filter/sort changes which card is first.
