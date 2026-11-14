@@ -420,7 +420,10 @@
     if(mobile)visible=filtered.slice(0,state.shown);
     else {var s=(state.page-1)*PER_PAGE;visible=filtered.slice(s,s+PER_PAGE);}
     var keep=false;
-    if(firstRender&&!sortKey&&!isQueryActive()&&state.page===1&&visible.length){
+    // First render only, page 1, the page's own default sort (city pages: nearest to the city centre, which is the
+    // order the template's list is already in): keep the server cards when they are exactly this page. The card-by-card
+    // href check is the guard, so a shared link with filters or a different sort still renders fresh (11/14).
+    if(firstRender&&sortKey===defaultSortKey&&state.page===1&&visible.length){
       var server=container.querySelectorAll('.w-dyn-item');
       if(server.length>=visible.length){keep=true;for(var k=0;k<visible.length;k++){if(cardHref(server[k])!==visible[k].href){keep=false;break;}}}
       if(keep)for(var x=server.length-1;x>=visible.length;x--)server[x].parentNode.removeChild(server[x]);
