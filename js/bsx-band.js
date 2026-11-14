@@ -392,8 +392,24 @@
     window.addEventListener('resize', function() { clearTimeout(t); t = setTimeout(layout, 120); });
     // The page heads clamp .srp-intro to two lines on phones until this class lands, so the collapse below causes no
     // shift; it is added before the first layout() so that measures the unclamped text in the same task (no paint).
-    intro.classList.add('bsx-rm-ready');
-    layout();
+    // On phones the first layout waits for the intro's own font (3 s cap): measured in the fallback font, the cut
+    // rewrapped to a third line when the web font landed and moved the grid ~20 px (PageSpeed mobile, 11/14). The
+    // clamp holds the same two-line box meanwhile. Any font that lands later re-runs layout.
+    var started = false;
+    function start() {
+      if (started) return;
+      started = true;
+      intro.classList.add('bsx-rm-ready');
+      layout();
+      if (document.fonts && document.fonts.addEventListener) {
+        document.fonts.addEventListener('loadingdone', function() { if (isMobile()) { clearTimeout(t); t = setTimeout(layout, 50); } });
+      }
+    }
+    if (!isMobile() || !document.fonts || !document.fonts.load) { start(); return; }
+    var cs = getComputedStyle(intro);
+    var spec = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+    try { document.fonts.load(spec, fullText.slice(0, 60)).then(start, start); } catch (e) { start(); }
+    setTimeout(start, 3000);
   }
 
   // City hubs and fuel pages: the intro's own closing sentence ("See what Irvine drives ↓") is the jump link to the
