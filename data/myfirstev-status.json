@@ -1,11 +1,12 @@
 {
- "checked_utc": "2026-11-12T19:12:42Z",
- "checked_date": "2026-11-12",
+ "checked_utc": "2026-11-14T18:27:37Z",
+ "checked_date": "2026-11-14",
  "carb_page_revised": "9/25/2026",
- "last_run_changed": false,
+ "last_run_changed": true,
  "source": "https://ww2.arb.ca.gov/myfirstev-participating-manufacturers",
  "used_rebate_brands": [
   "Ford",
+  "Honda",
   "Lucid",
   "Rivian",
   "Volvo"
@@ -14,7 +15,6 @@
   "Cadillac",
   "Chevrolet",
   "Genesis",
-  "Honda",
   "Hyundai",
   "Kia",
   "Lexus",
