@@ -210,9 +210,20 @@
   // styles, and any downstream JS keep working. Trust-badge row is the static BADGE_TEXT.
   // 11/14: cards use the feed's own photo URL (w_640), the same one the template's <img> serves, so a re-render
   // hits the browser cache instead of downloading a second size (and Cloudinary builds one version per car).
+  // Card heading = the feed's full name (t, e.g. "2022 Honda CR-V Hybrid EX-L") minus the trim, so the variant
+  // (Hybrid, Prime, Plug-in Hybrid) stays in the heading like on the server cards (TECH-NOTES Always 17,
+  // webflow_push.ymm_heading, 11/14). When the variant sits inside the trim ("Limited HEV"), the longest leading run of
+  // trim words that ends the name is cut. Falls back to year make model.
+  function cardHeading(d){
+    var ymm=(d.year+' '+d.make+' '+d.model).replace(/\s+/g,' ').trim();
+    var t=String(d.title||'').replace(/\s+/g,' ').trim(), w=String(d.trim||'').split(/\s+/).filter(Boolean);
+    if(!t)return ymm;
+    for(var k=w.length;k>0;k--){var tail=' '+w.slice(0,k).join(' ');if(t.length>tail.length&&t.slice(-tail.length)===tail){var h=t.slice(0,-tail.length).trim();return h.indexOf(ymm)===0?h:ymm;}}
+    return (!w.length&&t.indexOf(ymm)===0)?t:ymm;
+  }
   function cardHTML(d){
-    var heading=(d.year+' '+d.make+' '+d.model).replace(/\s+/g,' ').trim();
-    var full=(heading+' '+(d.trim||'')).trim();
+    var heading=cardHeading(d);
+    var full=(d.title&&d.title.indexOf(heading)===0)?d.title:(heading+' '+(d.trim||'')).trim();
     return '<div role="listitem" class="w-dyn-item">'+
       '<div data-body-type="'+escAttr(d.body_type)+'" data-dealer-city="'+escAttr(d.city)+'" data-dealer-lat="'+(d.lat!=null?d.lat:'')+'" data-dealer-lng="'+(d.lng!=null?d.lng:'')+'" data-photo-count="'+(d.photoCount||0)+'" class="car-card">'+
         '<a href="'+escAttr(d.href)+'" aria-label="'+escAttr('View '+full)+'" class="listing-image-wrapper w-inline-block">'+
