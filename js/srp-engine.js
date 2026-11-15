@@ -448,8 +448,17 @@
   // ItemList JSON-LD for the rendered page of results. The SRP is client-rendered,
   // so schema injected here is exactly what Google's renderer indexes; refreshed on
   // every render so it tracks the visible filter/sort/page state.
+  // 11/14: the page's own HTML now carries the card list (microdata on segment SRPs and /used-cars, the city pages'
+  // JSON-LD from local_page_meta.py), so a second, runtime ItemList only competes with it. Skip when one is there.
+  function hasStaticItemList(){
+    if(document.querySelector('[itemtype="https://schema.org/ItemList"]'))return true;
+    var s=document.querySelectorAll('script[type="application/ld+json"]:not(#bs-itemlist-schema)');
+    for(var i=0;i<s.length;i++){if(/"@type"\s*:\s*"ItemList"/.test(s[i].textContent||''))return true;}
+    return false;
+  }
   function injectItemListSchema(visible){
     try{
+      if(hasStaticItemList()){var old=document.getElementById('bs-itemlist-schema');if(old)old.remove();return;}
       var items=[];
       for(var i=0;i<visible.length;i++){
         items.push({'@type':'ListItem','position':i+1,'name':visible[i].title,'url':location.origin+visible[i].href});
