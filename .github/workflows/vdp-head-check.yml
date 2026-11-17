@@ -1,0 +1,35 @@
+name: VDP head check
+# Fails when css/vdp.css or css/vdp-facts.css changed without a rebuild: dist/vdp-head.html
+# (pasted into the Webflow VDPs Template head) or the generated FACTS_CSS line in js/vdp.js is
+# stale. Fix: python3 tools/vdp_head.py, commit both outputs. Whether the rebuilt head was
+# actually pasted into Webflow is checked separately, every morning, by the pipeline's
+# site_health.py (vdphead check).
+on:
+  pull_request:
+    paths:
+      - css/vdp.css
+      - css/vdp-facts.css
+      - js/vdp.js
+      - tools/vdp_head.py
+      - dist/vdp-head.html
+      - .github/workflows/vdp-head-check.yml
+  push:
+    branches: [main]
+    paths:
+      - css/vdp.css
+      - css/vdp-facts.css
+      - js/vdp.js
+      - tools/vdp_head.py
+      - dist/vdp-head.html
+      - .github/workflows/vdp-head-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/vdp_head.py --check
