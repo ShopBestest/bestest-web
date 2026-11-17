@@ -19,7 +19,7 @@
       { name: 'Midsize/Full-size Car', url: '/used-cars/best-used-midsize-cars',  filterValue: 'Midsize/Full-size Car', examples: 'Honda Accord, Toyota Camry, Hyundai Sonata, Kia K5, Subaru Legacy…' }
     ],
     'Trucks': [
-      { name: 'Compact/Midsize Truck', url: '/used-cars/best-used-midsize-trucks',   filterValue: 'Compact/Midsize Truck', examples: 'Toyota Tacoma, Ford Maverick, Honda Ridgeline, Chevrolet Colorado, GMC Canyon…' },
+      { name: 'Midsize Truck',         url: '/used-cars/best-used-midsize-trucks',   filterValue: 'Compact/Midsize Truck', examples: 'Toyota Tacoma, Ford Maverick, Honda Ridgeline, Chevrolet Colorado, GMC Canyon…' },
       { name: 'Full-size Truck',       url: '/used-cars/best-used-full-size-trucks', filterValue: 'Full-Size Truck',       examples: 'Ford F-150, Chevrolet Silverado, Toyota Tundra, Ram 1500, GMC Sierra…' }
     ],
     // Positioned before Luxury so the Specialty options get maximum visibility.
@@ -73,6 +73,8 @@
     ACTIVE_PLURAL = plural(ACTIVE.name);
   }
   function activeLabel() { return ACTIVE ? ACTIVE_PLURAL : 'All Cars'; }
+  // The band itself reads "Bestest Compact SUVs" (Jason 11/16; "The Bestest" wrapped on 360-375px phones). Sticky + menu keep the bare name.
+  function bandLabel() { return ACTIVE ? 'Bestest ' + ACTIVE_PLURAL : 'All Cars'; }
 
   // Scoped landing pages navigate UP to their parent (the city hub, else /used-cars) when the scope changes
   // (Autotrader pattern, spec sec. 5-6), so URL, H1 and cards always agree.
@@ -96,12 +98,12 @@
     var band = document.createElement('div');
     band.className = 'bsx-band';
     band.id = 'bsx-band';
-    // One line: the segment name + chevron (no "Viewing", no "The Best Used"). Chips under it where there is a segment.
+    // One line: "Bestest" + the segment name + chevron (no "Viewing", no "The Best Used"). Chips under it where there is a segment.
     band.innerHTML =
       '<div class="bsx-band-inner">' +
         '<p class="bsx-title">' +
           '<span class="bsx-seglink" id="bsx-seglink">' +
-            '<span class="bsx-seglink-text" id="bsx-seglink-text">' + (SCOPE_MODEL ? '&nbsp;' : activeLabel()) + '</span>' +
+            '<span class="bsx-seglink-text" id="bsx-seglink-text">' + (SCOPE_MODEL ? '&nbsp;' : bandLabel()) + '</span>' +
             CHEV +
           '</span>' +
         '</p>' +
@@ -135,7 +137,7 @@
   function setActiveSegment(seg) {
     ACTIVE = seg;
     ACTIVE_PLURAL = seg ? plural(seg.name) : '';
-    var t = document.getElementById('bsx-seglink-text'); if (t) t.textContent = activeLabel();
+    var t = document.getElementById('bsx-seglink-text'); if (t) t.textContent = bandLabel();
     var sl = document.getElementById('bsx-sticky-label'); if (sl) sl.textContent = activeLabel();
     var band = document.getElementById('bsx-band'); if (band) band.classList.remove('bsx-pending');
     renderPicker();
