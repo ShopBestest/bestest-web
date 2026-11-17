@@ -959,8 +959,14 @@
       ].join('');
       if (facts) placeFacts(facts, bf);
   
+      /* Above the nearby row when the page has one (11/17): nearby-row.js parks that row directly above the
+         similar-cars wrap, so inserting at the wrap put the row above this block until it moved, and the
+         block jumped ~94 px up on desktop (PageSpeed CLS 0.022). Before the row, the order is right whichever
+         script runs first. */
       var simWrap = document.querySelector('.bst-similar-wrap');
-      if (simWrap) simWrap.parentNode.insertBefore(bf, simWrap);
+      var nearRow = document.querySelector('[data-bst-nearby]');
+      var anchor = nearRow && simWrap && nearRow.parentNode === simWrap.parentNode ? nearRow : simWrap;
+      if (anchor) anchor.parentNode.insertBefore(bf, anchor);
     }
   
     /* ── Slim sticky bar ── */

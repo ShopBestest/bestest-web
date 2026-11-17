@@ -244,7 +244,16 @@ body.bstb .bst-listing-card .bstb-card { margin:22px 0 26px; }   /* funnel + bar
    on short first paints the footer sits in view until vdp.js builds the page. Reserve
    the rail slots (final heights measured at 375 px and desktop) and hold the footer
    below the fold until html.bst-vdp-ready; the animation clears it if vdp.js never runs. */
-#bst-rail-top { min-height:185px; }
+/* 11/17 (PageSpeed): the reserve matches the award it holds. Measured on 17 live cars: 105 px at 600 px and up
+   (two-line award), 121-142 px on a 412 px phone (three or four lines), so phones get the midpoint. 185 px was
+   the old checkmark rows, and its release pulled the price up 80 px. vdp.js makes the rail a flex column with
+   22 px gaps; the same rule here makes first paint match, or the price drops 44 px when vdp.js runs. */
+main.section-3 .div-block-3 { display:flex; flex-direction:column; gap:22px; justify-content:flex-start; }
+/* The served likely-sold box is empty on live cars (Webflow marks the bound note w-dyn-bind-empty); vdp.js hides
+   it, but as a flex child it holds an extra 22 px gap until then. */
+#bst-unc:has(> .bst-unc-note.w-dyn-bind-empty) { display:none; }
+#bst-rail-top { min-height:132px; }
+@media(min-width:600px){ #bst-rail-top { min-height:105px; } }
 html.bst-claim-ready #bst-rail-top { min-height:0; }
 #bst-rail-bottom:empty { min-height:178px; }
 html:not(.bst-vdp-ready) main.section-3 { margin-bottom:100vh; animation:bst-reserve-off 0s 5s forwards; }
