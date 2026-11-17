@@ -162,7 +162,7 @@
   function segmentLabel() {
     if (typeof window.BS_SEGMENT_PLURAL === 'string' && window.BS_SEGMENT_PLURAL.trim()) return sentenceCase(window.BS_SEGMENT_PLURAL);
     var el = document.querySelector('.bsx-seglink-text');
-    var txt = el ? el.textContent.trim() : '';
+    var txt = el ? el.textContent.trim().replace(/^Bestest\s+/, '') : '';   // band reads "Bestest Compact SUVs" since 11/16
     if (txt && !/^all cars$/i.test(txt)) return sentenceCase(txt);
     return 'cars';
   }
