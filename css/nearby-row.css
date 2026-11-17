@@ -4,7 +4,10 @@
 .bst-nr { max-width: 1400px; margin: 0 auto; padding: 0 24px 40px; font-family: 'Montserrat', sans-serif; color: #0e1523; }
 /* The Webflow class bst-nr is display:none (Webflow cannot bind visibility outside a CMS list), so the row shows only
    when its sentence is set; Webflow marks an empty bound text w-dyn-bind-empty. */
-.bst-nr:has(.bst-nr-text:not(.w-dyn-bind-empty):not(:empty)) { display: block; }
+/* Shown only once vdp.js has built the specs block above it (html.bst-vdp-ready); nearby-row.js adds bst-nr-go
+   after load as a fallback. Showing it earlier painted it near the top, then pushed it ~2,900 px down (CLS, 11/17). */
+html.bst-vdp-ready .bst-nr:has(.bst-nr-text:not(.w-dyn-bind-empty):not(:empty)),
+.bst-nr.bst-nr-go:has(.bst-nr-text:not(.w-dyn-bind-empty):not(:empty)) { display: block; }
 .bst-nr .bst-nr-text { display: inline; }
 .bst-nr .bst-nr-link { margin-left: 4px; }
 .bst-nr .bst-nr-cards { margin-top: 12px; }

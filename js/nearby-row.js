@@ -13,6 +13,9 @@
    It also adds containedInPlace (the auto center as a schema.org Place) to the page's Car offers.seller, if the page
    already carries Car JSON-LD and the car sits at a center. Nothing else on the page is touched.
 
+   Loading (2026-11-17): the feed is fetched only when the row nears the screen; the row is revealed only after vdp.js
+   has built the block above it (see nearby-row.css).
+
    Data: the feed (window.BS_FEED_URL or the production feed Worker) and data/auto-centers.json from the same jsDelivr
    pin this file is served from (override with window.BS_AUTO_CENTERS_URL). Exported by
    `python3 auto_centers.py --export` in bestest-pipeline. */
@@ -54,6 +57,20 @@
   function rich(c) { return (num(c.pho) || 0) >= 15 ? 1 : 0; }
   // the feed's own default order: photo-rich first, then freshest photos
   function byDefault(a, b) { return (rich(b) - rich(a)) || (fresh(b) - fresh(a)); }
+
+  /* The row shows only once vdp.js has built the specs block above it (html.bst-vdp-ready, nearby-row.css), so it
+     never paints near the top and then gets pushed ~2,900 px down (desktop CLS 0.133, PageSpeed 11/17). If vdp.js
+     never finishes, bst-nr-go shows the row anyway once the page has loaded. */
+  window.addEventListener('load', function () {
+    setTimeout(function () { var r = document.querySelector('[data-bst-nearby]'); if (r) r.classList.add('bst-nr-go'); }, 1500);
+  });
+  function whenNear(el, fn) {
+    if (!('IntersectionObserver' in window)) { fn(); return; }
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) if (entries[i].isIntersecting) { io.disconnect(); fn(); return; }
+    }, { rootMargin: '1000px 0px' });
+    io.observe(el);
+  }
 
   function getJSON(url) {
     return fetch(url, { credentials: 'omit' }).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
@@ -166,7 +183,19 @@
       cars: (el.getAttribute('data-cars') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean)
     };
     var cu = centersUrl();
-    Promise.all([getJSON(FEED_URL).then(feedList), cu ? getJSON(cu).catch(function () { return null; }) : Promise.resolve(null)])
+    var centersP = cu ? getJSON(cu).catch(function () { return null; }) : Promise.resolve(null);
+    // The schema step needs only the small centers file and the served dealer name, so it runs right away.
+    centersP.then(function (doc) {
+      var cs = (doc && doc.centers) || [], dl = (ctx.dealer || '').toLowerCase(), c = null;
+      for (var i = 0; i < cs.length && !c; i++) {
+        if (ctx.centerSlug ? cs[i].slug === ctx.centerSlug : (dl && (cs[i].dealers || []).some(function (d) { return d.toLowerCase() === dl; }))) c = cs[i];
+      }
+      addContainedInPlace(c);
+    });
+    // The cards need the whole feed (~110 KB). Fetch it only when the row comes within ~1,000 px of the screen
+    // (2026-11-17: every VDP load downloaded it up front; PageSpeed never scrolls, most visitors never reach the row).
+    whenNear(el, function () {
+    Promise.all([getJSON(FEED_URL).then(feedList), centersP])
       .then(function (res) {
         var feed = res[0], centersDoc = res[1];
         var centers = (centersDoc && centersDoc.centers) || [];
@@ -212,5 +241,6 @@
         track('nearby_row_shown', { tier: chosen.tier, center: center ? center.slug : '', cards: cards.length });
       })
       .catch(function () { el.classList.add('bst-nr-nocards'); });
+    });
   });
 })();

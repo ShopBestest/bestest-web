@@ -194,7 +194,8 @@
 
     /* Cars without a vdp_json block (most of the site) get the award's ratio from the same two sources the
        sold-car page uses (not-found.js): Bestest's count = live feed cars of this make and model, the county
-       count = the feed Worker's weekly /?oc facet. placeAward waits for them (up to FUNNEL_WAIT_MS). */
+       count = the weekly OC facet. The feed Worker's ?award does the counting (11/17). placeAward waits for
+       it (up to FUNNEL_WAIT_MS). */
     if (!dd.funnel && dd.make && dd.model) {
       funnelPending = true;
       liveFunnel(dd, function (f) {
@@ -232,30 +233,22 @@
     return /(s|x|z|ch|sh)$/.test(md) ? md + 'es' : md + 's';
   }
 
-  // {listed, oc_total} for this make and model, or null (feed or /?oc unavailable, model under the weekly
-  // facet cap, or a count that makes no sense). Only cb(non-null) changes the page.
+  // {listed, oc_total} for this make and model, or null (counts unavailable, model under the weekly facet cap,
+  // or a count that makes no sense). Only cb(non-null) changes the page. Since 11/17 the feed Worker does the
+  // counting (?award, ~2.5 KB, same matching rules); before, every VDP downloaded the whole feed plus ?oc.
   function liveFunnel(dd, cb) {
-    var mk = dd.make, md = String(dd.model).trim(), feedRecs, oc, left = 2;
-    function done() {
-      if (--left) return;
-      if (!Array.isArray(feedRecs) || !oc || !oc.m) return cb(null);
-      var n = feedRecs.filter(function (x) { return x && x.mk === mk && String(x.md || '').trim() === md; }).length;
-      var t = oc.m[md];
-      if (!t) { var k = Object.keys(oc.m).filter(function (x) { return x.toLowerCase() === md.toLowerCase(); })[0]; t = k ? oc.m[k] : 0; }
-      if (!t) t = oc.m[mk + ' ' + md + ' Pickup'] || 0;   // the facet names Ram trucks "Ram 1500 Pickup"
-      cb(n > 0 && t > 0 && n <= t ? { listed: n, oc_total: t, as_of: oc.date || null, source: 'live' } : null);
+    var key = dd.make + '|' + String(dd.model).trim(), ck = 'bestest_award_cache_v1';
+    function use(a) {
+      var v = a && a.m && a.m[key];
+      cb(v && v[0] > 0 && v[1] > 0 && v[0] <= v[1] ? { listed: v[0], oc_total: v[1], as_of: a.date || null, source: 'live' } : null);
     }
-    fetchFeed(function (r) { feedRecs = r; done(); });
-    var ocKey = 'bestest_oc_cache_v1', ocHit = null;   // weekly facet, kept per tab like the feed (11/13)
-    try { var p = JSON.parse(sessionStorage.getItem(ocKey)); if (p && p.oc && Date.now() - p.timestamp < FEED_CACHE_TTL_MS) ocHit = p.oc; } catch (e) {}
-    if (ocHit) { oc = ocHit; done(); return; }
-    fetch(FEED_URL + '?oc', { credentials: 'omit' })
-      .then(function (r) { if (!r.ok) throw new Error('oc ' + r.status); return r.json(); })
-      .then(function (j) {
-        oc = j;
-        try { sessionStorage.setItem(ocKey, JSON.stringify({ timestamp: Date.now(), oc: j })); } catch (e) {}
-        done();
-      }, function () { oc = null; done(); });
+    try { var p = JSON.parse(sessionStorage.getItem(ck)); if (p && p.a && Date.now() - p.timestamp < 5 * 60 * 1000) { use(p.a); return; } } catch (e) {}
+    fetch(FEED_URL + '?award', { credentials: 'omit' })
+      .then(function (r) { if (!r.ok) throw new Error('award ' + r.status); return r.json(); })
+      .then(function (a) {
+        try { sessionStorage.setItem(ck, JSON.stringify({ timestamp: Date.now(), a: a })); } catch (e) {}
+        use(a);
+      }, function () { cb(null); });
   }
 
   function awardHtml(dd) {
