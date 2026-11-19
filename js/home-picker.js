@@ -52,7 +52,9 @@
     ]
   };
 
-  var bstState = { make: null, seg: 'Compact SUV', zip: '92868' };
+  // seg starts empty (2026-11-19): the green box keeps the page's own "Start here" copy until a vehicle type is
+  // picked, and picking one navigates straight away. With a default here, bstRender() overwrote the box on load.
+  var bstState = { make: null, seg: null, zip: '92868' };
 
   function bstCloseAll() {
     document.querySelectorAll('.bst-dd.is-open, .bst-zip-flyout.is-open').forEach(function (el) {
