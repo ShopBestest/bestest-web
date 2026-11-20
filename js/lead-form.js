@@ -113,7 +113,7 @@
       '.bst-return-row svg{flex:none;width:16px;height:16px;}' +
       '.bst-return-i{flex:none;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid #9aa8a0;border-radius:50%;font-size:10px;font-weight:700;color:#5b6b62;font-style:normal;}' +
       '.bst-return-info{margin:8px 0 0;font-size:12.5px;color:#3b4a42;line-height:1.5;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
-      '.bst-return-info p{margin:0 0 6px;font:inherit;color:inherit;}.bst-return-info a{color:#1a6f4a;font-weight:600;}' +
+      '.bst-return-info p{margin:0 0 6px;font:inherit;color:inherit;}.bst-return-info a{color:#217b49;font-weight:600;}' +
       '.bst-price-note{display:inline;margin-left:8px;padding:0;border:0;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#6b7a72;vertical-align:middle;font-family:\'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;}' +
       '.bst-fee-chip{display:inline-flex;align-items:center;gap:5px;margin-left:10px;padding:4px 9px 4px 7px;border:0;border-radius:6px;background:#eaf6ef;color:#155539;font:600 12.5px/1.2 \'Montserrat\',-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Arial,sans-serif;cursor:pointer;vertical-align:middle;text-decoration:underline;text-underline-offset:2px;}.bst-fee-chip svg{width:13px;height:13px;flex:none;}' +
       '.bst-fee-back{position:fixed;inset:0;background:rgba(14,21,35,.55);z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px;}' +
@@ -302,7 +302,7 @@
     row.setAttribute('aria-expanded', 'false');
     row.setAttribute('aria-controls', 'bst-return-info');
     row.innerHTML =
-      '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 2.5 3.3v4.1c0 3.4 2.3 6.2 5.5 7.4 3.2-1.2 5.5-4 5.5-7.4V3.3L8 1.2z" fill="#31b56b"/>' +
+      '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 2.5 3.3v4.1c0 3.4 2.3 6.2 5.5 7.4 3.2-1.2 5.5-4 5.5-7.4V3.3L8 1.2z" fill="#217b49"/>' +
       '<path d="m5.4 8 1.8 1.8 3.5-3.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
       '<span>3-day return by California law</span><i class="bst-return-i" aria-hidden="true">i</i>';
     var info = document.createElement('div');
@@ -531,25 +531,25 @@
       ".bstlf-veh{font-size:14px;font-weight:600;color:#0e1523;margin:0;line-height:1.35;}" +
       ".bstlf-car-price{font-size:15px;font-weight:700;color:#0e1523;margin:2px 0 0;line-height:1.3;}" +
       ".bstlf-car-meta{font-size:12.5px;font-weight:500;color:#4b5563;margin:2px 0 0;line-height:1.4;}" +
-      ".bstlf-car-ok{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#1a6f4a;margin:4px 0 0;line-height:1.3;}" +
+      ".bstlf-car-ok{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#217b49;margin:4px 0 0;line-height:1.3;}" +
       ".bstlf-car-ok svg{flex:none;width:14px;height:14px;}" +
       ".bstlf-note{font-size:13px;font-weight:500;color:#4b5563;margin:0 0 14px;line-height:1.5;}" +
       ".bstlf-field{margin-bottom:10px;}" +
       ".bstlf-name-row{display:flex;gap:10px;}" +
       ".bstlf-name-row .bstlf-input{flex:1 1 0;min-width:0;}" +
       ".bstlf-input{width:100%;padding:10px 12px;border:1px solid #d0d0d0;border-radius:8px;font-size:15px;font-family:inherit;color:#1a1a1a;box-sizing:border-box;outline:none;transition:border-color .15s;}" +
-      ".bstlf-input:focus{border-color:#1a6f4a;}" +
+      ".bstlf-input:focus{border-color:#217b49;}" +
       ".bstlf-input.bstlf-err{border-color:#c0392b;}" +
       "textarea.bstlf-input{min-height:88px;line-height:1.45;resize:vertical;}" +
       ".bstlf-consent{font-size:11px;color:#6b7280;line-height:1.45;margin:10px 0 0;}" +
-      ".bstlf-consent a{color:#1a6f4a;text-decoration:underline;}" +
-      ".bstlf-submit{width:100%;margin-top:12px;padding:13px;background:#1a6f4a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s;}" +
+      ".bstlf-consent a{color:#217b49;text-decoration:underline;}" +
+      ".bstlf-submit{width:100%;margin-top:12px;padding:13px;background:#217b49;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s;}" +
       ".bstlf-submit:hover{background:#155539;}" +
       ".bstlf-submit:disabled{opacity:.6;cursor:default;}" +
       ".bstlf-err-msg{color:#c0392b;font-size:12px;margin-top:6px;}" +
       ".bstlf-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}" +
       ".bstlf-done{text-align:center;padding:8px 0;}" +
-      ".bstlf-done h3{font-size:18px;font-weight:700;color:#1a6f4a;margin:0 0 8px;}" +
+      ".bstlf-done h3{font-size:18px;font-weight:700;color:#217b49;margin:0 0 8px;}" +
       ".bstlf-done p{font-size:14px;color:#555;line-height:1.5;margin:0;}";
     (document.head || document.documentElement).appendChild(s);
   }
@@ -572,7 +572,7 @@
           '<div class="bstlf-car">' +
             '<img class="bstlf-car-img" alt="" hidden>' +
             '<div class="bstlf-car-txt"><p class="bstlf-veh"></p><p class="bstlf-car-price"></p><p class="bstlf-car-meta"></p>' +
-              '<p class="bstlf-car-ok"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#31b56b"/><path d="M5.6 10.3l2.7 2.7 5.9-6.3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Bestest approved</span></p>' +
+              '<p class="bstlf-car-ok"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#217b49"/><path d="M5.6 10.3l2.7 2.7 5.9-6.3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Bestest approved</span></p>' +
             '</div>' +
           '</div>' +
           '<p class="bstlf-note">Ask the dealer to confirm it’s still available. They’ll reply by email.</p>' +

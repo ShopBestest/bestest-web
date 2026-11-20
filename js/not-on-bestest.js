@@ -25,7 +25,7 @@
     document.head.appendChild(m);
   }
 
-  var GREEN = '#1a6f4a';
+  var GREEN = '#217b49';
   var FEED = (window.BS_FEED_URL || 'https://bestest-inventory-feed.sweet-paper-5a21.workers.dev/') + '?roster';
 
   // MM segment -> { plural (display), url (SRP), g:[Crit,Intl,Reliability,Res] Other% (omit = fallback); regenerated 2026-10-22 from Model Scoring (Bestest Project Folder/staged/notbestest-graph-values-2026-10-22.json); Reliability = repair bills on the 30K basis (Jason 10/21-22) }

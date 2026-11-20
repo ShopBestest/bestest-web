@@ -22,9 +22,9 @@ body.bsx-active.bsx-sticky-on .w-nav { opacity: 0; pointer-events: none; }
 body.bsx-broad .bsx-title { margin: 0; }
 .bsx-prefix { font-weight: 700; color: #1a1a1a; }
 .bsx-seglink { color: #1a1a1a; font-weight: 700; cursor: pointer; display: inline-flex; align-items: baseline; gap: 5px; }
-.bsx-seglink-text { border-bottom: 1.5px solid #1a6f4a; padding-bottom: 1px; transition: border-color .15s; }
+.bsx-seglink-text { border-bottom: 1.5px solid #217b49; padding-bottom: 1px; transition: border-color .15s; }
 .bsx-seglink:hover .bsx-seglink-text { border-bottom-color: #1a1a1a; }
-.bsx-seglink-chev { width: 16px; height: 16px; color: #1a6f4a; transform: translateY(3px); flex-shrink: 0; }
+.bsx-seglink-chev { width: 16px; height: 16px; color: #217b49; transform: translateY(3px); flex-shrink: 0; }
 
 .bsx-chips {
   display: flex;
@@ -56,10 +56,10 @@ body.bsx-broad .bsx-title { margin: 0; }
 }
 /* Checkmark is always visible — signals "Bestest recommended", not filter state.
    Keeps chip widths stable when toggling filter. */
-.bsx-chip .bsx-check { font-size: 11px; color: #1a6f4a; display: inline-block; }
+.bsx-chip .bsx-check { font-size: 11px; color: #217b49; display: inline-block; }
 .bsx-chip .bsx-ct    { font-size: 11px; font-weight: 500; }
 /* Active (included in current filter, or no filter applied yet) */
-.bsx-chip.bsx-on  { color: #1a1a1a; border-color: #1a6f4a; }
+.bsx-chip.bsx-on  { color: #1a1a1a; border-color: #217b49; }
 .bsx-chip.bsx-on .bsx-ct { color: #6b7280; }
 /* Inactive (deselected by user) */
 .bsx-chip.bsx-off { color: #aaa; border-color: #e5e0d0; }
@@ -92,7 +92,7 @@ body.bsx-broad .bsx-title { margin: 0; }
 .bsx-pitem { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; padding: 11px 14px; cursor: pointer; text-decoration: none; color: inherit; border-bottom: 0.5px solid #f2f0e8; }
 .bsx-pitem:hover { background: #faf8f1; }
 .bsx-pitem.bsx-pactive { background: #e8f3ec; }
-.bsx-pitem.bsx-pactive .bsx-pname { color: #1a6f4a; }
+.bsx-pitem.bsx-pactive .bsx-pname { color: #217b49; }
 .bsx-ptext { min-width: 0; }
 .bsx-pname { font-size: 15px; font-weight: 700; color: #1a1a1a; margin: 0 0 2px; line-height: 1.25; }
 .bsx-peg { font-size: 12px; color: #6b7280; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -117,7 +117,7 @@ body.bsx-broad .bsx-title { margin: 0; }
 }
 .bsx-sticky.bsx-svisible { opacity: 1; pointer-events: auto; }
 .bsx-sticky-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
-.bsx-sticky-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 20px; font-weight: 700; color: #1a6f4a; }
+.bsx-sticky-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 20px; font-weight: 700; color: #217b49; }
 .bsx-sticky-btn:hover { opacity: .8; }
 .bsx-sticky-btn .bsx-sticky-chev { width: 22px; height: 22px; flex-shrink: 0; }
 
