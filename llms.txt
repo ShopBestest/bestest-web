@@ -37,6 +37,7 @@ Bestest is not an aggregator. Every model on the site clears a published curatio
 - [GMC Terrain](https://shopbestest.com/best-used/gmc-terrain): Should you buy a used GMC Terrain? Probably not. The cleanest safety record in the group, but last with Car and Driver and Edmunds and 12th of 13 on reliability (measured by repair bills); the most fleet-worn inventory in the segment on Orange County lots.
 
 ## Research (studies, guides and data pages)
+- [Research hub](https://shopbestest.com/research): One page listing every Bestest buying guide and study, with the headline number from each.
 - [Orange County EV market](https://shopbestest.com/research/orange-county-ev-market): Weekly data page: what's on OC roads, what sold new, and what used EVs cost at local dealers, by price band and model.
 - [MyFirstEV eligible cars](https://shopbestest.com/research/myfirstev-eligible-cars): Every new and used EV that qualifies for California's MyFirstEV discount, model by model, checked daily.
 - [MyFirstEV used-EV discount: fewer than 40 qualifying cars](https://shopbestest.com/research/myfirstev-used-ev-discount-fewer-than-40): Why so few used EVs qualify for the $1,750 discount.
