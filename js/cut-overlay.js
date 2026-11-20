@@ -17,7 +17,7 @@
 
   var ABOUT_URL='/about'; // CONFIRM: destination for "More about Bestest"
   var PHRASE='Which cars make the cut?';
-  var GREEN='#1a6f4a';
+  var GREEN='#217b49';
 
   // Locked overlay copy — do not reword.
   var BODY="Bestest was founded by the former head of reviews and ratings for Kelley Blue Book, who's spent more than 20 years helping shoppers find the good cars and avoid the bad ones. The only cars you'll find on Bestest are the ones also ranked highly by trusted institutions like Consumer Reports, Kelley Blue Book, Car and Driver, and NHTSA, with extra emphasis on reliability and resale value. In addition, every car on Bestest is offered by a manufacturer-certified franchise dealer, and has no more than five model years or 50,000 miles on the clock. So if it's not on Bestest, just make sure to do a little more homework.";

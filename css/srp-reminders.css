@@ -10,7 +10,7 @@ a.bsr-chip {
   border: 1px solid #c9dfd2;
   border-radius: 999px;
   background: #f0f7f2;
-  color: #1a6f4a;
+  color: #217b49;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -19,8 +19,8 @@ a.bsr-chip {
   white-space: nowrap;
   transition: background .15s ease, border-color .15s ease;
 }
-a.bsr-chip:hover { background: #e3f1e8; border-color: #1a6f4a; text-decoration: none; }
-a.bsr-chip:focus-visible { outline: 2px solid #1a6f4a; outline-offset: 2px; }
+a.bsr-chip:hover { background: #e3f1e8; border-color: #217b49; text-decoration: none; }
+a.bsr-chip:focus-visible { outline: 2px solid #217b49; outline-offset: 2px; }
 a.bsr-chip .bsr-chip-arrow { font-weight: 400; }
 /* 0 for sale: nothing. The class wins over the hidden attribute the older inline count
    script in the CMS embed toggles, in both directions. */
@@ -39,7 +39,7 @@ a.bsr-chip[hidden]:not(.bsr-chip-empty) { display: inline-flex; }
   max-width: calc(100vw - 32px);
   padding: 12px 18px;
   border-radius: 999px;
-  background: #1a6f4a;
+  background: #217b49;
   color: #fff;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   font-size: 14px;

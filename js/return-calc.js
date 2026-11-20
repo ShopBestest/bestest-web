@@ -34,9 +34,9 @@
     '.bstrc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}' +
     '.bstrc label{display:block;font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:13px;font-weight:700;margin:0 0 5px;color:#1f2937}' +
     '.bstrc input,.bstrc select{width:100%;box-sizing:border-box;font:500 16px "Montserrat",sans-serif;padding:10px 12px;border:1px solid #c5d3ca;border-radius:8px;background:#fff;color:#0E1523}' +
-    '.bstrc input:focus,.bstrc select:focus{outline:2px solid #31b56b;outline-offset:1px}' +
+    '.bstrc input:focus,.bstrc select:focus{outline:2px solid #217b49;outline-offset:1px}' +
     '.bstrc .bstrc-go{display:block;width:100%;margin:16px 0 0;padding:13px 16px;border:0;border-radius:8px;background:#155539;color:#fff;font:700 16px "Montserrat",sans-serif;cursor:pointer}' +
-    '.bstrc .bstrc-go:hover{background:#1a6f4a}' +
+    '.bstrc .bstrc-go:hover{background:#217b49}' +
     '.bstrc p.bstrc-err{font-family:"Montserrat",sans-serif;font-size:14px;color:#9a3412;margin:10px 0 0}' +
     '.bstrc-out{margin:16px 0 0;background:#fff;border-radius:10px;padding:16px 18px;border:1px solid #d3e8da}' +
     '.bstrc-out.no{border-color:#f0c9a8;background:#fffaf5}' +
