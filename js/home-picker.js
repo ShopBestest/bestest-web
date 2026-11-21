@@ -3,7 +3,7 @@
    worker (GET ?roster, CORS) which serves KV models:roster, so the dropdown stays in
    sync with Airtable MM automatically — no redeploy on status changes.
    Routes by Bestest Status:
-     Approved (A) -> /used-cars SRP (make+model filter)
+     Approved (A) -> the county model page when the roster carries p (2026-11-20), else /used-cars SRP
      Fun (F)      -> /fun-cars?make=&model=
      Banned/other -> the model's own page when the roster entry carries one
                      (p: "/best-used/ford-escape", set by sync_roster.py once the
@@ -85,10 +85,11 @@
     bstNavigate({ segment: filterValue, zip: bstState.zip });
   }
   function bstNavigateMake(make) { bstNavigate({ make: make, zip: bstState.zip }); }
-  // Approved -> SRP; a model with its own page -> that page; Fun -> /fun-cars; Banned/Needs-verification -> /not-bestest.
+  // A model with its own page -> that page (listed models: the county model page, 2026-11-20; not-listed: the
+  // verdict page); Approved without a page yet -> SRP; Fun -> /fun-cars; Banned/Needs-verification -> /not-bestest.
   function bstNavigateMakeModel(make, model, status, slug, pagePath) {
-    if (status === 'A') { bstNavigate({ make: make, model: model, zip: bstState.zip }); return; }
     if (pagePath && pagePath.charAt(0) === '/') { window.location.href = pagePath; return; }
+    if (status === 'A') { bstNavigate({ make: make, model: model, zip: bstState.zip }); return; }
     var page = (status === 'F') ? '/fun-cars' : '/not-bestest';
     window.location.href = page + qs({ make: make, model: model });
   }
