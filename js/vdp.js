@@ -165,44 +165,6 @@
     });
   })();
 
-  /* === breadcrumb: model crumb (2026-11-20, county model pages) ===
-     Used Cars > Midsize SUV > Toyota RAV4, the model crumb linking to /best-used/{make}-{model}.
-     Source of truth = the server-rendered county-page link the pipeline puts at the foot of the
-     car facts (webflow_push._with_model_link, pipeline #170: Local Pages type=model). No link
-     there = no county page = no model crumb. Variants fold into the nameplate (RAV4 Hybrid ->
-     Toyota RAV4), as the pipeline does. The crumb row never wraps (a second line would push
-     main down): if the full name doesn't fit it drops the make, then truncates. */
-  onReady(function () {
-    var crumb = document.querySelector('.bst-crumb');
-    var seg = document.getElementById('bst-crumb-seg');
-    var more = document.querySelector('.bst-facts-more a[href^="/best-used/"]');
-    if (!crumb || !seg || !more || document.getElementById('bst-crumb-model')) return;
-    var href = more.getAttribute('href');
-    if (!/^\/best-used\/[a-z0-9-]+$/.test(href)) return;
-    var b = readBlock(), l = (b && b.listing) || {}, dv = document.getElementById('bst-vin-data');
-    var make = String(l.make || (dv && dv.dataset.make) || '').trim();
-    var model = String(l.model || (dv && dv.dataset.model) || '').trim()
-      .replace(/\s+(Hybrid|Plug-In Hybrid|PHEV|Prime|Electric|EV)$/i, '');
-    if (!make || !model) return;
-    var sep = document.createElement('div');
-    sep.className = 'bst-crumb-sep';
-    sep.textContent = ' > ';
-    var a = document.createElement('a');
-    a.id = 'bst-crumb-model';
-    a.className = 'bst-crumb-link';
-    a.href = href;
-    a.setAttribute('data-bst-track', 'model_crumb');
-    a.textContent = make + ' ' + model;
-    a.style.cssText = 'min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-    crumb.style.flexWrap = 'nowrap';
-    crumb.style.whiteSpace = 'nowrap';   // or "Compact/Midsize Truck" breaks at the slash
-    seg.parentNode.insertBefore(sep, seg.nextSibling);
-    sep.parentNode.insertBefore(a, sep.nextSibling);
-    // Squeezed (the link shrank below its text)? Drop the make. clientWidth 0 = no layout yet
-    // (prerender, hidden tab): keep the full name.
-    if (a.clientWidth > 0 && a.scrollWidth > a.clientWidth + 1) a.textContent = model;
-  });
-
   /* === photo slider === */
   onReady(function() {
     var sliderMask = document.querySelector('.slider-3 .w-slider-mask');
@@ -1028,7 +990,6 @@
         'carfax_link':         'carfax_link_click',
         'similar_card':        'similar_listing_click',
         'segment_link':        'segment_link_click',
-        'model_crumb':         'model_page_link_click',
         'more_segment':        'back_link_click'
       };
   
