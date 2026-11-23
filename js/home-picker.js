@@ -69,7 +69,13 @@
   function bstInPicker(t) {
     return !!(t && t.closest && t.closest('.bst-dd, .bst-zip-flyout, [data-bst]'));
   }
-  window.addEventListener('click', function (e) { if (!bstInPicker(e.target)) bstCloseAll(); }, true);
+  function bstOutside(e) { if (!bstInPicker(e.target)) bstCloseAll(); }
+  window.addEventListener('click', bstOutside, true);
+  // Phones (2026-11-23): iOS Safari does not fire click for a tap on plain text or empty space, so a tap
+  // outside the list never reached the click listener there. pointerdown fires on every touch, mouse and pen
+  // press, so the list closes the moment a finger lands outside it (also when that touch starts a scroll).
+  if (window.PointerEvent) window.addEventListener('pointerdown', bstOutside, true);
+  else window.addEventListener('touchstart', bstOutside, { capture: true, passive: true });
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape' && e.key !== 'Esc') return;
     var open = document.querySelector('.bst-dd.is-open, .bst-zip-flyout.is-open');
