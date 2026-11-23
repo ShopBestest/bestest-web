@@ -61,7 +61,34 @@
       el.classList.remove('is-open');
     });
   }
-  document.addEventListener('click', bstCloseAll);
+  // Close rules (2026-11-23): an open dropdown or zip flyout closes on any click outside the picker, on Escape,
+  // once its field scrolls up out of sight, and when the page comes back from the back/forward cache.
+  // The outside-click listener sits on window in the capture phase, so it runs before any page script can stop
+  // the click: the homepage's "See all of today's new listings" link calls stopImmediatePropagation on
+  // document (capture), which hid clicks from the old document-level listener and left the list open.
+  function bstInPicker(t) {
+    return !!(t && t.closest && t.closest('.bst-dd, .bst-zip-flyout, [data-bst]'));
+  }
+  window.addEventListener('click', function (e) { if (!bstInPicker(e.target)) bstCloseAll(); }, true);
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' && e.key !== 'Esc') return;
+    var open = document.querySelector('.bst-dd.is-open, .bst-zip-flyout.is-open');
+    if (!open) return;
+    bstCloseAll();
+    var trig = open.closest('[data-bst]'); // the list sits inside its field button
+    if (!trig && open.parentElement) trig = open.parentElement.querySelector('[data-bst]');
+    if (trig && trig.focus) trig.focus();
+  });
+  window.addEventListener('scroll', function () {
+    var open = document.querySelectorAll('.bst-dd.is-open, .bst-zip-flyout.is-open');
+    if (!open.length) return;
+    var gap = bstTopGap() - 12;
+    for (var i = 0; i < open.length; i++) {
+      var field = open[i].parentElement;
+      if (field && field.getBoundingClientRect().bottom < gap) { bstCloseAll(); return; }
+    }
+  }, { passive: true });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) bstCloseAll(); });
 
   // Keep an open dropdown's bottom edge on screen (2026-11-23). The CSS caps it at 420px, which runs past the
   // window bottom on shorter screens. On open: scroll the page up just enough for the full 420px to fit, without
