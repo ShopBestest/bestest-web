@@ -744,11 +744,17 @@
       'I’d like to know if the ' + longName + ' listed on Bestest' +
       (priceStr ? ' for ' + priceStr : '') + ' is still available.';
 
-    // Personalize the confirmation: name the car, then sell the dealer's vetting.
-    backdrop.querySelector('.bstlf-done p').textContent =
-      'We’ve sent your interest in this ' + shortName + ' to ' + (dealer || 'the dealer') +
-      ', a factory-authorized, Bestest-approved Orange County dealer. Expect them to get back to ' +
-      'you shortly. Thanks for using Bestest!';
+    // Confirmation (11/23, lead desk): the request no longer goes out the instant it's sent. Jason checks
+    // the car first, or the default goes out after 10 minutes, so the page promises only the email.
+    // A likely-sold page (server-rendered #bst-unc notice) says so up front.
+    var uncNote = document.querySelector('#bst-unc .bst-unc-note');
+    var likelySold = !!(uncNote && (uncNote.textContent || '').trim());
+    backdrop.querySelector('.bstlf-done h3').textContent = likelySold ? 'Got it' : 'You’re all set';
+    backdrop.querySelector('.bstlf-done p').textContent = likelySold
+      ? 'Heads-up: this ' + shortName + ' may have sold. We’re checking with ' + (dealer || 'the dealer') +
+        ' and will email you within 10 minutes either way.'
+      : 'We’re confirming this ' + shortName + ' is still available at ' + (dealer || 'the dealer') +
+        '. You’ll get an email from us within 10 minutes, and the dealer will contact you directly.';
 
     backdrop.classList.add('bstlf-open');
     // Grow the message box to fit the prefilled sentence (it was clipped mid-line).
