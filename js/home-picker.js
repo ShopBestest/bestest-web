@@ -63,13 +63,42 @@
   }
   document.addEventListener('click', bstCloseAll);
 
+  // Keep an open dropdown's bottom edge on screen (2026-11-23). The CSS caps it at 420px, which runs past the
+  // window bottom on shorter screens. On open: scroll the page up just enough for the full 420px to fit, without
+  // pushing the field under the sticky navbar; if it still can't fit, shorten the list (it scrolls inside).
+  var DD_MAX = 420, DD_MIN = 200, DD_PAD = 16;
+  function bstTopGap() {
+    var nav = document.querySelector('.navbar');
+    var b = nav ? nav.getBoundingClientRect().bottom : 0;
+    return Math.max(0, b) + 12;
+  }
+  function bstFitDropdown(ddEl, allowScroll) {
+    if (!ddEl || !ddEl.classList.contains('is-open')) return;
+    var field = ddEl.parentElement;
+    var room = window.innerHeight - ddEl.getBoundingClientRect().top - DD_PAD;
+    var shift = 0;
+    if (allowScroll && room < DD_MAX && field) {
+      var spare = field.getBoundingClientRect().top - bstTopGap();
+      shift = Math.max(0, Math.min(DD_MAX - room, spare));
+      if (shift > 0) {
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollBy({ top: shift, behavior: reduce ? 'auto' : 'smooth' });
+      }
+    }
+    ddEl.style.maxHeight = Math.max(DD_MIN, Math.min(DD_MAX, room + shift)) + 'px';
+  }
+  function bstOpen(ddEl) { ddEl.classList.add('is-open'); ddEl.scrollTop = 0; bstFitDropdown(ddEl, true); }
+  window.addEventListener('resize', function () {
+    document.querySelectorAll('.bst-dd.is-open').forEach(function (el) { bstFitDropdown(el, false); });
+  });
+
   function bstWireField(triggerEl, ddEl, populate) {
     if (!triggerEl || !ddEl) return;
     triggerEl.addEventListener('click', function (e) {
       e.stopPropagation();
       var wasOpen = ddEl.classList.contains('is-open');
       bstCloseAll();
-      if (!wasOpen) { populate(); ddEl.classList.add('is-open'); }
+      if (!wasOpen) { populate(); bstOpen(ddEl); }
     });
     ddEl.addEventListener('click', function (e) { e.stopPropagation(); });
   }
@@ -173,7 +202,7 @@
       bstRenderMakes(document.getElementById('bst-make-dd'), function (name) {
         bstState.make = name; bstRender(); bstCloseAll();
         var modelDd = document.getElementById('bst-model-dd');
-        if (modelDd) { bstRenderModels(modelDd, bstState.make); modelDd.classList.add('is-open'); }
+        if (modelDd) { bstRenderModels(modelDd, bstState.make); bstOpen(modelDd); }
       });
     });
     bstWireField(document.querySelector('[data-bst="model"]'), document.getElementById('bst-model-dd'), function () {
