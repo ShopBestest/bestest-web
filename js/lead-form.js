@@ -744,17 +744,13 @@
       'I’d like to know if the ' + longName + ' listed on Bestest' +
       (priceStr ? ' for ' + priceStr : '') + ' is still available.';
 
-    // Confirmation (11/23, lead desk): the request no longer goes out the instant it's sent. Jason checks
-    // the car first, or the default goes out after 10 minutes, so the page promises only the email.
-    // A likely-sold page (server-rendered #bst-unc notice) says so up front.
-    var uncNote = document.querySelector('#bst-unc .bst-unc-note');
-    var likelySold = !!(uncNote && (uncNote.textContent || '').trim());
-    backdrop.querySelector('.bstlf-done h3').textContent = likelySold ? 'Got it' : 'You’re all set';
-    backdrop.querySelector('.bstlf-done p').textContent = likelySold
-      ? 'Heads-up: this ' + shortName + ' may have sold. We’re checking with ' + (dealer || 'the dealer') +
-        ' and will email you within 10 minutes either way.'
-      : 'We’re confirming this ' + shortName + ' is still available at ' + (dealer || 'the dealer') +
-        '. You’ll get an email from us within 10 minutes, and the dealer will contact you directly.';
+    // Confirmation (11/23 v2, lead desk): every lead goes to the dealer, but for most dealers
+    // Jason sends it by hand, so the page promises the email that confirms it's with them,
+    // with no time promise. One message for every car (the page's own notice covers likely-sold).
+    backdrop.querySelector('.bstlf-done h3').textContent = 'Got it';
+    backdrop.querySelector('.bstlf-done p').textContent =
+      'We’re sending your message to ' + (dealer || 'the dealer') +
+      ', and we’ll email you as soon as it’s with them.';
 
     backdrop.classList.add('bstlf-open');
     // Grow the message box to fit the prefilled sentence (it was clipped mid-line).
