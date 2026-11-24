@@ -28,6 +28,45 @@
   // unfiltered view page 1 keeps these cars in this order and the server cards stay in place, so the first paint
   // is the settled page (11/14: no card swap, no second photo download; crawlers and shoppers see the same page 1).
   var SERVER_RANK={}, SERVER_COUNT=0, firstRender=true;
+  // ── Hybrid scroll + return-to-place (2026-11-23, Jason) ─────────────────────
+  // Phones: more cards load on their own as the shopper nears the end of the list, for the first AUTO_BATCHES
+  // batches (72 cars); after that the "Show N more" button takes over, so the content under the grid stays
+  // reachable. New cards are appended, never re-rendered, so nothing above them moves or reloads.
+  // Back from a car page (browser Back or the VDP's "Search results" crumb, which is history.back()) lands on
+  // the same card at the same height: the list depth, page and the card's position are saved on the way out.
+  var AUTO_BATCHES=3, appendFrom=-1, moreObserver=null, userScrolled=false, lastWidth=window.innerWidth;
+  var RETURN_KEY='bs_return_v1', RETURN_TTL_MS=30*60*1000, pendingReturn=null;
+  function returnPath(){return window.location.pathname+window.location.search;}
+  function navType(){try{var n=performance.getEntriesByType('navigation')[0];return n?n.type:'';}catch(e){return '';}}
+  function readReturn(){try{var raw=sessionStorage.getItem(RETURN_KEY);if(!raw)return null;var p=JSON.parse(raw);if(!p||p.path!==returnPath()||Date.now()-p.t>RETURN_TTL_MS)return null;return p;}catch(e){return null;}}
+  function saveReturn(href,top){try{sessionStorage.setItem(RETURN_KEY,JSON.stringify({path:returnPath(),href:href||'',top:typeof top==='number'?Math.round(top):null,shown:state.shown,page:state.page,y:Math.round(window.pageYOffset),t:Date.now()}));}catch(e){}}
+  function clearReturn(){try{sessionStorage.removeItem(RETURN_KEY);}catch(e){}}
+  function restorePlace(p){
+    var container=getInventoryGrid(), target=null;
+    if(container&&p.href){var items=container.querySelectorAll('.w-dyn-item');for(var i=0;i<items.length;i++){if(cardHref(items[i])===p.href){target=items[i];break;}}}
+    var touched=false, stop=function(){touched=true;};
+    window.addEventListener('touchstart',stop,{passive:true,once:true});window.addEventListener('wheel',stop,{passive:true,once:true});
+    function go(){
+      if(touched)return;
+      if(target&&document.body.contains(target)){var y=target.getBoundingClientRect().top+window.pageYOffset-(typeof p.top==='number'?p.top:120);window.scrollTo(0,Math.max(0,y));}
+      else window.scrollTo(0,p.y||0);
+    }
+    go();
+    if(window.requestAnimationFrame)window.requestAnimationFrame(go);
+    setTimeout(go,350);   // once more after images and late blocks above the grid settle
+  }
+  function loadMore(){appendFrom=state.shown;state.shown+=MOBILE_PER_PAGE;render();}
+  // Watch the "more" button and load the next batch as it nears the screen. Only inside the first AUTO_BATCHES
+  // batches, and never before the shopper has scrolled at all (the first scroll calls this again).
+  function watchMore(){
+    if(moreObserver){moreObserver.disconnect();moreObserver=null;}
+    var btn=document.getElementById('bs-more');
+    if(!btn||!userScrolled||state.shown>=AUTO_BATCHES*MOBILE_PER_PAGE||!('IntersectionObserver' in window))return;
+    moreObserver=new IntersectionObserver(function(entries){
+      for(var i=0;i<entries.length;i++){if(entries[i].isIntersecting){loadMore();return;}}
+    },{rootMargin:'0px 0px 900px 0px'});
+    moreObserver.observe(btn);
+  }
   (function(){var seen={};[].forEach.call(document.querySelectorAll('.collection-list-2 .w-dyn-item'),function(it){var a=it.querySelector('a[href^="/used/"]');var h=a&&a.getAttribute('href');if(h&&!(h in seen)){seen[h]=1;SERVER_RANK[h]=SERVER_COUNT++;}});})();
   function cardHref(it){var a=it.querySelector('a[href^="/used/"]');return a?a.getAttribute('href'):'';}
   var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles',Hybrids:'/used-cars/best-used-hybrids','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs'};
@@ -418,6 +457,14 @@
     PER_PAGE=24;MOBILE_PER_PAGE=PER_PAGE;
     state.shown=MOBILE_PER_PAGE;
     readURLParams();
+    if(navType()==='back_forward'){
+      pendingReturn=readReturn();
+      if(pendingReturn){
+        state.shown=Math.max(MOBILE_PER_PAGE,parseInt(pendingReturn.shown,10)||MOBILE_PER_PAGE);
+        state.page=Math.max(1,parseInt(pendingReturn.page,10)||1);
+        try{window.history.scrollRestoration='manual';}catch(e){}
+      }
+    } else clearReturn();
     dynList.insertAdjacentHTML('beforebegin',buildHTML());
     setup();
     urlSyncReady=true;
@@ -429,8 +476,8 @@
     if(!feedReady)return; // keep server-rendered cards until the feed is in
     var visible;
     if(mobile)visible=filtered.slice(0,state.shown);
-    else {var s=(state.page-1)*PER_PAGE;visible=filtered.slice(s,s+PER_PAGE);}
-    var keep=false;
+    else {if((state.page-1)*PER_PAGE>=filtered.length)state.page=1;var s=(state.page-1)*PER_PAGE;visible=filtered.slice(s,s+PER_PAGE);}
+    var keep=false, from=appendFrom;appendFrom=-1;
     // First render only, page 1, the page's own default sort (city pages: nearest to the city centre, which is the
     // order the template's list is already in): keep the server cards when they are exactly this page. The card-by-card
     // href check is the guard, so a shared link with filters or a different sort still renders fresh (11/14).
@@ -440,7 +487,13 @@
       if(keep)for(var x=server.length-1;x>=visible.length;x--)server[x].parentNode.removeChild(server[x]);
     }
     firstRender=false;
-    if(!keep){
+    // "More" on a phone appends the new cards; everything already on screen stays as it is.
+    var append=!keep&&mobile&&from>0&&from<visible.length&&container.querySelectorAll('.w-dyn-item').length===from;
+    if(append){
+      var more='';
+      for(var a=from;a<visible.length;a++)more+=cardHTML(visible[a]);
+      container.insertAdjacentHTML('beforeend',more);
+    } else if(!keep){
       var html='';
       for(var i=0;i<visible.length;i++)html+=cardHTML(visible[i]);
       container.innerHTML=html;
@@ -455,6 +508,7 @@
     updateCount();updatePills();renderPag(mobile);
     try{document.dispatchEvent(new CustomEvent('bestest:render'));}catch(e){}   // bsx-band re-syncs its model chips
     injectItemListSchema(visible);
+    if(pendingReturn){var back=pendingReturn;pendingReturn=null;restorePlace(back);}
   }
   // ItemList JSON-LD for the rendered page of results. The SRP is client-rendered,
   // so schema injected here is exactly what Google's renderer indexes; refreshed on
@@ -483,14 +537,16 @@
   function renderPag(mobile){
     var old=document.getElementById('bs-pag');if(old)old.remove();
     var oldMore=document.getElementById('bs-more');if(oldMore)oldMore.remove();
+    if(moreObserver){moreObserver.disconnect();moreObserver=null;}
     var anchor=getInventoryList();if(!anchor)return;
     if(mobile){
       if(state.shown<filtered.length){
         var btn=document.createElement('button');btn.id='bs-more';btn.className='bs-more';
         var remaining=filtered.length-state.shown;
         btn.textContent='Show '+Math.min(remaining,MOBILE_PER_PAGE)+' more';
-        btn.onclick=function(){state.shown+=MOBILE_PER_PAGE;render();};
+        btn.onclick=loadMore;
         anchor.after(btn);
+        watchMore();
       }
       return;
     }
@@ -609,7 +665,14 @@
     },true);
     window.addEventListener('popstate',function(){readURLParams();syncCheckboxesToState();refilterPreservingState();state.page=1;state.shown=MOBILE_PER_PAGE;render();});
     window.addEventListener('scroll',function(){var openDrop=document.querySelector('.bs-drop.bs-open');if(!openDrop)return;var f=openDrop.id.replace('bsd-','');var pill=document.getElementById('bsp-'+f);if(pill)positionDrop(openDrop,pill);},true);
-    window.addEventListener('resize',function(){closeAll(true);render();});
+    // A phone's address bar showing or hiding fires resize with the same width: nothing to re-lay-out.
+    window.addEventListener('resize',function(){if(window.innerWidth===lastWidth)return;lastWidth=window.innerWidth;closeAll(true);render();});
+    window.addEventListener('scroll',function once(){userScrolled=true;window.removeEventListener('scroll',once);watchMore();},{passive:true});
+    document.addEventListener('click',function(e){
+      var grid=getInventoryGrid(), card=e.target&&e.target.closest?e.target.closest('.w-dyn-item'):null;
+      if(!grid||!card||!grid.contains(card))return;
+      var href=cardHref(card);if(href)saveReturn(href,card.getBoundingClientRect().top);
+    },true);
   }
   function closeAll(force){if(!force&&bsLock)return;document.querySelectorAll('.bs-drop').forEach(function(d){d.classList.remove('bs-open');});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inject); else setTimeout(inject,300);
