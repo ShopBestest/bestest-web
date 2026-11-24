@@ -744,11 +744,13 @@
       'I’d like to know if the ' + longName + ' listed on Bestest' +
       (priceStr ? ' for ' + priceStr : '') + ' is still available.';
 
-    // Personalize the confirmation: name the car, then sell the dealer's vetting.
+    // Confirmation (11/23 v2, lead desk): every lead goes to the dealer, but for most dealers
+    // Jason sends it by hand, so the page promises the email that confirms it's with them,
+    // with no time promise. One message for every car (the page's own notice covers likely-sold).
+    backdrop.querySelector('.bstlf-done h3').textContent = 'Got it';
     backdrop.querySelector('.bstlf-done p').textContent =
-      'We’ve sent your interest in this ' + shortName + ' to ' + (dealer || 'the dealer') +
-      ', a factory-authorized, Bestest-approved Orange County dealer. Expect them to get back to ' +
-      'you shortly. Thanks for using Bestest!';
+      'We’re sending your message to ' + (dealer || 'the dealer') +
+      ', and we’ll email you as soon as it’s with them.';
 
     backdrop.classList.add('bstlf-open');
     // Grow the message box to fit the prefilled sentence (it was clipped mid-line).
