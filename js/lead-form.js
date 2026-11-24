@@ -196,7 +196,7 @@
        sold-car page uses (not-found.js): Bestest's count = live feed cars of this make and model, the county
        count = the weekly OC facet. The feed Worker's ?award does the counting (11/17). placeAward waits for
        it (up to FUNNEL_WAIT_MS). */
-    if (!dd.funnel && dd.make && dd.model) {
+    if (!dd.funnel && dd.make && dd.model && !servedAward()) {
       funnelPending = true;
       liveFunnel(dd, function (f) {
         funnelPending = false;
@@ -251,7 +251,17 @@
       }, function () { cb(null); });
   }
 
+  // The pipeline serves the award sentence as text at the top of the facts section (hidden; 11/24, Jason: "make the
+  // gold panel readable"). When it is there the panel shows that exact markup, so the words a crawler reads and the
+  // words in the panel are one string, and nothing is counted in the browser.
+  function servedAward() {
+    var p = document.querySelector('.bst-facts .bst-award-served');
+    return p ? p.innerHTML.trim() : '';
+  }
+
   function awardHtml(dd) {
+    var served = servedAward();
+    if (served) return served;
     var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
     var f = dd.funnel, c = dd.claim, noun = '';
     var m = c && c.kind === 'model' && c.text && String(c.text).match(/best (used .+?) for sale in/);
