@@ -1256,18 +1256,16 @@
       var sec = section('bstb-funnel', nodes);
       var h2 = sec.querySelector('h2');
       h2.className = 'bstb-h2';
-      var pct = Math.max(f.listed / f.oc_total * 100, 9);
-      var label = f.oc_total + ' used ' + l.make + ' ' + plural(l.model) + ' for sale at Orange County dealers: '
-        + f.listed + ' on Bestest, ' + f.rejected + ' rejected';
-      h2.insertAdjacentHTML('afterend', '<div class="bstb-bar" role="img" aria-label="' + escapeHtml(label) + '">'
-        + '<div class="bstb-f1" style="width:' + pct.toFixed(1) + '%">' + f.listed + '</div>'
-        + '<div class="bstb-f2">' + f.rejected + ' rejected</div></div>');
+      /* 11/24 (Jason): the gold panel at the top already gives "N of M", so this card no longer repeats the ratio as its
+         headline or draws the two-colour bar. The heading names the list under it; the served HTML (.bst-vdp-body, hidden)
+         keeps the dated ratio sentence, the only copy of that number a crawler reads, since the panel is built by script. */
+      h2.textContent = 'How this ' + (l.variant_model || l.model || 'one') + ' made the cut';
       var how = document.createElement('div');
       how.className = 'bstb-how';
       nodes.slice(1).forEach(function (n) { how.appendChild(n); });
       sec.appendChild(how);
       var first = how.querySelector('p');
-      if (first && first.querySelector('strong') && first.textContent.trim() === first.querySelector('strong').textContent.trim()) first.className = 'bstb-how-h';
+      if (first && first.querySelector('strong') && first.textContent.trim() === first.querySelector('strong').textContent.trim()) first.parentNode.removeChild(first);
       return sec;
     }
 
