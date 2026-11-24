@@ -48,6 +48,8 @@
 .bs-pbtn:disabled { opacity:.35; cursor:default; }
 .bs-pbtn.bs-ellipsis { border:none; cursor:default; min-width:20px; }
 .bs-pbtn.bs-ellipsis:hover { border:none; }
+.bs-proof { margin:8px 0 2px; font:600 12.5px/1.45 Montserrat,sans-serif; color:#155539; }
+.bs-proof span { display:block; font-weight:500; color:#4a5160; }
 .bs-more { display:block; width:100%; max-width:320px; padding:12px; border:1px solid #e0e0e0; border-radius:8px; background:#fff; font-size:14px; color:#1a1a1a; cursor:pointer; margin:24px auto 0; }
 .bs-more:hover { border-color:#999; }
 .w-pagination-wrapper { display:none !important; }

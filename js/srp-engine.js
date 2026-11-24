@@ -1,4 +1,4 @@
-(function(){if(document.getElementById('srp-engine-styles'))return;var s=document.createElement('style');s.id='srp-engine-styles';s.textContent=".bs-bar { width: 100%; padding: 8px 0 4px; min-height: 77px; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; }\n@media (max-width: 600px) { .bs-bar { min-height: 90px; } }\n.bs-progress { position:fixed; top:0; left:0; right:0; height:3px; background:transparent; z-index:99999; pointer-events:none; opacity:0; transition:opacity .25s ease; overflow:hidden; }\n.bs-progress.bs-show { opacity:1; }\n.bs-progress-fill { height:100%; width:0%; background:#217b49; transition:width .35s cubic-bezier(.25,.46,.45,.94); box-shadow:0 0 8px rgba(33,123,73,.5); }\n.bs-progress.bs-indeterminate .bs-progress-fill { width:30%; animation:bs-progress-slide 1.4s ease-in-out infinite; transition:none; }\n@keyframes bs-progress-slide { 0% { transform:translateX(-100%); } 100% { transform:translateX(400%); } }\n.bs-pills { display:flex; align-items:center; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }\n.bs-pills::-webkit-scrollbar { display:none; }\n.bs-pw { position:relative; flex-shrink:0; }\n.bs-pill { display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border:1px solid #d0d0d0; border-radius:20px; font-size:11px; color:#1a1a1a; background:#fff; white-space:nowrap; cursor:pointer; user-select:none; transition:border-color .15s,background .15s; }\n.bs-pill:hover { border-color:#999; }\n.bs-pill.bs-active { background:#1a1a1a; color:#fff; border-color:#1a1a1a; }\n.bs-meta { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 14px; line-height:1.4; margin-top:6px; min-height:16px; } @media (max-width: 767px) { .bs-meta { justify-content:space-between; } }\n.bs-count { font-size:11px; color:#6b7280; opacity:0; transition:opacity .2s ease; white-space:nowrap; }\n.bs-count.bs-ready { opacity:1; }\n.bs-clearall { display:none; flex-shrink:0; font-family:inherit; font-size:11px; font-weight:500; line-height:1.15; color:#6b7280; cursor:pointer; background:none; border:none; padding:0 2px 0 0; margin:0; text-align:left; text-decoration:none; white-space:nowrap; }\n.bs-clearall:hover { color:#1a1a1a; }\n.bs-clearall.bs-vis { display:inline-block; }\n.bs-chips { display:contents; }\n.bs-chip { display:inline-flex; align-items:center; gap:5px; flex-shrink:0; padding:5px 11px; border:1px solid #217b49; background:#e8f5ee; color:#155539; font-family:inherit; font-size:11px; font-weight:600; line-height:normal; border-radius:20px; white-space:nowrap; cursor:pointer; }\n.bs-chip:hover { border-color:#155539; }\n.bs-chip .bs-chip-x { font-size:10px; line-height:1; }\n.bs-pw.bs-hidden { display:none; }\n.bs-drop { position:fixed; background:#fff; border:1px solid #e0e0e0; border-radius:12px; padding:16px; min-width:240px; max-width:320px; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,.08); display:none; }\n.bs-drop.bs-open { display:block; }\n.bs-drop-segment { min-width:300px; max-width:380px; }\n.bs-drop-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#6b7280; margin:0 0 10px; }\n.bs-opts { display:grid; grid-auto-flow:column; grid-template-columns:1fr 1fr; grid-template-rows:repeat(12,auto); gap:4px 12px; max-height:260px; overflow-y:auto; overflow-x:hidden; }\n@media (max-width:600px){ .bs-opts { grid-template-columns:1fr; grid-template-rows:none; grid-auto-flow:row; } }\n.bs-opts.bs-1col { column-count:1; }\n.bs-opt { display:flex; align-items:flex-start; gap:7px; font-size:13px; color:#1a1a1a; cursor:pointer; padding:3px 0; line-height:1.4; break-inside:avoid; -webkit-column-break-inside:avoid; }\n.bs-opt input { width:14px; height:14px; cursor:pointer; flex-shrink:0; margin-top:2px; accent-color:#1a1a1a; }\n.bs-opt.bs-disabled { opacity:.35; cursor:not-allowed; pointer-events:none; }\n.bs-opt.bs-hidden { display:none; }\n.bs-eg { font-size:11px; color:#6b7280; display:block; }\n.bs-model-group, .bs-seg-group { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#6b7280; padding:8px 0 4px; border-bottom:1px solid #f0f0f0; margin-bottom:2px; }\n.bs-model-group:first-child, .bs-seg-group:first-child { padding-top:0; }\n.bs-empty-msg { font-size:12px; color:#6b7280; padding:8px 4px; line-height:1.5; }\n.bs-foot { margin-top:12px; display:flex; gap:8px; }\n.bs-apply { flex:1; padding:8px; background:#1a1a1a; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; }\n.bs-reset { padding:8px 12px; background:none; color:#6b7280; border:1px solid #e0e0e0; border-radius:8px; font-size:13px; cursor:pointer; }\n.bs-sort-opt { padding:9px 10px; font-size:13px; color:#1a1a1a; cursor:pointer; border-radius:6px; transition:background .1s; display:flex; align-items:center; gap:8px; }\n.bs-sort-opt:hover { background:#f5f5f5; }\n.bs-sort-opt.bs-sel { font-weight:600; }\n.bs-sort-opt.bs-sel::before { content:'\\2713  '; }\n.bs-pag { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:32px; padding-bottom:16px; flex-wrap:wrap; width:100%; }\n.bs-pbtn { min-width:36px; height:36px; padding:0 10px; border:1px solid #e0e0e0; border-radius:8px; background:#fff; font-size:13px; color:#1a1a1a; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color .15s; }\n.bs-pbtn:hover { border-color:#999; }\n.bs-pbtn.bs-cur { background:#1a1a1a; color:#fff; border-color:#1a1a1a; }\n.bs-pbtn:disabled { opacity:.35; cursor:default; }\n.bs-pbtn.bs-ellipsis { border:none; cursor:default; min-width:20px; }\n.bs-pbtn.bs-ellipsis:hover { border:none; }\n.bs-more { display:block; width:100%; max-width:320px; padding:12px; border:1px solid #e0e0e0; border-radius:8px; background:#fff; font-size:14px; color:#1a1a1a; cursor:pointer; margin:24px auto 0; }\n.bs-more:hover { border-color:#999; }\n.w-pagination-wrapper { display:none !important; }\n.bs-total-count { display:none !important; }\n.w-dyn-list { width:100% !important; }\n.w-dyn-items { width:100% !important; min-width:0 !important; grid-template-columns:repeat(3,1fr) !important; }\n@media (max-width:767px) { .w-dyn-items { grid-template-columns:repeat(2,1fr) !important; } }\n@media (max-width:479px) { .w-dyn-items { grid-template-columns:1fr !important; } }\n.w-dyn-item { min-width:0 !important; display:flex !important; flex-direction:column !important; }\n.w-dyn-item.bs-hidden { display:none !important; }\n.car-card { height:100% !important; box-sizing:border-box !important; min-width:0 !important; cursor:pointer !important; }\n.listing-image { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; height: 100%; background: #f0f0f0; }\n.car-card .w-button { width:100% !important; box-sizing:border-box !important; white-space:normal !important; }\n.car-listing-button { background:#217b49 !important; }\n";(document.head||document.documentElement).appendChild(s);})();
+(function(){if(document.getElementById('srp-engine-styles'))return;var s=document.createElement('style');s.id='srp-engine-styles';s.textContent=".bs-bar { width: 100%; padding: 8px 0 4px; min-height: 77px; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; }\n@media (max-width: 600px) { .bs-bar { min-height: 90px; } }\n.bs-progress { position:fixed; top:0; left:0; right:0; height:3px; background:transparent; z-index:99999; pointer-events:none; opacity:0; transition:opacity .25s ease; overflow:hidden; }\n.bs-progress.bs-show { opacity:1; }\n.bs-progress-fill { height:100%; width:0%; background:#217b49; transition:width .35s cubic-bezier(.25,.46,.45,.94); box-shadow:0 0 8px rgba(33,123,73,.5); }\n.bs-progress.bs-indeterminate .bs-progress-fill { width:30%; animation:bs-progress-slide 1.4s ease-in-out infinite; transition:none; }\n@keyframes bs-progress-slide { 0% { transform:translateX(-100%); } 100% { transform:translateX(400%); } }\n.bs-pills { display:flex; align-items:center; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }\n.bs-pills::-webkit-scrollbar { display:none; }\n.bs-pw { position:relative; flex-shrink:0; }\n.bs-pill { display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border:1px solid #d0d0d0; border-radius:20px; font-size:11px; color:#1a1a1a; background:#fff; white-space:nowrap; cursor:pointer; user-select:none; transition:border-color .15s,background .15s; }\n.bs-pill:hover { border-color:#999; }\n.bs-pill.bs-active { background:#1a1a1a; color:#fff; border-color:#1a1a1a; }\n.bs-meta { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 14px; line-height:1.4; margin-top:6px; min-height:16px; } @media (max-width: 767px) { .bs-meta { justify-content:space-between; } }\n.bs-count { font-size:11px; color:#6b7280; opacity:0; transition:opacity .2s ease; white-space:nowrap; }\n.bs-count.bs-ready { opacity:1; }\n.bs-clearall { display:none; flex-shrink:0; font-family:inherit; font-size:11px; font-weight:500; line-height:1.15; color:#6b7280; cursor:pointer; background:none; border:none; padding:0 2px 0 0; margin:0; text-align:left; text-decoration:none; white-space:nowrap; }\n.bs-clearall:hover { color:#1a1a1a; }\n.bs-clearall.bs-vis { display:inline-block; }\n.bs-chips { display:contents; }\n.bs-chip { display:inline-flex; align-items:center; gap:5px; flex-shrink:0; padding:5px 11px; border:1px solid #217b49; background:#e8f5ee; color:#155539; font-family:inherit; font-size:11px; font-weight:600; line-height:normal; border-radius:20px; white-space:nowrap; cursor:pointer; }\n.bs-chip:hover { border-color:#155539; }\n.bs-chip .bs-chip-x { font-size:10px; line-height:1; }\n.bs-pw.bs-hidden { display:none; }\n.bs-drop { position:fixed; background:#fff; border:1px solid #e0e0e0; border-radius:12px; padding:16px; min-width:240px; max-width:320px; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,.08); display:none; }\n.bs-drop.bs-open { display:block; }\n.bs-drop-segment { min-width:300px; max-width:380px; }\n.bs-drop-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#6b7280; margin:0 0 10px; }\n.bs-opts { display:grid; grid-auto-flow:column; grid-template-columns:1fr 1fr; grid-template-rows:repeat(12,auto); gap:4px 12px; max-height:260px; overflow-y:auto; overflow-x:hidden; }\n@media (max-width:600px){ .bs-opts { grid-template-columns:1fr; grid-template-rows:none; grid-auto-flow:row; } }\n.bs-opts.bs-1col { column-count:1; }\n.bs-opt { display:flex; align-items:flex-start; gap:7px; font-size:13px; color:#1a1a1a; cursor:pointer; padding:3px 0; line-height:1.4; break-inside:avoid; -webkit-column-break-inside:avoid; }\n.bs-opt input { width:14px; height:14px; cursor:pointer; flex-shrink:0; margin-top:2px; accent-color:#1a1a1a; }\n.bs-opt.bs-disabled { opacity:.35; cursor:not-allowed; pointer-events:none; }\n.bs-opt.bs-hidden { display:none; }\n.bs-eg { font-size:11px; color:#6b7280; display:block; }\n.bs-model-group, .bs-seg-group { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#6b7280; padding:8px 0 4px; border-bottom:1px solid #f0f0f0; margin-bottom:2px; }\n.bs-model-group:first-child, .bs-seg-group:first-child { padding-top:0; }\n.bs-empty-msg { font-size:12px; color:#6b7280; padding:8px 4px; line-height:1.5; }\n.bs-foot { margin-top:12px; display:flex; gap:8px; }\n.bs-apply { flex:1; padding:8px; background:#1a1a1a; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; }\n.bs-reset { padding:8px 12px; background:none; color:#6b7280; border:1px solid #e0e0e0; border-radius:8px; font-size:13px; cursor:pointer; }\n.bs-sort-opt { padding:9px 10px; font-size:13px; color:#1a1a1a; cursor:pointer; border-radius:6px; transition:background .1s; display:flex; align-items:center; gap:8px; }\n.bs-sort-opt:hover { background:#f5f5f5; }\n.bs-sort-opt.bs-sel { font-weight:600; }\n.bs-sort-opt.bs-sel::before { content:'\\2713  '; }\n.bs-pag { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:32px; padding-bottom:16px; flex-wrap:wrap; width:100%; }\n.bs-pbtn { min-width:36px; height:36px; padding:0 10px; border:1px solid #e0e0e0; border-radius:8px; background:#fff; font-size:13px; color:#1a1a1a; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color .15s; }\n.bs-pbtn:hover { border-color:#999; }\n.bs-pbtn.bs-cur { background:#1a1a1a; color:#fff; border-color:#1a1a1a; }\n.bs-pbtn:disabled { opacity:.35; cursor:default; }\n.bs-pbtn.bs-ellipsis { border:none; cursor:default; min-width:20px; }\n.bs-pbtn.bs-ellipsis:hover { border:none; }\n.bs-proof { margin:8px 0 2px; font:600 12.5px/1.45 Montserrat,sans-serif; color:#155539; }\n.bs-proof span { display:block; font-weight:500; color:#4a5160; }\n.bs-more { display:block; width:100%; max-width:320px; padding:12px; border:1px solid #e0e0e0; border-radius:8px; background:#fff; font-size:14px; color:#1a1a1a; cursor:pointer; margin:24px auto 0; }\n.bs-more:hover { border-color:#999; }\n.w-pagination-wrapper { display:none !important; }\n.bs-total-count { display:none !important; }\n.w-dyn-list { width:100% !important; }\n.w-dyn-items { width:100% !important; min-width:0 !important; grid-template-columns:repeat(3,1fr) !important; }\n@media (max-width:767px) { .w-dyn-items { grid-template-columns:repeat(2,1fr) !important; } }\n@media (max-width:479px) { .w-dyn-items { grid-template-columns:1fr !important; } }\n.w-dyn-item { min-width:0 !important; display:flex !important; flex-direction:column !important; }\n.w-dyn-item.bs-hidden { display:none !important; }\n.car-card { height:100% !important; box-sizing:border-box !important; min-width:0 !important; cursor:pointer !important; }\n.listing-image { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; height: 100%; background: #f0f0f0; }\n.car-card .w-button { width:100% !important; box-sizing:border-box !important; white-space:normal !important; }\n.car-listing-button { background:#217b49 !important; }\n";(document.head||document.documentElement).appendChild(s);})();
 // Early image hydration for the server-rendered first-page cards: runs immediately on
 // script execute (post-HTML-parse via defer). The server markup ships a placeholder SVG in
 // the <img> and the real Cloudinary URL in a sibling .hero_image_url text node, so swap the
@@ -28,6 +28,72 @@
   // unfiltered view page 1 keeps these cars in this order and the server cards stay in place, so the first paint
   // is the settled page (11/14: no card swap, no second photo download; crawlers and shoppers see the same page 1).
   var SERVER_RANK={}, SERVER_COUNT=0, firstRender=true;
+  // ── Hybrid scroll + return-to-place (2026-11-23, Jason) ─────────────────────
+  // Phones: more cards load on their own as the shopper nears the end of the list, for the first AUTO_BATCHES
+  // batches (72 cars); after that the "Show N more" button takes over, so the content under the grid stays
+  // reachable. New cards are appended, never re-rendered, so nothing above them moves or reloads.
+  // Back from a car page (browser Back or the VDP's "Search results" crumb, which is history.back()) lands on
+  // the same card at the same height: the list depth, page and the card's position are saved on the way out.
+  var AUTO_BATCHES=3, appendFrom=-1, moreObserver=null, userScrolled=false, lastWidth=window.innerWidth;
+  var RETURN_KEY='bs_return_v1', RETURN_TTL_MS=30*60*1000, pendingReturn=null;
+  function returnPath(){return window.location.pathname+window.location.search;}
+  function navType(){try{var n=performance.getEntriesByType('navigation')[0];return n?n.type:'';}catch(e){return '';}}
+  function readReturn(){try{var raw=sessionStorage.getItem(RETURN_KEY);if(!raw)return null;var p=JSON.parse(raw);if(!p||p.path!==returnPath()||Date.now()-p.t>RETURN_TTL_MS)return null;return p;}catch(e){return null;}}
+  function saveReturn(href,top){try{sessionStorage.setItem(RETURN_KEY,JSON.stringify({path:returnPath(),href:href||'',top:typeof top==='number'?Math.round(top):null,shown:state.shown,page:state.page,y:Math.round(window.pageYOffset),t:Date.now()}));}catch(e){}}
+  function clearReturn(){try{sessionStorage.removeItem(RETURN_KEY);}catch(e){}}
+  function restorePlace(p){
+    var container=getInventoryGrid(), target=null;
+    if(container&&p.href){var items=container.querySelectorAll('.w-dyn-item');for(var i=0;i<items.length;i++){if(cardHref(items[i])===p.href){target=items[i];break;}}}
+    var touched=false, stop=function(){touched=true;};
+    window.addEventListener('touchstart',stop,{passive:true,once:true});window.addEventListener('wheel',stop,{passive:true,once:true});
+    function go(){
+      if(touched)return;
+      if(target&&document.body.contains(target)){var y=target.getBoundingClientRect().top+window.pageYOffset-(typeof p.top==='number'?p.top:120);window.scrollTo(0,Math.max(0,y));}
+      else window.scrollTo(0,p.y||0);
+    }
+    go();
+    if(window.requestAnimationFrame)window.requestAnimationFrame(go);
+    setTimeout(go,350);   // once more after images and late blocks above the grid settle
+  }
+  function loadMore(){appendFrom=state.shown;state.shown+=MOBILE_PER_PAGE;render();}
+  // Card proof lines (decision hubs, 2026-11-23). A hub's server HTML carries a list of every car it covers
+  // (#bs-hub-list): the list's data-lines holds the distinct lines, each row's data-p the indexes of that car's
+  // lines ("0,7"). The same facts the no-JS list carries go on the card, under the name. Pages without the list
+  // are untouched.
+  var proofMap=null;
+  function loadProof(){
+    proofMap={};
+    var t=document.getElementById('bs-hub-list');if(!t)return;
+    var lines;try{lines=JSON.parse(t.getAttribute('data-lines')||'[]');}catch(e){return;}
+    var rows=t.querySelectorAll('[data-p]');
+    for(var i=0;i<rows.length;i++){
+      var a=rows[i].querySelector('a[href^="/used/"]');if(!a)continue;
+      var out=[];rows[i].getAttribute('data-p').split(',').forEach(function(x){var l=lines[parseInt(x,10)];if(l)out.push(l);});
+      if(out.length)proofMap[a.getAttribute('href')]=out;
+    }
+  }
+  function decorateProof(cards){
+    if(proofMap===null)loadProof();
+    for(var i=0;i<cards.length;i++){
+      var c=cards[i];if(c.querySelector('.bs-proof'))continue;
+      var p=proofMap[cardHref(c)];if(!p)continue;
+      var before=c.querySelector('.text-block-4')||c.querySelector('.price');if(!before)continue;
+      var el=document.createElement('div');el.className='bs-proof';el.appendChild(document.createTextNode(p[0]+' '));
+      if(p.length>1){var sp=document.createElement('span');sp.textContent=p.slice(1).join(' · ');el.appendChild(sp);}
+      before.parentNode.insertBefore(el,before);
+    }
+  }
+  // Watch the "more" button and load the next batch as it nears the screen. Only inside the first AUTO_BATCHES
+  // batches, and never before the shopper has scrolled at all (the first scroll calls this again).
+  function watchMore(){
+    if(moreObserver){moreObserver.disconnect();moreObserver=null;}
+    var btn=document.getElementById('bs-more');
+    if(!btn||!userScrolled||state.shown>=AUTO_BATCHES*MOBILE_PER_PAGE||!('IntersectionObserver' in window))return;
+    moreObserver=new IntersectionObserver(function(entries){
+      for(var i=0;i<entries.length;i++){if(entries[i].isIntersecting){loadMore();return;}}
+    },{rootMargin:'0px 0px 900px 0px'});
+    moreObserver.observe(btn);
+  }
   (function(){var seen={};[].forEach.call(document.querySelectorAll('.collection-list-2 .w-dyn-item'),function(it){var a=it.querySelector('a[href^="/used/"]');var h=a&&a.getAttribute('href');if(h&&!(h in seen)){seen[h]=1;SERVER_RANK[h]=SERVER_COUNT++;}});})();
   function cardHref(it){var a=it.querySelector('a[href^="/used/"]');return a?a.getAttribute('href'):'';}
   var SEGMENT_TO_SLUG={'Compact Car':'/used-cars/best-used-compact-cars','Midsize/Full-size Car':'/used-cars/best-used-midsize-cars','Subcompact SUV':'/used-cars/best-used-subcompact-suvs','Compact SUV':'/used-cars/best-used-compact-suvs','Midsize SUV':'/used-cars/best-used-midsize-suvs','Full-Size SUV':'/used-cars/best-used-full-size-suvs','Compact/Midsize Truck':'/used-cars/best-used-midsize-trucks','Full-Size Truck':'/used-cars/best-used-full-size-trucks',Minivan:'/used-cars/best-used-minivans','Electric Vehicles':'/used-cars/best-used-electric-vehicles',Hybrids:'/used-cars/best-used-hybrids','Luxury Small Car':'/used-cars/best-used-luxury-small-cars','Luxury Midsize Car':'/used-cars/best-used-luxury-midsize-cars','Luxury Full-Size Car':'/used-cars/best-used-luxury-full-size-cars','Luxury Subcompact SUV':'/used-cars/best-used-luxury-subcompact-suvs','Luxury Compact SUV':'/used-cars/best-used-luxury-compact-suvs','Luxury Midsize SUV':'/used-cars/best-used-luxury-midsize-suvs','Luxury Full-Size SUV':'/used-cars/best-used-luxury-full-size-suvs'};
@@ -418,6 +484,14 @@
     PER_PAGE=24;MOBILE_PER_PAGE=PER_PAGE;
     state.shown=MOBILE_PER_PAGE;
     readURLParams();
+    if(navType()==='back_forward'){
+      pendingReturn=readReturn();
+      if(pendingReturn){
+        state.shown=Math.max(MOBILE_PER_PAGE,parseInt(pendingReturn.shown,10)||MOBILE_PER_PAGE);
+        state.page=Math.max(1,parseInt(pendingReturn.page,10)||1);
+        try{window.history.scrollRestoration='manual';}catch(e){}
+      }
+    } else clearReturn();
     dynList.insertAdjacentHTML('beforebegin',buildHTML());
     setup();
     urlSyncReady=true;
@@ -429,8 +503,8 @@
     if(!feedReady)return; // keep server-rendered cards until the feed is in
     var visible;
     if(mobile)visible=filtered.slice(0,state.shown);
-    else {var s=(state.page-1)*PER_PAGE;visible=filtered.slice(s,s+PER_PAGE);}
-    var keep=false;
+    else {if((state.page-1)*PER_PAGE>=filtered.length)state.page=1;var s=(state.page-1)*PER_PAGE;visible=filtered.slice(s,s+PER_PAGE);}
+    var keep=false, from=appendFrom;appendFrom=-1;
     // First render only, page 1, the page's own default sort (city pages: nearest to the city centre, which is the
     // order the template's list is already in): keep the server cards when they are exactly this page. The card-by-card
     // href check is the guard, so a shared link with filters or a different sort still renders fresh (11/14).
@@ -440,7 +514,13 @@
       if(keep)for(var x=server.length-1;x>=visible.length;x--)server[x].parentNode.removeChild(server[x]);
     }
     firstRender=false;
-    if(!keep){
+    // "More" on a phone appends the new cards; everything already on screen stays as it is.
+    var append=!keep&&mobile&&from>0&&from<visible.length&&container.querySelectorAll('.w-dyn-item').length===from;
+    if(append){
+      var more='';
+      for(var a=from;a<visible.length;a++)more+=cardHTML(visible[a]);
+      container.insertAdjacentHTML('beforeend',more);
+    } else if(!keep){
       var html='';
       for(var i=0;i<visible.length;i++)html+=cardHTML(visible[i]);
       container.innerHTML=html;
@@ -451,10 +531,12 @@
     // Re-applied every render since filter/sort changes which card is first.
     for(var j=0;j<cards.length;j++){var img=cards[j].querySelector('.listing-image');if(img){if(j===0){img.loading='eager';img.setAttribute('fetchpriority','high');}else{img.loading='lazy';img.removeAttribute('fetchpriority');}}}
     makeCardsClickable(cards);
+    decorateProof(cards);
     if(window.BestestDistance&&typeof window.BestestDistance.refresh==='function')window.BestestDistance.refresh();
     updateCount();updatePills();renderPag(mobile);
     try{document.dispatchEvent(new CustomEvent('bestest:render'));}catch(e){}   // bsx-band re-syncs its model chips
     injectItemListSchema(visible);
+    if(pendingReturn){var back=pendingReturn;pendingReturn=null;restorePlace(back);}
   }
   // ItemList JSON-LD for the rendered page of results. The SRP is client-rendered,
   // so schema injected here is exactly what Google's renderer indexes; refreshed on
@@ -483,14 +565,16 @@
   function renderPag(mobile){
     var old=document.getElementById('bs-pag');if(old)old.remove();
     var oldMore=document.getElementById('bs-more');if(oldMore)oldMore.remove();
+    if(moreObserver){moreObserver.disconnect();moreObserver=null;}
     var anchor=getInventoryList();if(!anchor)return;
     if(mobile){
       if(state.shown<filtered.length){
         var btn=document.createElement('button');btn.id='bs-more';btn.className='bs-more';
         var remaining=filtered.length-state.shown;
         btn.textContent='Show '+Math.min(remaining,MOBILE_PER_PAGE)+' more';
-        btn.onclick=function(){state.shown+=MOBILE_PER_PAGE;render();};
+        btn.onclick=loadMore;
         anchor.after(btn);
+        watchMore();
       }
       return;
     }
@@ -609,7 +693,14 @@
     },true);
     window.addEventListener('popstate',function(){readURLParams();syncCheckboxesToState();refilterPreservingState();state.page=1;state.shown=MOBILE_PER_PAGE;render();});
     window.addEventListener('scroll',function(){var openDrop=document.querySelector('.bs-drop.bs-open');if(!openDrop)return;var f=openDrop.id.replace('bsd-','');var pill=document.getElementById('bsp-'+f);if(pill)positionDrop(openDrop,pill);},true);
-    window.addEventListener('resize',function(){closeAll(true);render();});
+    // A phone's address bar showing or hiding fires resize with the same width: nothing to re-lay-out.
+    window.addEventListener('resize',function(){if(window.innerWidth===lastWidth)return;lastWidth=window.innerWidth;closeAll(true);render();});
+    window.addEventListener('scroll',function once(){userScrolled=true;window.removeEventListener('scroll',once);watchMore();},{passive:true});
+    document.addEventListener('click',function(e){
+      var grid=getInventoryGrid(), card=e.target&&e.target.closest?e.target.closest('.w-dyn-item'):null;
+      if(!grid||!card||!grid.contains(card))return;
+      var href=cardHref(card);if(href)saveReturn(href,card.getBoundingClientRect().top);
+    },true);
   }
   function closeAll(force){if(!force&&bsLock)return;document.querySelectorAll('.bs-drop').forEach(function(d){d.classList.remove('bs-open');});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inject); else setTimeout(inject,300);
