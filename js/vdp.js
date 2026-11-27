@@ -1213,7 +1213,14 @@
       return true;   // 10/27: on for every car with a block (was: TEST_SLUGS or ?bstb=1)
     }
 
-    function plural(name) { return name + 's'; }
+    /* The site's one model-plural rule (lead-form.js modelPlural, vdp_facts.model_plural): 'CR-Vs', '3 Series',
+       'ES models', 'Priuses'. 11/27: the block now reaches every class, where name + 's' gave '3 Seriess'. */
+    function plural(name) {
+      var md = String(name || ''), last = md.split(/\s/).pop();
+      if (/series$/i.test(md)) return md;
+      if (/^[A-Z]{2,3}$/.test(last) || last === 'S') return md + ' models';
+      return /(s|x|z|ch|sh)$/.test(md) ? md + 'es' : md + 's';
+    }
     function ordinal(n) {
       n = Math.round(n);
       var t = n % 100 >= 10 && n % 100 <= 20 ? 'th' : ({1: 'st', 2: 'nd', 3: 'rd'})[n % 10] || 'th';
