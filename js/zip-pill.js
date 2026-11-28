@@ -171,9 +171,13 @@
       // 2026-11-25: plus one event, so the band reaches GA4 in this session. Without it a one-page
       // visit (most first-touch research readers) sent only the head's page_view, banded "unknown".
       // Fires once per browser (and on a real band change); not a key event, so engagement is untouched.
+      // 2026-11-27: the band also rides on the event itself. The head passes
+      // user_properties {audience:'unknown'} inside gtag('config'), and config-level values
+      // beat a later gtag('set'), so from 11/26 every audience_set landed as "unknown".
+      // Event-level parameters beat config, so this one carries the real band.
       if (typeof window.gtag === 'function') {
         window.gtag('set', 'user_properties', { audience: band });
-        window.gtag('event', 'audience_set', { band: band });
+        window.gtag('event', 'audience_set', { band: band, user_properties: { audience: band } });
       }
     } catch (e) {}
   }
